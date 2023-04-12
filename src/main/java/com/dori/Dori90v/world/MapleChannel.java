@@ -1,15 +1,20 @@
 package com.dori.Dori90v.world;
 
 import com.dori.Dori90v.client.MapleClient;
+import com.dori.Dori90v.client.character.MapleAccount;
 import com.dori.Dori90v.client.character.MapleChar;
+import com.dori.Dori90v.connection.packet.OutPacket;
 import com.dori.Dori90v.constants.ServerConstants;
 import com.dori.Dori90v.utils.MapleUtils;
 import com.dori.Dori90v.utils.utilEntities.Tuple;
+import com.dori.Dori90v.world.fieldEntities.Field;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -20,8 +25,8 @@ public class MapleChannel {
     private String name;
     private int worldId, channelId;
     private boolean adultChannel;
-//    private List<Field> fields;
-    private Map<Integer, Tuple<Byte, MapleClient>> transfers;
+    private List<Field> fields;
+    private Map<Integer, Tuple<Byte, MapleClient>> transfers;  //maybe i will do it differently :D
     private Map<Integer, MapleChar> chars = new HashMap<>();
     public final int MAX_SIZE = 1000;
 
@@ -31,7 +36,7 @@ public class MapleChannel {
         this.channelId = channelId;
         this.adultChannel = adultChannel;
         this.port = ServerConstants.LOGIN_PORT + 100 + channelId;
-//        this.fields = new CopyOnWriteArrayList<>();
+        this.fields = new ArrayList<>();
         this.transfers = new HashMap<>();
     }
 
@@ -45,7 +50,7 @@ public class MapleChannel {
         this.channelId = channelId;
         this.adultChannel = false;
         this.port = ServerConstants.LOGIN_PORT + (100 * worldId) + channelId;
-//        this.fields = new CopyOnWriteArrayList<>();
+        this.fields = new ArrayList<>();
         this.transfers = new HashMap<>();
     }
 
@@ -84,20 +89,20 @@ public class MapleChannel {
         return MapleUtils.findWithPred(getChars().values(), chr -> chr.getName().equals(name));
     }
 
-//    public Account getAccountByID(int accID) {
-//        for (Char chr : getChars().values()) {
-//            if (chr.getAccId() == accID) {
-//                return chr.getAccount();
-//            }
-//        }
-//        return null;
-//    }
-//
-//    public void broadcastPacket(OutPacket outPacket) {
-//        for (Char chr : getChars().values()) {
-//            chr.write(outPacket);
-//        }
-//    }
+    public MapleAccount getAccountByID(int accID) {
+        for (MapleChar chr : getChars().values()) {
+            if (chr.getAccountID() == accID) {
+                return chr.getMapleClient().getAccount();
+            }
+        }
+        return null;
+    }
+
+    public void broadcastPacket(OutPacket outPacket) {
+        for (MapleChar chr : getChars().values()) {
+            chr.write(outPacket);
+        }
+    }
 //
 //    public void clearCache() {
 //        Set<Field> toRemove = new HashSet<>();

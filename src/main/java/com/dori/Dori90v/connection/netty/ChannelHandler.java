@@ -74,6 +74,8 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
         MapleClient c = (MapleClient) ctx.channel().attr(CLIENT_KEY).get();
         if (c != null && c.getChr() != null) {
             MapleChar chr = c.getChr();
+            // Remove the character from the list of online characters -
+            chr.getMapleClient().getMapleChannelInstance().removeChar(chr);
             ((MapleCharService)ServiceManager.getService(ServiceType.Character)).update((long) chr.getId(), chr);
         }
         else {

@@ -21,8 +21,12 @@ public interface ServerConstants {
     int WORLD_EVENT_DROP_WSE = 100;
     String WORLD_NAME = "Dori";
     String EVENT_MSG = "SpringStory";
-    String RECOMMEND_MSG = "I recommend this world to you.";
+    String RECOMMEND_MSG = "I recommend this world to you";
     String[] WORLD_SELECT_BACKGROUND_IMAGES = {"effect","ghostShip","dragonRider","adventure","golden","dualBlade","signboard","201003","201004","dual","visitors"};
+    // Auto Login stuff - (security handle)
+    boolean AUTO_LOGIN = true;
+    String AUTO_LOGIN_USERNAME = "admin";
+    String AUTO_LOGIN_PASSWORD = "admin";
     // Dir reading / reflection stuff -
     String DIR = System.getProperty("user.dir");
     String HANDLERS_DIR = DIR + "/src/main/java/com/dori/Dori90v/connection/packet/handlers";

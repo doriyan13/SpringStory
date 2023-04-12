@@ -163,6 +163,17 @@ public class MapleChar {
         }
     }
 
+    /**
+     * Writes a packet to this Char's client.
+     *
+     * @param outPacket The OutPacket to write.
+     */
+    public void write(OutPacket outPacket) {
+        if (getMapleClient() != null) {
+            getMapleClient().write(outPacket);
+        }
+    }
+
     public void encodeRank(OutPacket outPacket) {
         outPacket.encodeBool(isRanked());
         if (isRanked()) {
@@ -229,7 +240,7 @@ public class MapleChar {
         List<Integer> cWeapon = new ArrayList<>();
         // Fill Equips and possibly the CashWeapon -
         ItemUtils.fillEquipsMaps(this, charEquips, charMaskedEquips,cWeapon);
-        Integer cWeaponID = cWeapon.get(0);
+        Integer cWeaponID = cWeapon.isEmpty() ? null : cWeapon.get(0);
 
         //for -> myEquips (visible items)
         charEquips.forEach((BodyPart, itemID) -> {

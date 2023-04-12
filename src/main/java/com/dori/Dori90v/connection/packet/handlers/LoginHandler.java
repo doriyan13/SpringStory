@@ -6,6 +6,7 @@ import com.dori.Dori90v.client.character.MapleAccount;
 import com.dori.Dori90v.client.character.MapleChar;
 import com.dori.Dori90v.connection.packet.Handler;
 import com.dori.Dori90v.connection.packet.InPacket;
+import com.dori.Dori90v.connection.packet.OutPacket;
 import com.dori.Dori90v.connection.packet.packets.CLogin;
 import com.dori.Dori90v.enums.JobType;
 import com.dori.Dori90v.enums.ServiceType;
@@ -15,12 +16,14 @@ import com.dori.Dori90v.world.MapleWorld;
 import com.dori.Dori90v.constants.ServerConstants;
 import com.dori.Dori90v.enums.LoginType;
 import com.dori.Dori90v.services.MapleCharService;
+import com.dori.Dori90v.world.MigrateInUser;
 
 import java.net.InetAddress;
 import java.util.Optional;
 
 import static com.dori.Dori90v.connection.packet.headers.InHeader.*;
 import static com.dori.Dori90v.constants.GameConstants.AMOUNT_OF_CREATION_EQUIPS_FOR_CHAR;
+import static com.dori.Dori90v.constants.ServerConstants.*;
 
 public class LoginHandler {
     // Logger -
@@ -74,6 +77,19 @@ public class LoginHandler {
         //c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
     }
 
+    @Handler(op = WorldInfoRequest)
+    public static void handleWorldInfoRequest(MapleClient c, InPacket inPacket) {
+        // TODO: figure how to Set different background images - (currently this thing don't work :( )
+        //c.write(CLogin.changeWorldSelectBackgroundImg());
+
+        for (MapleWorld world : Server.getWorlds()) {
+            c.write(CLogin.sendWorldInformation(world, world.getWorldSelectMessages()));
+        }
+        c.write(CLogin.sendWorldInformationEnd());
+        c.write(CLogin.sendLatestConnectedWorld(ServerConstants.DEFAULT_WORLD_ID));
+        //c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
+    }
+
     @Handler(op = CheckUserLimit)
     public static void handleWorldStatusRequest(MapleClient c, InPacket inPacket) {
         //TODO: need to add handling for verifying amount of connected users to the world
@@ -92,15 +108,13 @@ public class LoginHandler {
         // Get the relevant Maple World -
         MapleWorld currWorld = Server.getWorldById(worldId);
 
-        if (currWorld != null && currWorld.getChannelById(channel) != null) {
+        if (currWorld != null && currWorld.getChannelById(channel) != null && loginType == 2) {
             c.setWorldId(worldId);
             c.setChannel(channel);
             c.setMapleChannelInstance(currWorld.getChannelById(channel));
             // Send select world result -
             c.write(CLogin.selectWorldResult(c.getAccount(), code));
         } else {
-            //TODO: need to see if i can find the packet to send if you got an issue -
-
             // Close the session cause there is an issue for that client -
             c.close();
         }
@@ -135,11 +149,11 @@ public class LoginHandler {
         MapleChar newChar = null;
         // Verify if the name is valid to use -
         Optional<?> existingChar = ServiceManager.getService(ServiceType.Character).getEntityByName(name);
-        if(existingChar.isEmpty()){
+        if (existingChar.isEmpty()) {
             // Attempt to create a new character -
             newChar = new MapleChar(c.getAccount().getId(), name, gender, job, subJob, charAppearance);
             c.getAccount().getCharacters().add(newChar);
-            if(newChar.getEquippedInventory().getItems().size() == AMOUNT_OF_CREATION_EQUIPS_FOR_CHAR){
+            if (newChar.getEquippedInventory().getItems().size() == AMOUNT_OF_CREATION_EQUIPS_FOR_CHAR) {
                 ((MapleCharService) ServiceManager.getService(ServiceType.Character)).addNewEntity(newChar);
                 loginType = LoginType.Success;
             }
@@ -153,14 +167,30 @@ public class LoginHandler {
         int characterID = inPacket.decodeInt();
         String macID = inPacket.decodeString(); // hardware id
         String hwID = inPacket.decodeString(); // machine id
-        try{
+        try {
             byte[] clientMachineID = InetAddress.getByName(ServerConstants.HOST_IP).getAddress();
             c.setMachineID(clientMachineID);
-            c.write(CLogin.onSelectCharacterResult(clientMachineID,c.getMapleChannelInstance().getPort(), characterID));
-        }catch (Exception e){
+            // Add Migrate in user for the server instance - (preparing for MigrateIn of a chosen character)
+            MigrateInUser migrateInUser = new MigrateInUser(c.getAccount(), c.getMapleChannelInstance(), c.getWorldId(), c.getMachineID());
+            Server.migrateInNewCharacter(c.getAccount().getId(), migrateInUser);
+            // Send character select result -
+            c.write(CLogin.onSelectCharacterResult(clientMachineID, c.getMapleChannelInstance().getPort(), characterID));
+        } catch (Exception e) {
             logger.error("The server host IP is unknown?");
             e.printStackTrace();
             c.close();
+        }
+    }
+
+    @Handler(op = CreateSecurityHandle)
+    public static void handleCreateSecurityHandle(MapleClient c, InPacket inPacket) {
+        // If it's true will auto login as admin -
+        if (AUTO_LOGIN) {
+            OutPacket outPacket = new OutPacket();
+            outPacket.encodeString(AUTO_LOGIN_USERNAME);
+            outPacket.encodeString(AUTO_LOGIN_PASSWORD);
+
+            handleLoginPassword(c, new InPacket(outPacket.getData()));
         }
     }
 }

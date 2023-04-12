@@ -23,7 +23,7 @@ public interface CStage {
             outPacket.encodeInt(i + 1); // dwType
             outPacket.encodeInt(0); // idk?
         }
-        outPacket.encodeInt(0/*channelId - 1*/); // Nexon moving mad, going sub 1 the original channel num?
+        outPacket.encodeInt(channelId - 1); // Nexon moving mad, going sub 1 the original channel num?
         outPacket.encodeInt(oldDriverID);
         outPacket.encodeByte(sNotifierMessage);
         outPacket.encodeByte(characterData);

@@ -1,5 +1,6 @@
 package com.dori.Dori90v.connection.packet.handlers;
 
+import com.dori.Dori90v.Server;
 import com.dori.Dori90v.client.MapleClient;
 import com.dori.Dori90v.client.character.MapleChar;
 import com.dori.Dori90v.connection.packet.Handler;
@@ -22,10 +23,12 @@ public class StageHandler {
     public static void handleMigrateIn(MapleClient c, InPacket inPacket) {
         int playerID = inPacket.decodeInt();
         byte adminClient = inPacket.decodeByte();
-        Optional<?> currChar = ServiceManager.getService(ServiceType.Character).getEntityById((long) playerID);
-        if(currChar.isPresent() && currChar.get() instanceof MapleChar){
-            //TODO: need to add handling to transfer clients and fix my channel not transferring correctly and fix the creation of dori data which is wrong currently..
-            c.setChr((MapleChar) currChar.get());
+        Optional<?> entity = ServiceManager.getService(ServiceType.Character).getEntityById((long) playerID);
+        if(entity.isPresent() && entity.get() instanceof MapleChar chr){ // init the chr instance cast inline
+            chr.setMapleClient(c);
+            // Handle adding a new user online -
+            Server.addNewOnlineUser(chr);
+            // Set the field for the character to spawn in -
             c.write(CStage.onSetField(c,c.getChr(), (Field) null, (short) 0, (int) c.getChannel(),
                     0,true, (byte) 1, (short) 0,
                     "", new String[]{""}));

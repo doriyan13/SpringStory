@@ -327,6 +327,7 @@ public enum InHeader {
 
     private static final List<InHeader> spam = Arrays.asList(
             UpdateScreenSetting,
+            LogoutWorld,
             UserMove
     );
 
