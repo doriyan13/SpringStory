@@ -17,7 +17,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.dori.Dori90v.enums.InventoryType.*;
@@ -224,9 +226,10 @@ public class MapleChar {
 
         Map<BodyPart, Integer> charEquips = new HashMap<>();
         Map<BodyPart, Integer> charMaskedEquips = new HashMap<>();
+        List<Integer> cWeapon = new ArrayList<>();
         // Fill Equips and possibly the CashWeapon -
-        ItemUtils.fillEquipsMaps(this, charEquips, charMaskedEquips);
-        Integer cWeapon = charMaskedEquips.get(BodyPart.CashWeapon);
+        ItemUtils.fillEquipsMaps(this, charEquips, charMaskedEquips,cWeapon);
+        Integer cWeaponID = cWeapon.get(0);
 
         //for -> myEquips (visible items)
         charEquips.forEach((BodyPart, itemID) -> {
@@ -240,7 +243,7 @@ public class MapleChar {
             outPacket.encodeInt(itemID);
         });
         outPacket.encodeByte(-1); // 0xFF
-        outPacket.encodeInt(cWeapon != null ? cWeapon : 0); // Cash weapon id ?
+        outPacket.encodeInt(cWeaponID != null ? cWeaponID : 0); // Cash weapon id ?
         // Pets -
         for (int z = 0; z < 3; z++) {
             // Always encode 3 ints, but notice you encode the pets if exists and 0 if it doesn't -

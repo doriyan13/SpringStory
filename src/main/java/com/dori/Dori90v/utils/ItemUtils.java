@@ -6,6 +6,7 @@ import com.dori.Dori90v.enums.EquipPrefix;
 import com.dori.Dori90v.inventory.Equip;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -65,7 +66,8 @@ public interface ItemUtils {
 
     static void fillEquipsMaps(MapleChar chr,
                                Map<BodyPart, Integer> charEquips,
-                               Map<BodyPart, Integer> charMaskedEquips) {
+                               Map<BodyPart, Integer> charMaskedEquips,
+                               List<Integer> cWeapon) {
         for (Equip item : chr.getEquippedInventory().getItems()) {
             BodyPart bodyPart = getBodyPartFromItem(item.getItemId());
             if(bodyPart != BodyPart.BPBase){
@@ -76,7 +78,7 @@ public interface ItemUtils {
                     charMaskedEquips.put(bodyPart,item.getItemId());
                 }
                 else if(bodyPart.getVal() == BodyPart.CashWeapon.getVal()){
-                    charMaskedEquips.put(bodyPart,item.getItemId());
+                    cWeapon.add(item.getItemId());
                 }
             }
         }
