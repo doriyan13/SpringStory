@@ -80,7 +80,7 @@ public class LoginHandler {
         }
         c.write(CLogin.sendWorldInformationEnd());
         c.write(CLogin.sendLatestConnectedWorld(ServerConstants.DEFAULT_WORLD_ID));
-        //c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
+        c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
     }
 
     @Handler(op = WorldInfoRequest)
@@ -93,7 +93,7 @@ public class LoginHandler {
         }
         c.write(CLogin.sendWorldInformationEnd());
         c.write(CLogin.sendLatestConnectedWorld(ServerConstants.DEFAULT_WORLD_ID));
-        //c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
+        c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
     }
 
     @Handler(op = CheckUserLimit)

@@ -29,7 +29,7 @@ public interface ServerConstants {
     String AUTO_LOGIN_PASSWORD = "admin";
     // Dir reading / reflection stuff -
     String DIR = System.getProperty("user.dir");
-    String HANDLERS_DIR = DIR + "/src/main/java/com/dori/Dori90v/connection/packet/handlers";
+    String HANDLERS_DIR = DIR + "/src/main/java/com/dori/SpringStory/connection/packet/handlers";
     String WZ_DIR = DIR + "/wz";
     // WZ reading stuff -
     boolean PRINT_WZ_UNK = System.getenv("PRINT_WZ_UNK") != null && Boolean.getBoolean(System.getenv("PRINT_WZ_UNK"));

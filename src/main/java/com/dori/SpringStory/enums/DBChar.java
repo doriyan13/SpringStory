@@ -25,7 +25,7 @@ public enum DBChar {
     MonsterBookCover(0x20000),
     QuestRecordEx(0x40000),
     NewYearCard(0x80000),
-    AdminShopCount(0x100000),
+    AdminShopCount(0x100000), //Not sure what it does but rlly fucks the equips encoding for some reason ?
     EquipExt(0x100000),
     WildHunterInfo(0x200000),
     QuestCompleteOld(0x400000),
@@ -41,7 +41,7 @@ public enum DBChar {
     VisitorLog3(0x4000000),
     VisitorLog4(0x8000000),
     All(-1),
-    Specific(0x1 ^ 0x2 ^ 0x80 ^ 0x100000 ^ 0x4 ^ 0x8 ^ 0x10 ^ 0x20 ^ 0x40)
+    Specific(0x1 ^ 0x2 ^ 0x80 /*^ 0x100000*/ ^ 0x4 ^ 0x8 ^ 0x10 ^ 0x20 ^ 0x40)
     ;
 
     public final long uFlag;
