@@ -186,6 +186,7 @@ public class Equip {
         encodeBaseItemData(outPacket);
         outPacket.encodeByte(tuc); // ruc ? IDK why they call it in the client ruc but in the wz it's tuc :kek
         outPacket.encodeByte(cuc);
+
         outPacket.encodeShort(iStr);
         outPacket.encodeShort(iDex);
         outPacket.encodeShort(iInt);
@@ -194,19 +195,27 @@ public class Equip {
         outPacket.encodeShort(iMaxMp);
         outPacket.encodeShort(iPad);
         outPacket.encodeShort(iMad);
+        outPacket.encodeShort(iPDD);
+        outPacket.encodeShort(iMDD);
         outPacket.encodeShort(iAcc);
         outPacket.encodeShort(iEva);
+
         outPacket.encodeShort(iCraft);
         outPacket.encodeShort(iSpeed);
         outPacket.encodeShort(iJump);
+        outPacket.encodeString(owner);
         outPacket.encodeShort(attribute);
+
         outPacket.encodeByte(levelUpType);
         outPacket.encodeByte(level);
         outPacket.encodeInt(exp);
         outPacket.encodeInt(durability);
+
         outPacket.encodeInt(iuc);
+
         outPacket.encodeByte(grade);
         outPacket.encodeByte(chuc);
+
         for (int i = 0; i < 3; i++) {
             outPacket.encodeShort(getOptions().get(i));
         }

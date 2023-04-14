@@ -52,7 +52,9 @@ public class EquipInventory {
 
     public void addItem(Equip item) {
         if(getItems().size() < getSlots()) {
-            item.setBagIndex(getFirstOpenSlot());
+            if(item.getBagIndex() == 0){
+                item.setBagIndex(getFirstOpenSlot());
+            }
             getItems().add(item);
             item.setInvType(getType());
             getItems().sort(Comparator.comparingInt(Equip::getBagIndex));

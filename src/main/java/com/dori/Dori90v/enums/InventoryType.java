@@ -3,7 +3,7 @@ package com.dori.Dori90v.enums;
 import java.util.Arrays;
 
 public enum InventoryType {
-    EQUIPPED(-1),
+    EQUIPPED(0),
     EQUIP(1),
     CONSUME(2),
     ETC(4),
