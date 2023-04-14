@@ -34,6 +34,12 @@ public class LoginHandler {
         // Get from the packet the username & password -
         String username = inPacket.decodeString();
         String password = inPacket.decodeString();
+        byte[] macID = inPacket.decodeArr(16);
+        int gameRoomClient = inPacket.decodeInt(); // idk?
+        byte nGameStartMode = inPacket.decodeByte(); // idk?
+        byte unk = inPacket.decodeByte(); // idk?
+        byte unk2 = inPacket.decodeByte(); // idk?
+        int partnerCode = inPacket.decodeInt(); // idk?
         // Is successful login -
         boolean isSuccess = false;
         // Login result -
