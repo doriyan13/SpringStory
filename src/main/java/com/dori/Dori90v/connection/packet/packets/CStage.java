@@ -41,7 +41,7 @@ public interface CStage {
                 outPacket.encodeInt(rand.nextInt());
             }
             // TODO: charData -> decode
-            DBChar mask = DBChar.Character;
+            DBChar mask = DBChar.Specific;
             chr.encodeInfo(outPacket, mask);
             // TODO: CWvsContext::OnSetLogoutGiftConfig -
             outPacket.encodeInt(0);

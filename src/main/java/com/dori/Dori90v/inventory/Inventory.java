@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Data
@@ -35,15 +36,45 @@ public class Inventory {
         this.slots = (byte) slots;
     }
 
+    public int getFirstOpenSlot() {
+        int oldIndex = 0;
+        for (Item item : getItems()) {
+            // items are always sorted by bag index
+            if (item.getBagIndex() - oldIndex > 1) {
+                // there's a gap between 2 consecutive items
+                break;
+            }
+            oldIndex = item.getBagIndex();
+        }
+        return oldIndex + 1;
+    }
+
     public void addItem(Item item) {
         if(getItems().size() < getSlots()) {
+            item.setBagIndex(getFirstOpenSlot());
             getItems().add(item);
             item.setInvType(getType());
-            //sortItemsByIndex();
+            getItems().sort(Comparator.comparingInt(Item::getBagIndex));
         }
     }
     public void removeItem(Item item) {
         getItems().remove(item);
-        //sortItemsByIndex();
+        getItems().sort(Comparator.comparingInt(Item::getBagIndex));
+    }
+
+    private Item getItemByIndex(int bagIndex) {
+        return getItems().stream().filter(item -> item.getBagIndex() == bagIndex).findAny().orElse(null);
+    }
+
+    public Item getItemByItemID(int itemId) {
+        return getItems().stream().filter(item -> (item.getItemId() == itemId) && item.getQuantity() != 0).findFirst().orElse(null);
+    }
+
+    private boolean isFull() {
+        return getItems().size() >= getSlots();
+    }
+
+    public int getEmptySlots() {
+        return getSlots() - getItems().size();
     }
 }

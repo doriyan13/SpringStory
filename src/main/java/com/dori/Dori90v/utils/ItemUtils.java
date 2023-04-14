@@ -84,4 +84,123 @@ public interface ItemUtils {
         }
     }
 
+    static boolean isBullet(int itemID) {
+        return getItemPrefix(itemID) == 233;
+    }
+
+    static boolean isBowArrow(int itemID) {
+        return itemID / 1000 == 2060;
+    }
+
+    static boolean isEnhancementScroll(int scrollID) {
+        return scrollID / 100 == 20493;
+    }
+
+    static boolean isHat(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Hat.getVal();
+    }
+
+    static boolean isWeapon(int itemID) {
+        return itemID >= 1210000 && itemID < 1600000;
+    }
+
+    static boolean isSecondary(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.SecondaryWeapon.getVal();
+    }
+
+    static boolean isShield(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Shield.getVal();
+    }
+
+    static boolean isAccessory(int itemID) {
+        return (itemID >= 1010000 && itemID < 1040000) || (itemID >= 1122000 && itemID < 1153000) ||
+                (itemID >= 1112000 && itemID < 1113000) || (itemID >= 1670000 && itemID < 1680000);
+    }
+
+    static boolean isFaceAccessory(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.FaceAccessory.getVal();
+    }
+
+    static boolean isEyeAccessory(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.EyeAccessory.getVal();
+    }
+
+    static boolean isEarrings(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Earrings.getVal();
+    }
+
+    static boolean isTop(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Top.getVal();
+    }
+
+    static boolean isOverall(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Overall.getVal();
+    }
+
+    static boolean isBottom(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Bottom.getVal();
+    }
+
+    static boolean isShoe(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Shoes.getVal();
+    }
+
+    static boolean isGlove(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Gloves.getVal();
+    }
+
+    static boolean isCape(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Cape.getVal();
+    }
+
+    static boolean isRing(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Ring.getVal();
+    }
+
+    static boolean isPendant(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Pendant.getVal();
+    }
+
+    static boolean isBelt(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Belt.getVal();
+    }
+
+    static boolean isMedal(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Medal.getVal();
+    }
+
+    static boolean isShoulder(int itemID) {
+        return getItemPrefix(itemID) == EquipPrefix.Shoulder.getVal();
+    }
+
+    static boolean isArmor(int itemID) {
+        return !isAccessory(itemID) && !isWeapon(itemID);
+    }
+
+    static boolean isThrowingItem(int itemID) {
+        return isThrowingStar(itemID) || isBullet(itemID) || isBowArrow(itemID);
+    }
+
+    static boolean isThrowingStar(int itemID) {
+        return getItemPrefix(itemID) == 207;
+    }
+
+    public static boolean canEquipTypeHavePotential(int itemId) {
+        return isRing(itemId) ||
+                isPendant(itemId) ||
+                isWeapon(itemId) ||
+                isBelt(itemId) ||
+                isHat(itemId) ||
+                isFaceAccessory(itemId) ||
+                isEyeAccessory(itemId) ||
+                isOverall(itemId) ||
+                isTop(itemId) ||
+                isBottom(itemId) ||
+                isShoe(itemId) ||
+                isEarrings(itemId) ||
+                isShoulder(itemId) ||
+                isGlove(itemId) ||
+                isShield(itemId) ||
+                isCape(itemId);
+    }
 }

@@ -36,7 +36,7 @@ public class LoginHandler {
         String password = inPacket.decodeString();
         byte[] macID = inPacket.decodeArr(16);
         int gameRoomClient = inPacket.decodeInt(); // idk?
-        byte nGameStartMode = inPacket.decodeByte(); // idk?
+        byte nGameStartMode = inPacket.decodeByte(); // WebStart = 0, Unknown1 = 1, GameLaunching = 2
         byte unk = inPacket.decodeByte(); // idk?
         byte unk2 = inPacket.decodeByte(); // idk?
         int partnerCode = inPacket.decodeInt(); // idk?
@@ -178,7 +178,7 @@ public class LoginHandler {
             c.setMachineID(clientMachineID);
             // Add Migrate in user for the server instance - (preparing for MigrateIn of a chosen character)
             MigrateInUser migrateInUser = new MigrateInUser(c.getAccount(), c.getMapleChannelInstance(), c.getWorldId(), c.getMachineID());
-            Server.migrateInNewCharacter(c.getAccount().getId(), migrateInUser);
+            Server.migrateInNewUser(c.getAccount().getId(), migrateInUser);
             // Send character select result -
             c.write(CLogin.onSelectCharacterResult(clientMachineID, c.getMapleChannelInstance().getPort(), characterID));
         } catch (Exception e) {
@@ -195,6 +195,7 @@ public class LoginHandler {
             OutPacket outPacket = new OutPacket();
             outPacket.encodeString(AUTO_LOGIN_USERNAME);
             outPacket.encodeString(AUTO_LOGIN_PASSWORD);
+            outPacket.encodeArr(new byte[27]);
 
             handleLoginPassword(c, new InPacket(outPacket.getData()));
         }

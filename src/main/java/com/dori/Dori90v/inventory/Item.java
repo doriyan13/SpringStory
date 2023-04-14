@@ -1,7 +1,9 @@
 package com.dori.Dori90v.inventory;
 
 import com.dori.Dori90v.connection.dbConvertors.FileTimeConverter;
+import com.dori.Dori90v.connection.packet.OutPacket;
 import com.dori.Dori90v.enums.InventoryType;
+import com.dori.Dori90v.utils.ItemUtils;
 import com.dori.Dori90v.utils.utilEntities.FileTime;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -45,5 +47,23 @@ public class Item {
         this.invType = invType;
         this.isCash = isCash;
         this.type = type;
+    }
+
+    public void encode(OutPacket outPacket) {
+        outPacket.encodeByte(getType().getVal());
+        // GW_ItemSlotBase
+        outPacket.encodeInt(getItemId());
+        outPacket.encodeByte(isCash());
+        if (isCash()) {
+            outPacket.encodeLong(getId());
+        }
+        outPacket.encodeFT(getDateExpire());
+        outPacket.encodeInt(getBagIndex());
+        outPacket.encodeShort(getQuantity()); // nQuantity
+        outPacket.encodeString(getOwner()); // sOwner
+        outPacket.encodeShort(0); // attribute | flag?
+        if (ItemUtils.isThrowingItem(getItemId())) {
+            outPacket.encodeLong(getId());
+        }
     }
 }

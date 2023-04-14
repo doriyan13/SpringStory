@@ -3,9 +3,9 @@ package com.dori.Dori90v.inventory;
 import java.util.Arrays;
 
 public enum ItemType {
-    EQUIP(1),
-    ITEM(2),
-    PET(3)
+    EQUIP(0x01),
+    BUNDLE(0x02),
+    PET(0x03)
     ;
 
     private final byte val;

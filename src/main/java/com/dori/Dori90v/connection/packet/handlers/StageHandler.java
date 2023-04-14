@@ -24,16 +24,15 @@ public class StageHandler {
         int playerID = inPacket.decodeInt();
         byte adminClient = inPacket.decodeByte();
         Optional<?> entity = ServiceManager.getService(ServiceType.Character).getEntityById((long) playerID);
-        if(entity.isPresent() && entity.get() instanceof MapleChar chr){ // init the chr instance cast inline
+        if (entity.isPresent() && entity.get() instanceof MapleChar chr) { // init the chr instance cast inline
             chr.setMapleClient(c);
             // Handle adding a new user online -
-            Server.addNewOnlineUser(chr);
+            Server.addNewOnlineUser(chr, c);
             // Set the field for the character to spawn in -
-            c.write(CStage.onSetField(c,c.getChr(), (Field) null, (short) 0, (int) c.getChannel(),
-                    0,true, (byte) 1, (short) 0,
+            c.write(CStage.onSetField(c, c.getChr(), (Field) null, (short) 0, (int) c.getChannel(),
+                    0, true, (byte) 1, (short) 0,
                     "", new String[]{""}));
-        }
-        else {
+        } else {
             logger.error("try to logg-in with invalid playerID?" + playerID);
         }
     }

@@ -15,8 +15,7 @@ public enum DBChar {
     InventorySize(0x80),
     SkillRecord(0x100),
     QuestRecord(0x200),
-    MinigameRecord(0x400),
-    ZeroInfo(0x800),
+    MiniGameRecord(0x400),
     CoupleRecord(0x800),
     MapTransfer(0x1000),
     Avatar(0x2000),
@@ -36,9 +35,13 @@ public enum DBChar {
     ExpConsumeItem(0x2000000),
     RedLeafInfo(0x2000000),
     ShopBuyLimit(0x4000000),
+    VisitorLog(0x800000),
+    VisitorLog1(0x1000000),
+    VisitorLog2(0x2000000),
+    VisitorLog3(0x4000000),
     VisitorLog4(0x8000000),
     All(-1),
-    Specific(0x1)
+    Specific(0x1 ^ 0x2 ^ 0x80 ^ 0x100000 ^ 0x4 ^ 0x8 ^ 0x10 ^ 0x20 ^ 0x40)
     ;
 
     public final long uFlag;

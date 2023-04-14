@@ -8,6 +8,7 @@ import com.dori.Dori90v.enums.DBChar;
 import com.dori.Dori90v.inventory.Equip;
 import com.dori.Dori90v.inventory.EquipInventory;
 import com.dori.Dori90v.inventory.Inventory;
+import com.dori.Dori90v.inventory.Item;
 import com.dori.Dori90v.logger.Logger;
 import com.dori.Dori90v.utils.ItemUtils;
 import com.dori.Dori90v.utils.utilEntities.FileTime;
@@ -78,6 +79,9 @@ public class MapleChar {
     private int rankMove;
     private int jobRank;
     private int jobRankMove;
+    // Linked Character - (Blessing of fairy)
+    private int linkedCharacterLvl;
+    private String linkedCharacterName;
     // Inventory fields -
     @JoinColumn(name = "equippedInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -124,6 +128,10 @@ public class MapleChar {
         this.extendSP = new ExtendSP();
         // Rank -
         this.ranked = false;
+        // LinkedChar -
+        this.linkedCharacterLvl = 0;
+        this.linkedCharacterName = "";
+
     }
 
     public MapleChar(int accountID, String name, byte gender, int job, short subJob, int[] charAppearance) {
@@ -158,9 +166,13 @@ public class MapleChar {
         for (int i = 4; i <= 7; i++) { // Start of equips is from the 5th spot (aka i = 4) till the end (which is the 8th spot, aka i = 7)
             Equip equip = ItemDataHandler.getEquipByID(charAppearance[i]);
             if (equip != null) {
+                equip.setBagIndex(ItemUtils.getBodyPartFromItem(equip.getItemId()).getVal());
                 this.getEquippedInventory().addItem(equip);
             }
         }
+        // LinkedChar -
+        this.linkedCharacterLvl = 0;
+        this.linkedCharacterName = "";
     }
 
     /**
@@ -286,9 +298,9 @@ public class MapleChar {
             encodeCharacterStats(outPacket);
             outPacket.encodeByte(0); // buddyList capacity
             // BlessOfFairyOrigin -
-            outPacket.encodeBool(false);
-            if(false){
-                outPacket.encodeString(""); // chr.getBlessOfFairyOrigin
+            outPacket.encodeBool(getLinkedCharacterLvl() > 0);
+            if(getLinkedCharacterLvl() > 0){
+                outPacket.encodeString(getLinkedCharacterName()); // BlessOfFairyOrigin
             }
         }
         if(mask.isInMask(DBChar.Money)){
@@ -305,9 +317,103 @@ public class MapleChar {
             outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME)); // extra pendant slot ?
             outPacket.encodeInt(0); // aEquipExtExpire[0].dwHighDateTime
         }
-//        if (mask.isInMask(DBChar.ItemSlotEquip)) {
-//
-//        }
+        if (mask.isInMask(DBChar.ItemSlotEquip)) {
+            // Normal equipped items
+            for(Equip equip : getEquippedInventory().getItems()){
+                if(equip.getBagIndex() > BodyPart.BPBase.getVal() && equip.getBagIndex() < BodyPart.BPEnd.getVal()){
+                    outPacket.encodeShort(equip.getBagIndex());
+                    equip.encode(outPacket);
+                }
+            }
+            outPacket.encodeShort(0);
+            // Cash equipped items
+            for (Equip equip : getEquippedInventory().getItems()) {
+                if (equip.getBagIndex() >= BodyPart.CBPBase.getVal() && equip.getBagIndex() <= BodyPart.CBPEnd.getVal()) {
+                    outPacket.encodeShort(equip.getBagIndex() - 100);
+                    equip.encode(outPacket);
+                }
+            }
+            outPacket.encodeShort(0);
+            // Equip inventory
+            for (Equip equip : getEquipInventory().getItems()) {
+                outPacket.encodeShort(equip.getBagIndex());
+                equip.encode(outPacket);
+            }
+            outPacket.encodeShort(0);
+            // NonBPEquip::Decode (Evan)
+            for (Equip equip : getEquippedInventory().getItems()) {
+                if (equip.getBagIndex() >= BodyPart.EvanBase.getVal() && equip.getBagIndex() < BodyPart.EvanEnd.getVal()) {
+                    outPacket.encodeShort(equip.getBagIndex());
+                    equip.encode(outPacket);
+                }
+            }
+            outPacket.encodeShort(0);
+            // Mechanic -
+            for (Equip equip : getEquippedInventory().getItems()) {
+                if (equip.getBagIndex() >= BodyPart.MechBase.getVal() && equip.getBagIndex() < BodyPart.MechEnd.getVal()) {
+                    outPacket.encodeShort(equip.getBagIndex());
+                    equip.encode(outPacket);
+                }
+            }
+            outPacket.encodeShort(0);
+        }
+        if (mask.isInMask(DBChar.ItemSlotConsume)) {
+            for (Item item : getConsumeInventory().getItems()) {
+                outPacket.encodeByte(item.getBagIndex());
+                item.encode(outPacket);
+            }
+            outPacket.encodeByte(0);
+        }
+        if (mask.isInMask(DBChar.ItemSlotInstall)) {
+            for (Item item : getInstallInventory().getItems()) {
+                outPacket.encodeByte(item.getBagIndex());
+                item.encode(outPacket);
+            }
+            outPacket.encodeByte(0);
+        }
+        if (mask.isInMask(DBChar.ItemSlotEtc)) {
+            for (Item item : getEtcInventory().getItems()) {
+                outPacket.encodeByte(item.getBagIndex());
+                item.encode(outPacket);
+            }
+            outPacket.encodeByte(0);
+        }
+        if (mask.isInMask(DBChar.ItemSlotCash)) {
+            for (Equip item : getCashInventory().getItems()) {
+                outPacket.encodeByte(item.getBagIndex());
+                item.encode(outPacket);
+            }
+            outPacket.encodeByte(0);
+        }
+
+        if (mask.isInMask(DBChar.SkillRecord)) {
+            //TODO!
+        }
+        if (mask.isInMask(DBChar.SkillCooltime)) {
+            //TODO!
+        }
+
+        if (mask.isInMask(DBChar.QuestRecord)) {
+            //TODO!
+        }
+        if (mask.isInMask(DBChar.QuestComplete)) {
+            //TODO!
+        }
+
+        if (mask.isInMask(DBChar.CoupleRecord)) {
+            //TODO!
+        }
+
+        if (mask.isInMask(DBChar.MapTransfer)) {
+            //TODO!
+        }
+
+        if (mask.isInMask(DBChar.MonsterBookCover)) {
+            //TODO!
+        }
+        if (mask.isInMask(DBChar.MonsterBookCard)) {
+            //TODO!
+        }
 
     }
 }

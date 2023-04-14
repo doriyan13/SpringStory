@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -36,15 +37,45 @@ public class EquipInventory {
         this.slots = (byte) slots;
     }
 
+    public int getFirstOpenSlot() {
+        int oldIndex = 0;
+        for (Equip item : getItems()) {
+            // items are always sorted by bag index
+            if (item.getBagIndex() - oldIndex > 1) {
+                // there's a gap between 2 consecutive items
+                break;
+            }
+            oldIndex = item.getBagIndex();
+        }
+        return oldIndex + 1;
+    }
+
     public void addItem(Equip item) {
         if(getItems().size() < getSlots()) {
+            item.setBagIndex(getFirstOpenSlot());
             getItems().add(item);
             item.setInvType(getType());
-            //sortItemsByIndex();
+            getItems().sort(Comparator.comparingInt(Equip::getBagIndex));
         }
     }
     public void removeItem(Equip item) {
         getItems().remove(item);
-        //sortItemsByIndex();
+        getItems().sort(Comparator.comparingInt(Equip::getBagIndex));
+    }
+
+    private Equip getItemByIndex(int bagIndex) {
+        return getItems().stream().filter(equip -> equip.getBagIndex() == bagIndex).findAny().orElse(null);
+    }
+
+    public Equip getItemByItemID(int equipId) {
+        return getItems().stream().filter(equip -> equip.getItemId() == equipId).findFirst().orElse(null);
+    }
+
+    private boolean isFull() {
+        return getItems().size() >= getSlots();
+    }
+
+    public int getEmptySlots() {
+        return getSlots() - getItems().size();
     }
 }

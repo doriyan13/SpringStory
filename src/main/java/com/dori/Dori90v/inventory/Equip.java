@@ -2,6 +2,7 @@ package com.dori.Dori90v.inventory;
 
 import com.dori.Dori90v.connection.dbConvertors.FileTimeConverter;
 import com.dori.Dori90v.connection.dbConvertors.InlinedIntArrayConverter;
+import com.dori.Dori90v.connection.packet.OutPacket;
 import com.dori.Dori90v.constants.GameConstants;
 import com.dori.Dori90v.enums.EnchantStat;
 import com.dori.Dori90v.enums.InventoryType;
@@ -22,7 +23,7 @@ import java.util.Map;
 
 @Entity
 @Table(name = "equips")
-public class Equip{
+public class Equip {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -31,6 +32,8 @@ public class Equip{
     private long serialNumber;
     private int itemId;
     private int equipItemID;
+    private int bagIndex;
+    private String owner = "";
     @Column(name = "type")
     private ItemType type;
     @Enumerated(EnumType.ORDINAL)
@@ -38,6 +41,8 @@ public class Equip{
     private InventoryType invType;
     @Convert(converter = FileTimeConverter.class)
     private FileTime equippedDate = FileTime.fromType(FileTime.Type.PLAIN_ZERO);
+    @Convert(converter = FileTimeConverter.class)
+    private FileTime dateExpire = FileTime.fromType(FileTime.Type.MAX_TIME);
     private int prevBonusExpRate;
     private short tuc;
     private short cuc;
@@ -60,9 +65,9 @@ public class Equip{
     private short levelUpType;
     private short level;
     private short exp;
-    private short durability;
+    private short durability = 100; // suppose to be 100
     private short iuc;
-    private short iPvpDamage;
+    private short grade;
     private byte iReduceReq;
     private short specialAttribute;
     private short durabilityMax;
@@ -80,9 +85,6 @@ public class Equip{
     private short hyperUpgrade;
     private short itemState;
     private short chuc;
-    private short soulOptionId;
-    private short soulSocketId;
-    private short soulOption;
     private short rStr;
     private short rDex;
     private short rInt;
@@ -117,7 +119,7 @@ public class Equip{
     @Transient
     private boolean hasIUCMax = false;
 
-    public Equip(EquipData equipData){
+    public Equip(EquipData equipData) {
         this.itemId = equipData.getItemID();
         this.type = ItemType.EQUIP;
         this.iSlot = equipData.getISlot();
@@ -151,7 +153,7 @@ public class Equip{
         this.equipItemID = equipData.getItemID();
         this.price = equipData.getPrice();
         this.attackSpeed = equipData.getAttackSpeed();
-        this.isCash= equipData.isCash();
+        this.isCash = equipData.isCash();
         this.expireOnLogout = equipData.isExpireOnLogout();
         this.exItem = equipData.isExItem();
         this.notSale = equipData.isNotSale();
@@ -165,5 +167,55 @@ public class Equip{
         this.specialGrade = equipData.getSpecialGrade();
         this.charmEXP = equipData.getCharmEXP();
         this.options = equipData.getOptions();
+    }
+
+    public void encodeBaseItemData(OutPacket outPacket) {
+        outPacket.encodeInt(getItemId());
+        outPacket.encodeByte(isCash());
+        if (isCash()) {
+            outPacket.encodeLong(getId());
+        }
+        outPacket.encodeFT(getDateExpire());
+    }
+
+    public void encode(OutPacket outPacket) {
+        // GW_ItemSlotEquip::RawDecode:
+        // Encode item type (equip) -
+        outPacket.encodeByte(getType().getVal());
+        // Encode base item data - GW_ItemSlotBase::RawDecode
+        encodeBaseItemData(outPacket);
+        outPacket.encodeByte(tuc); // ruc ? IDK why they call it in the client ruc but in the wz it's tuc :kek
+        outPacket.encodeByte(cuc);
+        outPacket.encodeShort(iStr);
+        outPacket.encodeShort(iDex);
+        outPacket.encodeShort(iInt);
+        outPacket.encodeShort(iLuk);
+        outPacket.encodeShort(iMaxHp);
+        outPacket.encodeShort(iMaxMp);
+        outPacket.encodeShort(iPad);
+        outPacket.encodeShort(iMad);
+        outPacket.encodeShort(iAcc);
+        outPacket.encodeShort(iEva);
+        outPacket.encodeShort(iCraft);
+        outPacket.encodeShort(iSpeed);
+        outPacket.encodeShort(iJump);
+        outPacket.encodeShort(attribute);
+        outPacket.encodeByte(levelUpType);
+        outPacket.encodeByte(level);
+        outPacket.encodeInt(exp);
+        outPacket.encodeInt(durability);
+        outPacket.encodeInt(iuc);
+        outPacket.encodeByte(grade);
+        outPacket.encodeByte(chuc);
+        for (int i = 0; i < 3; i++) {
+            outPacket.encodeShort(getOptions().get(i));
+        }
+        outPacket.encodeShort(0); // Socket 1
+        outPacket.encodeShort(0); // Socket 2
+        if (serialNumber == 0) { // literally the code in the client O.o
+            outPacket.encodeLong(serialNumber); // liCashItemSN
+        }
+        outPacket.encodeLong(0); // ftEquipped
+        outPacket.encodeInt(0); // nPrevBonusExpRate
     }
 }

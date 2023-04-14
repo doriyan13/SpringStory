@@ -1,6 +1,6 @@
 package com.dori.Dori90v;
 
-import com.dori.Dori90v.client.character.MapleAccount;
+import com.dori.Dori90v.client.MapleClient;
 import com.dori.Dori90v.client.character.MapleChar;
 import com.dori.Dori90v.connection.netty.ChannelAcceptor;
 import com.dori.Dori90v.world.MapleChannel;
@@ -37,30 +37,31 @@ public class Server {
                 .orElse(null);
     }
 
-    public static void migrateInNewCharacter(int accountID, MigrateInUser migrateInUser){
+    public static void migrateInNewUser(int accountID, MigrateInUser migrateInUser){
         migrateUsers.put(accountID,migrateInUser);
     }
 
-    public static void addNewOnlineUser(MapleChar chr){
-        MigrateInUser migrateInUser = migrateUsers.get(chr.getId());
+    public static void addNewOnlineUser(MapleChar chr, MapleClient client){
+        MigrateInUser migrateInUser = migrateUsers.get(chr.getAccountID());
         // Verify the user was migrated properly -
         if(migrateInUser != null){
             // Set Client data to have to migrate data -
-            chr.getMapleClient().setWorldId((byte) migrateInUser.getWorldID());
-            chr.getMapleClient().setMachineID(migrateInUser.getMachineID());
-            chr.getMapleClient().setChannel((byte) migrateInUser.getChannel().getChannelId());
-            chr.getMapleClient().setMapleChannelInstance(migrateInUser.getChannel());
-            chr.getMapleClient().setAccount(migrateInUser.getAccount());
+
+            client.setWorldId((byte) migrateInUser.getWorldID());
+            client.setMachineID(migrateInUser.getMachineID());
+            client.setChannel((byte) migrateInUser.getChannel().getChannelId());
+            client.setMapleChannelInstance(migrateInUser.getChannel());
+            client.setAccount(migrateInUser.getAccount());
             // Add the char into the channel list of characters -
-            chr.getMapleClient().getMapleChannelInstance().addChar(chr);
+            client.getMapleChannelInstance().addChar(chr);
             // Set the char to be the client character instance -
-            chr.getMapleClient().setChr(chr);
+            client.setChr(chr);
             // Remove from the list of users that need to migrate -
             migrateUsers.remove(chr.getId());
         }
         else {
             // trying to log in with a char that wasn't migrate in ?
-            chr.getMapleClient().close();
+            client.close();
         }
     }
 
