@@ -3,6 +3,7 @@ package com.dori.SpringStory.utils;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.enums.BodyPart;
 import com.dori.SpringStory.enums.EquipPrefix;
+import com.dori.SpringStory.enums.EquipType;
 import com.dori.SpringStory.inventory.Equip;
 import org.springframework.stereotype.Component;
 
@@ -185,7 +186,7 @@ public interface ItemUtils {
         return getItemPrefix(itemID) == 207;
     }
 
-    public static boolean canEquipTypeHavePotential(int itemId) {
+    static boolean canEquipTypeHavePotential(int itemId) {
         return isRing(itemId) ||
                 isPendant(itemId) ||
                 isWeapon(itemId) ||
@@ -202,5 +203,17 @@ public interface ItemUtils {
                 isGlove(itemId) ||
                 isShield(itemId) ||
                 isCape(itemId);
+    }
+
+
+    static boolean shouldEncodeEquipByType(EquipType type, Equip equip){
+        boolean result = true;
+        switch (type){
+            case Equipped -> result = equip.getBagIndex() > BodyPart.BPBase.getVal() && equip.getBagIndex() < BodyPart.BPEnd.getVal();
+            case Cash -> result = equip.getBagIndex() >= BodyPart.CBPBase.getVal() && equip.getBagIndex() <= BodyPart.CBPEnd.getVal();
+            case Evan -> result = equip.getBagIndex() >= BodyPart.EvanBase.getVal() && equip.getBagIndex() < BodyPart.EvanEnd.getVal();
+            case Mechanic -> result = equip.getBagIndex() >= BodyPart.MechBase.getVal() && equip.getBagIndex() < BodyPart.MechEnd.getVal();
+        }
+        return result;
     }
 }

@@ -77,7 +77,7 @@ public interface CLogin {
 
         for (String image : ServerConstants.WORLD_SELECT_BACKGROUND_IMAGES) {
             outPacket.encodeString(image); // name of the background
-            outPacket.encodeBool(image.equalsIgnoreCase("dual")); // not sure? maybe visible?
+            outPacket.encodeBool(image.equalsIgnoreCase("visitors")); // not sure? maybe visible?
         }
 
         return outPacket;

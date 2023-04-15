@@ -5,10 +5,10 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.BodyPart;
 import com.dori.SpringStory.enums.CharacterGender;
 import com.dori.SpringStory.enums.DBChar;
+import com.dori.SpringStory.enums.EquipType;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.EquipInventory;
 import com.dori.SpringStory.inventory.Inventory;
-import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
@@ -251,7 +251,7 @@ public class MapleChar {
         Map<BodyPart, Integer> charMaskedEquips = new HashMap<>();
         List<Integer> cWeapon = new ArrayList<>();
         // Fill Equips and possibly the CashWeapon -
-        ItemUtils.fillEquipsMaps(this, charEquips, charMaskedEquips,cWeapon);
+        ItemUtils.fillEquipsMaps(this, charEquips, charMaskedEquips, cWeapon);
         Integer cWeaponID = cWeapon.isEmpty() ? null : cWeapon.get(0);
 
         //for -> myEquips (visible items)
@@ -289,101 +289,73 @@ public class MapleChar {
         encodeRank(outPacket);
     }
 
+    private void encodeCharacter(OutPacket outPacket) {
+        // Encode character data - (in the future versions they fully encode all the char data again, but now it seems to only encode char stats)
+        encodeCharacterStats(outPacket);
+        outPacket.encodeByte(0); // buddyList capacity
+        // BlessOfFairyOrigin -
+        outPacket.encodeBool(getLinkedCharacterLvl() > 0);
+        if (getLinkedCharacterLvl() > 0) {
+            outPacket.encodeString(getLinkedCharacterName()); // BlessOfFairyOrigin
+        }
+    }
+
+    private void encodeInventorySize(OutPacket outPacket) {
+        outPacket.encodeByte(getEquipInventory().getSlots());
+        outPacket.encodeByte(getConsumeInventory().getSlots());
+        outPacket.encodeByte(getEtcInventory().getSlots());
+        outPacket.encodeByte(getInstallInventory().getSlots());
+        outPacket.encodeByte(getCashInventory().getSlots());
+    }
+
+    private void encodeAdminShopCount(OutPacket outPacket) {
+        outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME)); // extra pendant slot ?
+        outPacket.encodeInt(0); // aEquipExtExpire[0].dwHighDateTime
+    }
+
+    private void encodeEquipments(OutPacket outPacket) {
+        // Normal equipped items -
+        getEquippedInventory().encodeEquips(outPacket, EquipType.Equipped, false);
+        // Cash equipped items -
+        getEquippedInventory().encodeEquips(outPacket, EquipType.Cash, true);
+        // Equip inventory -
+        getEquipInventory().encodeEquips(outPacket, EquipType.Normal, false);
+        // Evan -
+        getEquippedInventory().encodeEquips(outPacket, EquipType.Evan, false);
+        // Mechanic -
+        getEquippedInventory().encodeEquips(outPacket, EquipType.Mechanic, false);
+    }
+
     public void encodeInfo(OutPacket outPacket, DBChar mask) {
         outPacket.encodeLong(mask.getFlag());
         outPacket.encodeByte(0); // CombatOrders ?
         outPacket.encodeByte(0); // idk?
-        if(mask.isInMask(DBChar.Character)){
-            // Encode character data - (in the future versions they fully encode all the char data again, but now it seems to only encode char stats)
-            encodeCharacterStats(outPacket);
-            outPacket.encodeByte(0); // buddyList capacity
-            // BlessOfFairyOrigin -
-            outPacket.encodeBool(getLinkedCharacterLvl() > 0);
-            if(getLinkedCharacterLvl() > 0){
-                outPacket.encodeString(getLinkedCharacterName()); // BlessOfFairyOrigin
-            }
+        if (mask.isInMask(DBChar.Character)) {
+            encodeCharacter(outPacket);
         }
-        if(mask.isInMask(DBChar.Money)){
+        if (mask.isInMask(DBChar.Money)) {
             outPacket.encodeInt(getMeso());
         }
-        if(mask.isInMask(DBChar.InventorySize)){
-            outPacket.encodeByte(getEquipInventory().getSlots());
-            outPacket.encodeByte(getConsumeInventory().getSlots());
-            outPacket.encodeByte(getEtcInventory().getSlots());
-            outPacket.encodeByte(getInstallInventory().getSlots());
-            outPacket.encodeByte(getCashInventory().getSlots());
+        if (mask.isInMask(DBChar.InventorySize)) {
+            encodeInventorySize(outPacket);
         }
-        if(mask.isInMask(DBChar.AdminShopCount)){
-            outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME)); // extra pendant slot ?
-            outPacket.encodeInt(0); // aEquipExtExpire[0].dwHighDateTime
+        if (mask.isInMask(DBChar.AdminShopCount)) {
+            encodeAdminShopCount(outPacket);
         }
         if (mask.isInMask(DBChar.ItemSlotEquip)) {
-            // Normal equipped items
-            for(Equip equip : getEquippedInventory().getItems()){
-                if(equip.getBagIndex() > BodyPart.BPBase.getVal() && equip.getBagIndex() < BodyPart.BPEnd.getVal()){
-                    outPacket.encodeShort(equip.getBagIndex());
-                    equip.encode(outPacket);
-                }
-            }
-            outPacket.encodeShort(0);
-            // Cash equipped items
-            for (Equip equip : getEquippedInventory().getItems()) {
-                if (equip.getBagIndex() >= BodyPart.CBPBase.getVal() && equip.getBagIndex() <= BodyPart.CBPEnd.getVal()) {
-                    outPacket.encodeShort(equip.getBagIndex() - 100);
-                    equip.encode(outPacket);
-                }
-            }
-            outPacket.encodeShort(0);
-            // Equip inventory
-            for (Equip equip : getEquipInventory().getItems()) {
-                outPacket.encodeShort(equip.getBagIndex());
-                equip.encode(outPacket);
-            }
-            outPacket.encodeShort(0);
-            // NonBPEquip::Decode (Evan)
-            for (Equip equip : getEquippedInventory().getItems()) {
-                if (equip.getBagIndex() >= BodyPart.EvanBase.getVal() && equip.getBagIndex() < BodyPart.EvanEnd.getVal()) {
-                    outPacket.encodeShort(equip.getBagIndex());
-                    equip.encode(outPacket);
-                }
-            }
-            outPacket.encodeShort(0);
-            // Mechanic -
-            for (Equip equip : getEquippedInventory().getItems()) {
-                if (equip.getBagIndex() >= BodyPart.MechBase.getVal() && equip.getBagIndex() < BodyPart.MechEnd.getVal()) {
-                    outPacket.encodeShort(equip.getBagIndex());
-                    equip.encode(outPacket);
-                }
-            }
-            outPacket.encodeShort(0);
+            encodeEquipments(outPacket);
         }
         if (mask.isInMask(DBChar.ItemSlotConsume)) {
-            for (Item item : getConsumeInventory().getItems()) {
-                outPacket.encodeByte(item.getBagIndex());
-                item.encode(outPacket);
-            }
-            outPacket.encodeByte(0);
+            getConsumeInventory().encodeInventory(outPacket);
         }
         if (mask.isInMask(DBChar.ItemSlotInstall)) {
-            for (Item item : getInstallInventory().getItems()) {
-                outPacket.encodeByte(item.getBagIndex());
-                item.encode(outPacket);
-            }
-            outPacket.encodeByte(0);
+            getInstallInventory().encodeInventory(outPacket);
         }
         if (mask.isInMask(DBChar.ItemSlotEtc)) {
-            for (Item item : getEtcInventory().getItems()) {
-                outPacket.encodeByte(item.getBagIndex());
-                item.encode(outPacket);
-            }
-            outPacket.encodeByte(0);
+            getEtcInventory().encodeInventory(outPacket);
         }
         if (mask.isInMask(DBChar.ItemSlotCash)) {
-            for (Equip item : getCashInventory().getItems()) {
-                outPacket.encodeByte(item.getBagIndex());
-                item.encode(outPacket);
-            }
-            outPacket.encodeByte(0);
+            getCashInventory().encodeInventory(outPacket);
         }
 
         if (mask.isInMask(DBChar.SkillRecord)) {

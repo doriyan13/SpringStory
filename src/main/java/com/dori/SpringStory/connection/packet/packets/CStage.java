@@ -1,6 +1,5 @@
 package com.dori.SpringStory.connection.packet.packets;
 
-import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
@@ -11,7 +10,7 @@ import com.dori.SpringStory.world.fieldEntities.Field;
 import java.security.SecureRandom;
 
 public interface CStage {
-    static OutPacket onSetField(MapleClient client, MapleChar chr, Field field, short optNum,
+    static OutPacket onSetField(MapleChar chr, Field field, short optNum,
                                 int channelId, int oldDriverID, boolean characterData,
                                 byte sNotifierMessage, short nNotifierCheck, String pChatBlockReason, String[] sMsg2){
         OutPacket outPacket = new OutPacket(OutHeader.SetField);

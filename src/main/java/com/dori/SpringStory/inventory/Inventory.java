@@ -1,5 +1,6 @@
 package com.dori.SpringStory.inventory;
 
+import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.InventoryType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,14 @@ public class Inventory {
         this.type = invType;
         items = new ArrayList<>();
         this.slots = (byte) slots;
+    }
+
+    public void encodeInventory(OutPacket outPacket) {
+        for (Item item : getItems()) {
+            outPacket.encodeByte(item.getBagIndex());
+            item.encode(outPacket);
+        }
+        outPacket.encodeByte(0);
     }
 
     public int getFirstOpenSlot() {

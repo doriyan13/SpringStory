@@ -29,7 +29,7 @@ public class StageHandler {
             // Handle adding a new user online -
             Server.addNewOnlineUser(chr, c);
             // Set the field for the character to spawn in -
-            c.write(CStage.onSetField(c, c.getChr(), (Field) null, (short) 0, (int) c.getChannel(),
+            c.write(CStage.onSetField(c.getChr(), (Field) null, (short) 0, (int) c.getChannel(),
                     0, true, (byte) 1, (short) 0,
                     "", new String[]{""}));
         } else {
