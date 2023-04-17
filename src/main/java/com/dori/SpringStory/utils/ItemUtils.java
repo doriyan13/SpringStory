@@ -50,8 +50,7 @@ public interface ItemUtils {
                 case Belt -> bodyPart = BodyPart.Belt;
                 case Medal -> bodyPart = BodyPart.Medal;
                 case Shoulder -> bodyPart = BodyPart.Shoulder;
-                case MonsterBook -> bodyPart = BodyPart.MonsterBook;
-                case PetWear -> bodyPart = BodyPart.PetWear1;
+                case PetWear -> bodyPart = BodyPart.PetEquip;
                 case TamingMob -> bodyPart = BodyPart.TamingMob;
                 case Saddle -> bodyPart = BodyPart.Saddle;
                 case EvanHat -> bodyPart = BodyPart.EvanHat;

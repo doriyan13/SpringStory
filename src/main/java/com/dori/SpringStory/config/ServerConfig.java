@@ -13,6 +13,7 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.*;
 import com.dori.SpringStory.wzHandlers.ItemDataHandler;
 import com.dori.SpringStory.wzHandlers.MapDataHandler;
+import com.dori.SpringStory.wzHandlers.SkillDataHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -51,6 +52,7 @@ public class ServerConfig {
             MapDataHandler.loadWorldMapData();
             ItemDataHandler.loadItemData();
             ItemDataHandler.loadEquipData();
+            SkillDataHandler.loadSkillData();
             //TODO: next is NPC & MOBS and then QUESTS
 
             // Register Services to MainService -

@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.dori</groupId>
-	<artifactId>Dori92v</artifactId>
+	<artifactId>SpringStory</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Dori92v</name>
+	<name>SpringStory</name>
 	<description>Playing with Shrooms 2012 ~</description>
 	<properties>
 		<java.version>17</java.version>

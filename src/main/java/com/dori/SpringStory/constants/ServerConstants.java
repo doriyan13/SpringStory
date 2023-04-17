@@ -36,6 +36,7 @@ public interface ServerConstants {
     String MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/Map";
     String WORLD_MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/WorldMap";
     String EQUIP_BASE_WZ_DIR = ServerConstants.WZ_DIR + "/Character.wz";
+    String SKILL_WZ_DIR = ServerConstants.WZ_DIR + "/Skill.wz";
     String[] EQUIP_SUB_WZ_DIR = new String[]{"Accessory", "Cap", "Cape", "Coat", "Dragon", "Face", "Glove",
             "Hair", "Longcoat", "Pants", "PetEquip", "Ring", "Shield", "Shoes", "Weapon", "MonsterBook"};
     String ITEM_BASE_WZ_DIR = ServerConstants.WZ_DIR + "/Item.wz";

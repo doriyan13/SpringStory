@@ -340,7 +340,7 @@ public class MapDataHandler {
         long startTime = System.currentTimeMillis();
         //TODO: in the future to add dat files reading and loading which will be called here -
         loadMapsFromWZ();
-        logger.serverNotice("~ Finished loading Map data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.serverNotice("~ Finished loading " + fields.size() + " Map data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
     }
 
     public static void loadWorldMapData() {
@@ -348,6 +348,6 @@ public class MapDataHandler {
         long startTime = System.currentTimeMillis();
         //TODO: in the future to add dat files reading and loading which will be called here -
         loadWorldMapFromWz();
-        logger.serverNotice("~ Finished loading WorldMap in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.serverNotice("~ Finished loading " + worldMapFields.size() + " WorldMaps in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
     }
 }

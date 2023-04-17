@@ -361,7 +361,7 @@ public class ItemDataHandler {
         long startTime = System.currentTimeMillis();
         //TODO: in the future to add dat files reading and loading which will be called here -
         loadItemsFromWZ();
-        logger.serverNotice("~ Finished loading Item data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.serverNotice("~ Finished loading " + items.size() + " Items data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
     }
 
     public static void loadEquipData() {
@@ -369,6 +369,6 @@ public class ItemDataHandler {
         long startTime = System.currentTimeMillis();
         //TODO: in the future to add dat files reading and loading which will be called here -
         loadEquipsFromWZ();
-        logger.serverNotice("~ Finished loading Equip data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.serverNotice("~ Finished loading " + equips.size() + " Equips data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
     }
 }
