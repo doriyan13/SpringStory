@@ -22,16 +22,11 @@ public class SkillDataHandler {
     private static final Logger logger = new Logger(MapDataHandler.class);
     // Map Cache of all the maps -
     private static final Map<Integer, SkillData> skills = new LinkedHashMap<>();
-    private static final Set<String> skillStats = new HashSet<>();
+    // TODO: need to handle MobSkillInfo!
 
-    //TODO: need to handle skill deep copy!
     public static Skill getSkillByID(Integer skillID) {
         SkillData skillData = skills.getOrDefault(skillID, null);
-        return /*skillData != null ? new Skill(skillData) :*/ null;
-    }
-
-    public static void printStats() {
-        System.out.println(Arrays.toString(skillStats.toArray()));
+        return skillData != null ? new Skill(skillData) : null;
     }
 
     private static void loadRectFromNodeToSkill(Node commonNode, Node rbNode, SkillData skill) {
@@ -40,20 +35,6 @@ public class SkillDataHandler {
         int left = Integer.parseInt(XMLApi.getNamedAttribute(commonNode, "x"));
         int right = Integer.parseInt(XMLApi.getNamedAttribute(rbNode, "x"));
         skill.addRect(new Rect(top, bottom, left, right));
-    }
-
-    private static void loadSkillChildNodeToSkill(Node mainSkillChildNode, SkillData skill) {
-        String mainName = XMLApi.getNamedAttribute(mainSkillChildNode, "name");
-        String mainValue = XMLApi.getNamedAttribute(mainSkillChildNode, "value");
-        int intVal = -1337;
-        if (MapleUtils.isNumber(mainValue)) {
-            intVal = Integer.parseInt(mainValue);
-        }
-        switch (mainName) {
-            case "masterLevel" -> skill.setMasterLevel(intVal);
-            case "req" -> loadReqNodeToSkill(mainSkillChildNode, skill);
-            case "common" -> loadCommonNodeToSkill(mainSkillChildNode, skill);
-        }
     }
 
     private static void loadReqNodeToSkill(Node mainSkillChildNode, SkillData skill) {
@@ -82,8 +63,21 @@ public class SkillDataHandler {
                 } else if (PRINT_WZ_UNK) {
                     logger.warning("Unknown SkillStat " + nodeName);
                 }
-                skillStats.add(nodeName);
             }
+        }
+    }
+
+    private static void loadSkillChildNodeToSkill(Node mainSkillChildNode, SkillData skill) {
+        String mainName = XMLApi.getNamedAttribute(mainSkillChildNode, "name");
+        String mainValue = XMLApi.getNamedAttribute(mainSkillChildNode, "value");
+        int intVal = -1337;
+        if (MapleUtils.isNumber(mainValue)) {
+            intVal = Integer.parseInt(mainValue);
+        }
+        switch (mainName) {
+            case "masterLevel" -> skill.setMasterLevel(intVal);
+            case "req" -> loadReqNodeToSkill(mainSkillChildNode, skill);
+            case "common" -> loadCommonNodeToSkill(mainSkillChildNode, skill);
         }
     }
 

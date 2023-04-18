@@ -22,7 +22,7 @@ public class SkillData {
     private int rootId;
     private int masterLevel;
     private int maxLevel;
-     private Map<SkillStat, String> skillStatInfo = new HashMap<>();
+    private Map<SkillStat, String> skillStatInfo = new HashMap<>();
     private List<Rect> rects = new ArrayList<>();
     private Map<Integer, Integer> reqSkills = new HashMap<>();
 

@@ -66,6 +66,7 @@ public class ServerConfig {
             MapleAccount adminAccount = new MapleAccount("admin","admin",true);
             accountService.addNewEntity(adminAccount);
             logger.notice("Added admin account :D");
+            // Adding admin char for test -
             MapleChar adminChar = new MapleChar(adminAccount.getId(),"Dori", CharacterGender.Boy.getValue());
             charService.addNewEntity(adminChar);
             logger.serverNotice("~ Server is Ready ~");

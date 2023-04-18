@@ -46,7 +46,6 @@ public class Server {
         // Verify the user was migrated properly -
         if(migrateInUser != null){
             // Set Client data to have to migrate data -
-
             client.setWorldId((byte) migrateInUser.getWorldID());
             client.setMachineID(migrateInUser.getMachineID());
             client.setChannel((byte) migrateInUser.getChannel().getChannelId());

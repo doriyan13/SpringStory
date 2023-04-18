@@ -18,10 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.dori.SpringStory.enums.InventoryType.*;
 
@@ -101,6 +98,10 @@ public class MapleChar {
     @JoinColumn(name = "cashInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private EquipInventory cashInventory = new EquipInventory(CASH, 96);
+    // Skill fields -
+    @JoinColumn(name = "charId")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Set<Skill> skills;
 
     public MapleChar(int accountID, String name, int gender) {
         // Set char base data -
@@ -131,6 +132,8 @@ public class MapleChar {
         // LinkedChar -
         this.linkedCharacterLvl = 0;
         this.linkedCharacterName = "";
+        // Skills -
+        this.skills = new HashSet<>();
 
     }
 
@@ -359,7 +362,9 @@ public class MapleChar {
         }
 
         if (mask.isInMask(DBChar.SkillRecord)) {
-            //TODO!
+            outPacket.encodeShort(getSkills().size());
+            // For each skill encode the skill data -
+            getSkills().forEach(skill -> skill.encode(outPacket));
         }
         if (mask.isInMask(DBChar.SkillCooltime)) {
             //TODO!

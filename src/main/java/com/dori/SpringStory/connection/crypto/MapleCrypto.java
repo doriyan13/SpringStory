@@ -61,7 +61,7 @@ public final class MapleCrypto {
             (byte) 0xD3, (byte) 0xAB, (byte) 0x91, (byte) 0xB9, (byte) 0x84, (byte) 0x7F, (byte) 0x61, (byte) 0x1E, (byte) 0xCF, (byte) 0xC5, (byte) 0xD1, (byte) 0x56, (byte) 0x3D, (byte) 0xCA, (byte) 0xF4, (byte) 0x05,
             (byte) 0xC6, (byte) 0xE5, (byte) 0x08, (byte) 0x49
     };
-    // Maple 92v key -
+    // Maple 95v key -
     private static final SecretKeySpec SECRET_KEY = new SecretKeySpec(new byte[]{
             0x13, 0x00, 0x00, 0x00, 0x08,
             0x00, 0x00, 0x00, 0x06, 0x00,
@@ -112,10 +112,8 @@ public final class MapleCrypto {
      */
     public static byte[] getNewIv(byte[] oldIv) {
         byte[] in = {(byte) 0xf2, 0x53, (byte) 0x50, (byte) 0xc6}; // magic
-        // ;)
         for (int x = 0; x < 4; x++) {
             funnyShit(oldIv[x], in);
-            // log.info(HexTool.toString(in));
         }
         return in;
     }
@@ -196,9 +194,6 @@ public final class MapleCrypto {
                     if ((x - start) % myIv.length == 0) {
                         byte[] newIv = cipher.doFinal(myIv);
                         System.arraycopy(newIv, 0, myIv, 0, myIv.length);
-                        // System.out
-                        // .println("Iv is now " + HexTool.toString(this.iv));
-
                     }
                     data[x] ^= myIv[(x - start) % myIv.length];
                 }
@@ -299,7 +294,6 @@ public final class MapleCrypto {
                     data[i] = cur;
                 }
             }
-            //log.info("enc after iteration " + j + ": " + HexTool.toString(data) + " al: " + al);
         }
     }
 
@@ -342,7 +336,6 @@ public final class MapleCrypto {
                     dataLength--;
                 }
             }
-            //log.info("dec after iteration " + j + ": " + HexTool.toString(data));
         }
     }
 
