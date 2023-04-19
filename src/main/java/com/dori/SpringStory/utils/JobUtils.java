@@ -31,7 +31,7 @@ public interface JobUtils {
     static int getJobLevel(int jobId) {
         // Re-did this part base on ida - v95 :D
         int prefix;
-        int prefix2;
+        int nType;
         if (!(jobId % 100 == 0) || jobId == Job.Evan.getId()) {
             return 1;
         }
@@ -40,11 +40,10 @@ public interface JobUtils {
         } else {
             prefix = jobId % 10;
         }
-        prefix2 = prefix + 2;
+        nType = prefix + 2;
 
-        return prefix2 >= 2 &&
-                (prefix <= 4 || (prefix2 <= 10 && isEvanJob(jobId)))
-                ? prefix2 : 0;
+        return (nType >= 2) && (prefix <= 4 || (nType <= 10 && isEvanJob(jobId)))
+                ? nType : 0;
     }
 
 }

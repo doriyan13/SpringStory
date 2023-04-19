@@ -45,8 +45,6 @@ public interface SkillUtils {
                     || skillId == 4331004
                     || skillId == 4331006;
         }
-        return false;
+        return nJob % 10 == 2;
     }
-
-
 }

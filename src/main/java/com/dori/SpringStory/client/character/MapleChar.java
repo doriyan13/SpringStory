@@ -102,6 +102,11 @@ public class MapleChar {
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Skill> skills;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "skillCoolTimes", joinColumns = @JoinColumn(name = "charID"))
+    @MapKeyColumn(name = "skillId")
+    @Column(name = "nextUsableTime")
+    private Map<Integer, Long> skillCoolTimes;
 
     public MapleChar(int accountID, String name, int gender) {
         // Set char base data -
@@ -134,7 +139,7 @@ public class MapleChar {
         this.linkedCharacterName = "";
         // Skills -
         this.skills = new HashSet<>();
-
+        this.skillCoolTimes = new HashMap<>();
     }
 
     public MapleChar(int accountID, String name, byte gender, int job, short subJob, int[] charAppearance) {
@@ -176,6 +181,9 @@ public class MapleChar {
         // LinkedChar -
         this.linkedCharacterLvl = 0;
         this.linkedCharacterName = "";
+        // Skills -
+        this.skills = new HashSet<>();
+        this.skillCoolTimes = new HashMap<>();
     }
 
     /**
@@ -329,6 +337,21 @@ public class MapleChar {
         getEquippedInventory().encodeEquips(outPacket, EquipType.Mechanic, false);
     }
 
+    private void encodeSkillCoolTime(OutPacket outPacket){
+        long currTime = System.currentTimeMillis();
+        Map<Integer, Long> skillsCoolTimes = new HashMap<>();
+        getSkillCoolTimes().forEach((skillID, coolTimeExpirationTimeStamp) -> {
+            if (coolTimeExpirationTimeStamp - currTime > 0) {
+                skillsCoolTimes.put(skillID, coolTimeExpirationTimeStamp);
+            }
+        });
+        outPacket.encodeShort(skillsCoolTimes.size());
+        for (Map.Entry<Integer, Long> skillCoolTime : skillsCoolTimes.entrySet()) {
+            outPacket.encodeInt(skillCoolTime.getKey()); // nSkillId
+            outPacket.encodeShort((short) ((skillCoolTime.getValue() - currTime) / 1000)); // nSkillCoolTime (in seconds!)
+        }
+    }
+
     public void encodeInfo(OutPacket outPacket, DBChar mask) {
         outPacket.encodeLong(mask.getFlag());
         outPacket.encodeByte(0); // CombatOrders ?
@@ -360,37 +383,88 @@ public class MapleChar {
         if (mask.isInMask(DBChar.ItemSlotCash)) {
             getCashInventory().encodeInventory(outPacket);
         }
-
         if (mask.isInMask(DBChar.SkillRecord)) {
             outPacket.encodeShort(getSkills().size());
             // For each skill encode the skill data -
             getSkills().forEach(skill -> skill.encode(outPacket));
         }
         if (mask.isInMask(DBChar.SkillCooltime)) {
-            //TODO!
+            encodeSkillCoolTime(outPacket);
         }
-
+        //TODO: need to handle properly
         if (mask.isInMask(DBChar.QuestRecord)) {
-            //TODO!
+            outPacket.encodeShort(0); // amount of not completed quests
+            //for (Quest quest : getQuests)
+            outPacket.encodeShort(0); // nQuestID
+            outPacket.encodeString(""); // sQRValue
         }
+        //TODO: need to handle properly
         if (mask.isInMask(DBChar.QuestComplete)) {
-            //TODO!
+            outPacket.encodeShort(0); // amount of completed quests
+            //for (Quest quest : getQuests)
+            outPacket.encodeShort(0); // nQuestID
+            outPacket.encodeFT(FileTime.fromType(FileTime.Type.PLAIN_ZERO)); // completed time, need to give proper time!
         }
-
-        if (mask.isInMask(DBChar.CoupleRecord)) {
+        if (mask.isInMask(DBChar.MiniGameRecord)) {
             //TODO!
+            outPacket.encodeShort(0);
         }
-
+        if (mask.isInMask(DBChar.CoupleRecord)) { // it's ringInfo
+            //TODO!
+            outPacket.encodeShort(0);
+            outPacket.encodeShort(0); // lFriendRecord size -
+            // for (lFriendRecord : lFriendRecord.all)
+            // encode ring -
+            // {
+                outPacket.encodeInt(0); // dwPairCharacterID
+                outPacket.encodeString("",13); // sPairCharacterName
+                outPacket.encodeLong(0); // liSN
+                outPacket.encodeLong(0); // liPairSN
+                outPacket.encodeInt(0); // dwFriendItemID
+            // }
+            outPacket.encodeShort(0);
+        }
         if (mask.isInMask(DBChar.MapTransfer)) {
             //TODO!
         }
-
         if (mask.isInMask(DBChar.MonsterBookCover)) {
             //TODO!
+            outPacket.encodeInt(0); // nMonsterBookCoverID
+            outPacket.encodeByte(0); // idk?
         }
         if (mask.isInMask(DBChar.MonsterBookCard)) {
             //TODO!
+            outPacket.encodeShort(0); // cards size -
+            // for (card : cards)
+            // encode card -
+            // {
+            outPacket.encodeInt(0); // usCardID
+            outPacket.encodeByte(9); // nCardCount
+            // }
         }
-
+        if (mask.isInMask(DBChar.NewYearCard)) {
+            //TODO!
+            outPacket.encodeShort(0);
+        }
+        if (mask.isInMask(DBChar.QuestRecordEx)) {
+            //TODO!
+            outPacket.encodeShort(0);
+        }
+        if (mask.isInMask(DBChar.WildHunterInfo)) {
+            //TODO!
+            outPacket.encodeByte(0x28); // not sure?
+            // for (int i = 0; i < adwTempMobID.Length; i++)
+            // {
+                outPacket.encodeInt(0); // adwTempMobID[i]
+            // }
+        }
+        if (mask.isInMask(DBChar.QuestCompleteOld)) {
+            //TODO!
+            outPacket.encodeShort(0);
+        }
+        if (mask.isInMask(DBChar.VisitorLog)) {
+            //TODO!
+            outPacket.encodeShort(0); // m_mVisitorQuestLog
+        }
     }
 }
