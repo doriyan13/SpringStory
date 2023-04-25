@@ -9,7 +9,9 @@ import com.dori.SpringStory.connection.packet.packets.CStage;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.ServiceManager;
+import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
+import com.dori.SpringStory.world.fieldEntities.Portal;
 
 import java.util.Optional;
 
@@ -32,6 +34,20 @@ public class StageHandler {
             c.write(CStage.onSetField(c.getChr(), (Field) null, (short) 0, (int) c.getChannel(),
                     0, true, (byte) 1, (short) 0,
                     "", new String[]{""}));
+            Field field = c.getMapleChannelInstance().getField(chr.getMapId());
+            if (field != null){
+                Portal currPortal = field.getPortalByName("sp");
+                // Set char position in field -
+                c.getChr().setPosition(new Position(currPortal.getPosition().getX(), currPortal.getPosition().getY()));
+                // Add player to the field -
+                field.addPlayer(chr);
+                // Ref the field straight to the player (easier management)
+                chr.setField(field);
+            }
+            else {
+                logger.error("got un-valid mapID for a char that cause a null field!, closing session for: " + chr.getName());
+                c.close();
+            }
         } else {
             logger.error("try to logg-in with invalid playerID?" + playerID);
         }

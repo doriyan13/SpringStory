@@ -8,6 +8,7 @@ import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.Tuple;
 import com.dori.SpringStory.world.fieldEntities.Field;
+import com.dori.SpringStory.wzHandlers.MapDataHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,8 +26,8 @@ public class MapleChannel {
     private String name;
     private int worldId, channelId;
     private boolean adultChannel;
-    private List<Field> fields;
-    private Map<Integer, Tuple<Byte, MapleClient>> transfers;  //maybe i will do it differently :D
+    // TODO: The map of fields will only hold normal maps, boss maps i will have to manage in diff map !
+    private Map<Integer, Field> fields;
     private Map<Integer, MapleChar> chars = new HashMap<>();
     public final int MAX_SIZE = 1000;
 
@@ -36,8 +37,7 @@ public class MapleChannel {
         this.channelId = channelId;
         this.adultChannel = adultChannel;
         this.port = ServerConstants.LOGIN_PORT + 100 + channelId;
-        this.fields = new ArrayList<>();
-        this.transfers = new HashMap<>();
+        this.fields = new HashMap<>();
     }
 
     public MapleChannel(MapleWorld world, int channelId) {
@@ -50,27 +50,11 @@ public class MapleChannel {
         this.channelId = channelId;
         this.adultChannel = false;
         this.port = ServerConstants.LOGIN_PORT + (100 * worldId) + channelId;
-        this.fields = new ArrayList<>();
-        this.transfers = new HashMap<>();
+        this.fields = new HashMap<>();
     }
 
     public int getGaugePx() {
         return Math.max(1, (chars.size() * 64) / MAX_SIZE);
-    }
-
-    public Map<Integer, Tuple<Byte, MapleClient>> getTransfers() {
-        if (transfers == null) {
-            transfers = new HashMap<>();
-        }
-        return transfers;
-    }
-
-    public void addClientInTransfer(byte channelId, int characterId, MapleClient mapleClient) {
-        getTransfers().put(characterId, new Tuple<>(channelId, mapleClient));
-    }
-
-    public void removeClientFromTransfer(int characterId) {
-        getTransfers().remove(characterId);
     }
 
     public void addChar(MapleChar chr) {
@@ -102,6 +86,17 @@ public class MapleChannel {
         for (MapleChar chr : getChars().values()) {
             chr.write(outPacket);
         }
+    }
+
+    public Field getField(int fieldID){
+        Field newField = null;
+        if(fields.get(fieldID) == null){
+            newField = MapDataHandler.getMapByID(fieldID);
+            if(newField != null){
+                this.fields.put(newField.getId(), newField);
+            }
+        }
+        return newField;
     }
 //
 //    public void clearCache() {

@@ -38,4 +38,30 @@ public class Life {
         this.templateId = templateId;
         this.position = new Position(0, 0);
     }
+
+    public Life deepCopy() {
+        Life copy = new Life(getTemplateId());
+        copy.setObjectId(getObjectId());
+        copy.setLifeType(getLifeType());
+        copy.setX(getX());
+        copy.setY(getY());
+        copy.setMobTime(getMobTime());
+        copy.setFlip(isFlip());
+        copy.setHide(isHide());
+        copy.setFh(getFh());
+        copy.setCy(getCy());
+        copy.setRx0(getRx0());
+        copy.setRx1(getRx1());
+        copy.setLimitedName(getLimitedName());
+        copy.setUseDay(isUseDay());
+        copy.setUseNight(isUseNight());
+        copy.setHold(isHold());
+        copy.setNoFoothold(isNoFoothold());
+        copy.setDummy(isDummy());
+        copy.setSpine(isSpine());
+        copy.setMobTimeOnDie(isMobTimeOnDie());
+        copy.setRegenStart(getRegenStart());
+        copy.setMobAliveReq(getMobAliveReq());
+        return copy;
+    }
 }

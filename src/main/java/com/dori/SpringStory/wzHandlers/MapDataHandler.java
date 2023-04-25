@@ -27,8 +27,9 @@ public class MapDataHandler {
     // List of world map fields -
     private static final List<Integer> worldMapFields = new ArrayList<>();
 
-    public static MapData getMapByID(Integer mapID) {
-        return fields.get(mapID);
+    public static Field getMapByID(Integer mapID) {
+        MapData mapData = fields.get(mapID);
+        return mapData != null ? new Field(mapData) : null;
     }
 
     private static void loadInfoNodeDataToField(Node infoNode, Field field) {

@@ -27,29 +27,29 @@ import static com.dori.SpringStory.constants.ServerConstants.*;
 @AllArgsConstructor
 @ToString
 public class MapData {
-    private int id;
-    private int vrTop, vrLeft, vrBottom, vrRight;
-    private float mobRate;
-    private FieldType fieldType;
-    private Set<Portal> portals;
-    private Set<Foothold> footholds;
-    private Map<Integer, Life> lifes;
-    private String onFirstUserEnter = "", onUserEnter = "";
-    private int fixedMobCapacity;
-    private long fieldLimit;
-    private int returnMap, forcedReturn, createMobInterval, timeOut, timeLimit, lvLimit, lvForceMove;
-    private int consumeItemCoolTime, link;
-    private boolean town, swim, fly, reactorShuffle, expeditionOnly, partyOnly, needSkillForFly;
-    private Map<Integer, List<String>> directionInfo;
-    private boolean dropsDisabled;
-    private String fieldScript = "";
-    private boolean everLast;
-    private boolean personalShop;
-    private int decHP;
-    private int decInterval;
-    private int protectItem;
-    private float recovery;
-    private float dropRate;
+    protected int id;
+    protected int vrTop, vrLeft, vrBottom, vrRight;
+    protected float mobRate;
+    protected FieldType fieldType;
+    protected Set<Portal> portals;
+    protected Set<Foothold> footholds;
+    protected Map<Integer, Life> lifes;
+    protected String onFirstUserEnter = "", onUserEnter = "";
+    protected int fixedMobCapacity;
+    protected long fieldLimit;
+    protected int returnMap, forcedReturn, createMobInterval, timeOut, timeLimit, lvLimit, lvForceMove;
+    protected int consumeItemCoolTime, link;
+    protected boolean town, swim, fly, reactorShuffle, expeditionOnly, partyOnly, needSkillForFly;
+    protected Map<Integer, List<String>> directionInfo;
+    protected boolean dropsDisabled;
+    protected String fieldScript = "";
+    protected boolean everLast;
+    protected boolean personalShop;
+    protected int decHP;
+    protected int decInterval;
+    protected int protectItem;
+    protected float recovery;
+    protected float dropRate;
 
 
     public MapData(int fieldID) {

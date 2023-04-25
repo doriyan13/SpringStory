@@ -32,7 +32,7 @@ public interface CStage {
             }
         }
         if(characterData){
-            // Calc dmg - (need to generate 3 random ints)
+            // Calc dmg - (need to generate 3 random ints) , TODO: need to redo this or just keep it at zero and have the same dmg calc for server and client :D
             SecureRandom rand = new SecureRandom();
             for (int z = 0; z < 3; z++) {
                 outPacket.encodeInt(rand.nextInt());

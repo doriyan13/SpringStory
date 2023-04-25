@@ -12,6 +12,8 @@ import com.dori.SpringStory.inventory.Inventory;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
+import com.dori.SpringStory.utils.utilEntities.Position;
+import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.wzHandlers.ItemDataHandler;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -67,7 +69,7 @@ public class MapleChar {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "extend_sp")
     private ExtendSP extendSP; // it's the Skill Points for each job and need to manage the job number by lvl 'getJobLevelByCharLevel' it's relevant for DualBlade and Evan (which have extra jobs)!!
-    private long mapId;
+    private int mapId;
     private int portal;
     private int subJob;
     // Ranking fields -
@@ -107,6 +109,11 @@ public class MapleChar {
     @MapKeyColumn(name = "skillId")
     @Column(name = "nextUsableTime")
     private Map<Integer, Long> skillCoolTimes;
+    // Non-DB fields -
+    @Transient
+    private Position position;
+    @Transient
+    private Field field;
 
     public MapleChar(int accountID, String name, int gender) {
         // Set char base data -
@@ -147,10 +154,11 @@ public class MapleChar {
         this.accountID = accountID;
         this.name = name;
         this.gender = CharacterGender.getGenderByOrdinal(gender); // 0 - boy | 1 - girl
-        this.skin = charAppearance[3];
+        // Character appearance -
         this.face = charAppearance[0];
         this.hair = charAppearance[1];
         this.hairColor = charAppearance[2];
+        this.skin = charAppearance[3];
         this.level = 1;
         this.job = job; // Beginner
         this.subJob = subJob;
@@ -466,5 +474,9 @@ public class MapleChar {
             //TODO!
             outPacket.encodeShort(0); // m_mVisitorQuestLog
         }
+    }
+
+    public void addSkillCoolTime(int skillID, int timeInSec){
+        getSkillCoolTimes().put(skillID, System.currentTimeMillis() + timeInSec * 1_000L);
     }
 }
