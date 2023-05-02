@@ -13,7 +13,7 @@ import lombok.ToString;
 public class Life {
     private int objectId = -1;
     private Position position;
-    protected int cy, fh, templateId, mobTime, rx0, rx1, type, x, y;
+    protected int cy, fh, templateId, mobTime, rx0, rx1, type;
     protected boolean flip;
     private String lifeType = "";
     private boolean hide;
@@ -43,8 +43,7 @@ public class Life {
         Life copy = new Life(getTemplateId());
         copy.setObjectId(getObjectId());
         copy.setLifeType(getLifeType());
-        copy.setX(getX());
-        copy.setY(getY());
+        copy.setPosition(getPosition());
         copy.setMobTime(getMobTime());
         copy.setFlip(isFlip());
         copy.setHide(isHide());

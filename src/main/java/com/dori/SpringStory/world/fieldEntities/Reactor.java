@@ -25,8 +25,7 @@ public class Reactor extends Life{
     public Life deepCopy() {
         Reactor copy = new Reactor(getTemplateId());
         copy.setLifeType(getLifeType());
-        copy.setX(getX());
-        copy.setY(getY());
+        copy.setPosition(getPosition());
         copy.setMobTime(getMobTime());
         copy.setFlip(isFlip());
         copy.setLimitedName(getLimitedName());

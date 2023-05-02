@@ -2,6 +2,7 @@ package com.dori.SpringStory.wzHandlers.wzEntities;
 
 import com.dori.SpringStory.world.fieldEntities.Foothold;
 import com.dori.SpringStory.world.fieldEntities.Life;
+import com.dori.SpringStory.world.fieldEntities.Npc;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.FieldType;
@@ -13,10 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.security.SecureRandom;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -31,16 +29,16 @@ public class MapData {
     protected int vrTop, vrLeft, vrBottom, vrRight;
     protected float mobRate;
     protected FieldType fieldType;
-    protected Set<Portal> portals;
-    protected Set<Foothold> footholds;
-    protected Map<Integer, Life> lifes;
+    protected Set<Portal> portals = new HashSet<>();
+    protected Set<Foothold> footholds = new HashSet<>();
+    protected Map<Integer, Life> lifes = new HashMap<>();
     protected String onFirstUserEnter = "", onUserEnter = "";
     protected int fixedMobCapacity;
     protected long fieldLimit;
     protected int returnMap, forcedReturn, createMobInterval, timeOut, timeLimit, lvLimit, lvForceMove;
     protected int consumeItemCoolTime, link;
     protected boolean town, swim, fly, reactorShuffle, expeditionOnly, partyOnly, needSkillForFly;
-    protected Map<Integer, List<String>> directionInfo;
+    protected Map<Integer, List<String>> directionInfo = new HashMap<>();
     protected boolean dropsDisabled;
     protected String fieldScript = "";
     protected boolean everLast;
@@ -106,7 +104,7 @@ public class MapData {
         return lifes.get(objID) != null;
     }
 
-    private Integer generateObjID(){
+    protected Integer generateObjID(){
         boolean notFoundID = true;
         Integer newOid = -1;
         int safeIndexCounter = MAX_RETRIES;

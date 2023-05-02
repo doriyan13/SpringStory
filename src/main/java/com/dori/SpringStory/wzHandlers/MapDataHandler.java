@@ -185,8 +185,8 @@ public class MapDataHandler {
                         case "id" -> life.setTemplateId(Integer.parseInt(value));
                         case "type" -> life.setLifeType(value);
                         case "limitedname" -> life.setLimitedName(value);
-                        case "x" -> life.setX(Integer.parseInt(value));
-                        case "y" -> life.setY(Integer.parseInt(value));
+                        case "x" -> life.getPosition().setX(Integer.parseInt(value));
+                        case "y" -> life.getPosition().setY(Integer.parseInt(value));
                         case "mobTime" -> life.setMobTime(Integer.parseInt(value));
                         case "f" -> life.setFlip(Integer.parseInt(value) != 0);
                         case "hide" -> life.setHide(Integer.parseInt(value) != 0);
@@ -224,7 +224,7 @@ public class MapDataHandler {
                                 curPos = new Position();
                             }
                             curPos.setX(iVal);
-                            reactor.setX(iVal);
+                            reactor.getPosition().setX(iVal);
                             reactor.setHomePosition(curPos);
                         }
                         case "y" -> {
@@ -233,7 +233,7 @@ public class MapDataHandler {
                                 curPos = new Position();
                             }
                             curPos.setY(iVal);
-                            reactor.setY(iVal);
+                            reactor.getPosition().setY(iVal);
                             reactor.setHomePosition(curPos);
                         }
                         case "reactorTime" -> reactor.setMobTime(iVal); //They multiplied by 1000 ?

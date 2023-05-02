@@ -1,6 +1,7 @@
 package com.dori.SpringStory.world.fieldEntities;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.connection.packet.packets.CNpcPool;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
 import lombok.*;
@@ -18,7 +19,9 @@ import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_RAT
 @EqualsAndHashCode(callSuper = true)
 public class Field extends MapData {
     // Fields -
-    private Map<Integer, MapleChar> players;
+    private Map<Integer, MapleChar> players = new HashMap<>();
+    private Map<Integer, Npc> npcs = new HashMap<>();
+    private Map<Integer, Mob> mobs = new HashMap<>();
 
     public Field(int id){
         super(id);
@@ -56,11 +59,19 @@ public class Field extends MapData {
         for (Foothold fh : mapData.getFootholds()) {
             this.addFoothold(fh.deepCopy());
         }
-        for (Portal p : mapData.getPortals()) {
-            this.addPortal(p.deepCopy());
+        for (Portal portal : mapData.getPortals()) {
+            this.addPortal(portal.deepCopy());
         }
-        for (Life l : mapData.getLifes().values()) {
-            this.addLife(l.deepCopy());
+        for (Life life : mapData.getLifes().values()) {
+            if(life.getLifeType().equalsIgnoreCase("n")){
+                this.addNPC(new Npc(life));
+            }
+            else if(life.getLifeType().equalsIgnoreCase("m")){
+                this.addMob(new Mob(life));
+            }
+            else {
+                this.addLife(life.deepCopy());
+            }
         }
         this.players = new HashMap<>();
         this.dropsDisabled = mapData.isDropsDisabled();
@@ -72,5 +83,40 @@ public class Field extends MapData {
 
     public void addPlayer(MapleChar chr){
         players.put(chr.getId(), chr);
+    }
+
+    public void addNPC(Npc npc){
+        if(npc.getObjectId() < 0){
+            Integer newObjID = generateObjID();
+            if (newObjID != null){
+                npc.setObjectId(newObjID);
+            }
+        }
+        // Only if the object ID is valid add life to list -
+        if(npc.getObjectId() != -1){
+            npcs.putIfAbsent(npc.getObjectId(), npc);
+        }
+    }
+
+    public void addMob(Mob mob){
+        if(mob.getObjectId() < 0){
+            Integer newObjID = generateObjID();
+            if (newObjID != null){
+                mob.setObjectId(newObjID);
+            }
+        }
+        // Only if the object ID is valid add life to list -
+        if(mob.getObjectId() != -1){
+            mobs.putIfAbsent(mob.getObjectId(), mob);
+        }
+    }
+
+    public void spawnLifesForCharacter(MapleChar chr){
+        // Spawn NPCs for the client -
+        npcs.forEach((id, npc) ->{
+            chr.write(CNpcPool.npcEnterField(npc));
+        });
+        // Spawn Mobs for the client -
+        //TODO: need to handle~!
     }
 }

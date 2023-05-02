@@ -36,6 +36,12 @@ public enum OutHeader {
     SetField(141),
     SetITC(142),
     SetCashShop(143),
+    // CNpcPool::OnPacket -
+    NpcImitateData(84),
+    UpdateLimitedDisableInfo(85),
+    NpcEnterField(311),
+    NpcLeaveField(312),
+    NpcChangeController(313),
 
     /*CHANGE_CHANNEL(16),
     ALIVE_REQ(17),

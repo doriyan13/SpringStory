@@ -43,6 +43,8 @@ public class StageHandler {
                 field.addPlayer(chr);
                 // Ref the field straight to the player (easier management)
                 chr.setField(field);
+                // Spawn lifes for the client -
+                field.spawnLifesForCharacter(chr);
             }
             else {
                 logger.error("got un-valid mapID for a char that cause a null field!, closing session for: " + chr.getName());
