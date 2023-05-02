@@ -95,6 +95,8 @@ public class MapleChannel {
             if(newField != null){
                 this.fields.put(newField.getId(), newField);
             }
+        } else {
+            newField = fields.get(fieldID);
         }
         return newField;
     }
