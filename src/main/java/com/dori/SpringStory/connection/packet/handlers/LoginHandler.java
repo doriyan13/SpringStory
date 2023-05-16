@@ -171,8 +171,8 @@ public class LoginHandler {
     @Handler(op = SelectCharacter)
     public static void handleCharSelect(MapleClient c, InPacket inPacket) {
         int characterID = inPacket.decodeInt();
-        String macID = inPacket.decodeString(); // hardware id
-        String hwID = inPacket.decodeString(); // machine id
+        String hwID = inPacket.decodeString(); // hardware id
+        String macID = inPacket.decodeString(); // machine id
         try {
             byte[] clientMachineID = InetAddress.getByName(ServerConstants.HOST_IP).getAddress();
             c.setMachineID(clientMachineID);

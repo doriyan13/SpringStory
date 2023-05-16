@@ -186,7 +186,7 @@ public interface CLogin {
     static OutPacket onSelectCharacterResult(byte[] machineID, int port, int characterID) {
         OutPacket outPacket = new OutPacket(SelectCharacterResult);
         outPacket.encodeByte(0); // World
-        outPacket.encodeByte(0); // dwCharacterID | Selectec Char
+        outPacket.encodeByte(0); // dwCharacterID | Selected Char
         outPacket.encodeArr(machineID);
         outPacket.encodeShort(port);
         outPacket.encodeInt(characterID);

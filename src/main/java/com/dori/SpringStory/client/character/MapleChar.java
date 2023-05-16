@@ -2,10 +2,7 @@ package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.connection.packet.OutPacket;
-import com.dori.SpringStory.enums.BodyPart;
-import com.dori.SpringStory.enums.CharacterGender;
-import com.dori.SpringStory.enums.DBChar;
-import com.dori.SpringStory.enums.EquipType;
+import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.EquipInventory;
 import com.dori.SpringStory.inventory.Inventory;
@@ -14,6 +11,7 @@ import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
+import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.wzHandlers.ItemDataHandler;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,6 +20,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.*;
 
+import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.enums.InventoryType.*;
 
 @Data
@@ -40,11 +39,6 @@ public class MapleChar {
     @Column(name = "char_name")
     private String name;
     private int rewardPoints;
-    // Transmitted fields -
-    @Transient
-    private static final Logger logger = new Logger(MapleChar.class);
-    @Transient
-    private MapleClient mapleClient;
     // Character stats -
     private CharacterGender gender;
     private int skin;
@@ -70,7 +64,7 @@ public class MapleChar {
     @JoinColumn(name = "extend_sp")
     private ExtendSP extendSP; // it's the Skill Points for each job and need to manage the job number by lvl 'getJobLevelByCharLevel' it's relevant for DualBlade and Evan (which have extra jobs)!!
     private int mapId;
-    private int portal;
+    private int portalId;
     private int subJob;
     // Ranking fields -
     private boolean ranked;
@@ -84,22 +78,22 @@ public class MapleChar {
     // Inventory fields -
     @JoinColumn(name = "equippedInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private EquipInventory equippedInventory = new EquipInventory(EQUIPPED, 52);
+    private EquipInventory equippedInventory = new EquipInventory(EQUIPPED, DEFAULT_INVENTORY_SIZE);
     @JoinColumn(name = "equipInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private EquipInventory equipInventory = new EquipInventory(EQUIP, 52);
+    private EquipInventory equipInventory = new EquipInventory(EQUIP, DEFAULT_INVENTORY_SIZE);
     @JoinColumn(name = "consumeInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private Inventory consumeInventory = new Inventory(CONSUME, 52);
+    private Inventory consumeInventory = new Inventory(CONSUME, DEFAULT_INVENTORY_SIZE);
     @JoinColumn(name = "etcInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private Inventory etcInventory = new Inventory(ETC, 52);
+    private Inventory etcInventory = new Inventory(ETC, DEFAULT_INVENTORY_SIZE);
     @JoinColumn(name = "installInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private Inventory installInventory = new Inventory(INSTALL, 52);
+    private Inventory installInventory = new Inventory(INSTALL, DEFAULT_INVENTORY_SIZE);
     @JoinColumn(name = "cashInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private EquipInventory cashInventory = new EquipInventory(CASH, 96);
+    private EquipInventory cashInventory = new EquipInventory(CASH, DEFAULT_CASH_INVENTORY_SIZE);
     // Skill fields -
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -111,6 +105,10 @@ public class MapleChar {
     private Map<Integer, Long> skillCoolTimes;
     // Non-DB fields -
     @Transient
+    private static final Logger logger = new Logger(MapleChar.class);
+    @Transient
+    private MapleClient mapleClient;
+    @Transient
     private Position position;
     @Transient
     private Field field;
@@ -120,23 +118,23 @@ public class MapleChar {
         this.accountID = accountID;
         this.name = name;
         this.gender = CharacterGender.getGenderByOrdinal(gender); // 0 - boy | 1 - girl
-        this.skin = 1;
-        this.face = 20000;
-        this.hair = 30027;
-        this.level = 1;
-        this.job = 0; // Beginner
+        this.skin = DEFAULT_SKIN;
+        this.face = DEFAULT_FACE;
+        this.hair = DEFAULT_HAIR;
+        this.level = DEFAULT_START_LVL;
+        this.job = Job.Beginner.getId(); // Beginner
         // Set basic stats -
-        this.nStr = 4;
-        this.nDex = 4;
-        this.nInt = 4;
-        this.nLuk = 4;
+        this.nStr = BASE_START_STAT;
+        this.nDex = BASE_START_STAT;
+        this.nInt = BASE_START_STAT;
+        this.nLuk = BASE_START_STAT;
         // Set HP/MP -
-        this.hp = 50;
-        this.maxHp = 50;
-        this.mp = 50;
-        this.maxMp = 50;
+        this.hp = BASE_START_HP;
+        this.maxHp = BASE_START_HP;
+        this.mp = BASE_START_MP;
+        this.maxMp = BASE_START_MP;
         // map pos -
-        this.mapId = 100000000;
+        this.mapId = DEFAULT_MAP_ID;
         // ExtendSP -
         this.extendSP = new ExtendSP();
         // Rank -
@@ -159,21 +157,21 @@ public class MapleChar {
         this.hair = charAppearance[1];
         this.hairColor = charAppearance[2];
         this.skin = charAppearance[3];
-        this.level = 1;
-        this.job = job; // Beginner
+        this.level = DEFAULT_START_LVL;
+        this.job = job;
         this.subJob = subJob;
         // Set basic stats -
-        this.nStr = 4;
-        this.nDex = 4;
-        this.nInt = 4;
-        this.nLuk = 4;
+        this.nStr = BASE_START_STAT;
+        this.nDex = BASE_START_STAT;
+        this.nInt = BASE_START_STAT;
+        this.nLuk = BASE_START_STAT;
         // Set HP/MP -
-        this.hp = 50;
-        this.maxHp = 50;
-        this.mp = 50;
-        this.maxMp = 50;
+        this.hp = BASE_START_HP;
+        this.maxHp = BASE_START_HP;
+        this.mp = BASE_START_MP;
+        this.maxMp = BASE_START_MP;
         // map pos -
-        this.mapId = 100000000;
+        this.mapId = DEFAULT_MAP_ID;
         // ExtendSP -
         this.extendSP = new ExtendSP();
         // Rank -
@@ -254,7 +252,7 @@ public class MapleChar {
         outPacket.encodeShort(getPop()); // fame
         outPacket.encodeInt(0); // Gach exp -> nTempEXP
         outPacket.encodeInt((int) this.getMapId());
-        outPacket.encodeByte(getPortal());
+        outPacket.encodeByte(this.getPortalId());
         outPacket.encodeInt(0); // nPlayTime ?
         outPacket.encodeShort(getSubJob()); // 1 == DualBlade/ not sure about evan?
     }
@@ -478,5 +476,18 @@ public class MapleChar {
 
     public void addSkillCoolTime(int skillID, int timeInSec){
         getSkillCoolTimes().put(skillID, System.currentTimeMillis() + timeInSec * 1_000L);
+    }
+
+    public void warp(Field from, Field to, Portal targetPortal){
+        // Update the char instance in both the old and new map -
+        from.removePlayer(this);
+        to.addPlayer(this);
+        // Update for the char instance the field data -
+        this.setField(to);
+        this.setMapId(to.getId());
+        // Update the position -
+        this.setPosition(targetPortal.getPosition());
+        // Update the portal ID of the instance -
+        this.setPortalId(targetPortal.getId());
     }
 }

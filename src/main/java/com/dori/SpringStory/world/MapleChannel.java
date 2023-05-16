@@ -89,7 +89,7 @@ public class MapleChannel {
     }
 
     public Field getField(int fieldID){
-        Field newField = null;
+        Field newField;
         if(fields.get(fieldID) == null){
             newField = MapDataHandler.getMapByID(fieldID);
             if(newField != null){
@@ -100,15 +100,5 @@ public class MapleChannel {
         }
         return newField;
     }
-//
-//    public void clearCache() {
-//        Set<Field> toRemove = new HashSet<>();
-//        for (Field field : getFields()) {
-//            if (field.getChars().size() == 0 && field.getDrops().size() == 0) {
-//                toRemove.add(field);
-//            }
-//        }
-//        getFields().removeAll(toRemove);
-//    }
 
 }

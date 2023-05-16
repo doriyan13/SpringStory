@@ -49,9 +49,9 @@ public interface CStage {
         else {
             outPacket.encodeByte(0); // usingBuffProtector
             outPacket.encodeInt(field.getId());
-            outPacket.encodeByte(0); // portal
-            outPacket.encodeShort(0); // char hp ?
-            outPacket.encodeBool(false);
+            outPacket.encodeByte(chr.getPortalId()); // portal
+            outPacket.encodeInt(chr.getHp()); // char hp
+            outPacket.encodeBool(false); // Chasing?
             if(false){
                 outPacket.encodeInt(0);
                 outPacket.encodeInt(0);

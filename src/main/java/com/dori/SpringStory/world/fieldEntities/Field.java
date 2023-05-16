@@ -85,6 +85,10 @@ public class Field extends MapData {
         players.put(chr.getId(), chr);
     }
 
+    public void removePlayer(MapleChar chr){
+        players.remove(chr.getId(), chr);
+    }
+
     public void addNPC(Npc npc){
         if(npc.getObjectId() < 0){
             Integer newObjID = generateObjID();

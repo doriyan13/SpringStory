@@ -83,7 +83,7 @@ public class MapleCharService implements BaseService<MapleChar>{
 
     @Override
     public MapleChar update(Long entityID, MapleChar entityDataToUpdate) {
-        return null;
+        return charRepo.save(entityDataToUpdate);
     }
 
     @Override

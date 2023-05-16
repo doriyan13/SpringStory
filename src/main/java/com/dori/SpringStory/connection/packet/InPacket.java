@@ -170,4 +170,8 @@ public class InPacket extends Packet {
     public Rect decodeIntRect() {
         return new Rect(decodePositionInt(), decodePositionInt());
     }
+
+    public boolean decodeBool(){
+        return decodeByte() > 0;
+    }
 }

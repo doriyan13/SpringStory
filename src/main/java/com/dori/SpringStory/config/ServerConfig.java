@@ -71,6 +71,7 @@ public class ServerConfig {
             // Adding admin char for test -
             MapleChar adminChar = new MapleChar(adminAccount.getId(),"Dori", CharacterGender.Boy.getValue());
             charService.addNewEntity(adminChar);
+
             logger.serverNotice("~ Server is Ready ~");
         };
     }
