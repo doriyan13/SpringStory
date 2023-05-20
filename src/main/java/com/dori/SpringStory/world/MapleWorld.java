@@ -3,6 +3,7 @@ package com.dori.SpringStory.world;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.enums.WorldState;
 import com.dori.SpringStory.enums.WorldStatus;
+import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.utils.utilEntities.Tuple;
 import lombok.Data;
@@ -25,11 +26,12 @@ public class MapleWorld {
     private String worldEventDescription;
     private boolean isCharCreationBlocked;
     private Map<Integer, MapleClient> connectedChatClients = new HashMap<>();
-
     private boolean full;
     private WorldStatus status;
-
     Set<Tuple<Position, String>> worldSelectMessages;
+
+    // Logger -
+    private static final Logger logger = new Logger(MapleChannel.class);
 
     public MapleWorld(int worldID, String name, String worldEventDescription, int amountOfChannels){
         this.worldID = worldID;
@@ -51,6 +53,15 @@ public class MapleWorld {
         this.status = WorldStatus.NORMAL;
 
         this.worldSelectMessages = new HashSet<>();
+    }
+
+    public void shutdown(){
+        logger.notice("Starting shutdown for the World - ID: " + getWorldID() + " | Name: " + getName());
+        for(MapleChannel channel : mapleChannels){
+            logger.warning("Closing Channel - ID: " + channel.getChannelId() + " | Name: " + channel.getName());
+            channel.shutdown();
+        }
+        logger.notice("~ Finished shutdown for the World: " + getWorldID() + " | Name: " + getName() + " ~");
     }
 
     public boolean isFull() {

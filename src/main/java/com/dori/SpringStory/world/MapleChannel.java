@@ -1,27 +1,28 @@
 package com.dori.SpringStory.world;
 
-import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleAccount;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.constants.ServerConstants;
+import com.dori.SpringStory.enums.ServiceType;
+import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.services.MapleCharService;
+import com.dori.SpringStory.services.ServiceManager;
 import com.dori.SpringStory.utils.MapleUtils;
-import com.dori.SpringStory.utils.utilEntities.Tuple;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.wzHandlers.MapDataHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class MapleChannel {
+    // Fields -
     private int port;
     private String name;
     private int worldId, channelId;
@@ -30,6 +31,8 @@ public class MapleChannel {
     private Map<Integer, Field> fields;
     private Map<Integer, MapleChar> chars = new HashMap<>();
     public final int MAX_SIZE = 1000;
+    // Logger -
+    private static final Logger logger = new Logger(MapleChannel.class);
 
     private MapleChannel(String name, MapleWorld world, int channelId, boolean adultChannel) {
         this.name = name;
@@ -51,6 +54,17 @@ public class MapleChannel {
         this.adultChannel = false;
         this.port = ServerConstants.LOGIN_PORT + (100 * worldId) + channelId;
         this.fields = new HashMap<>();
+    }
+
+    public void shutdown(){
+        for(MapleChar chr : chars.values()){
+            logger.warning("Logging out - ID: " + chr.getId() + " | Name - " + chr.getName());
+            // Save the Character progress in the DB -
+            ((MapleCharService)ServiceManager.getService(ServiceType.Character)).update((long) chr.getId(), chr);
+            logger.warning("Saved - ID: " + chr.getId() + " | Name - " + chr.getName() + " Progress successfully");
+            // Close the user client -
+            chr.getMapleClient().close();
+        }
     }
 
     public int getGaugePx() {

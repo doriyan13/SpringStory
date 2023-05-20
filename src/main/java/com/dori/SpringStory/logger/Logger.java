@@ -8,14 +8,12 @@ import static com.dori.SpringStory.constants.ServerConstants.LOG_LVL;
 public class Logger {
     // Fields -
     private final String className;
-    private final String threadName;
 
     // Executioner (ThreadPool)
     private static final ExecutorService loggerExecutor = Executors.newCachedThreadPool();
     // Constructor -
     public Logger(Class<?> currentClass){
         this.className = currentClass.getName();
-        this.threadName = Thread.currentThread().getName();
     }
 
     /**
@@ -117,7 +115,7 @@ public class Logger {
         String[] classNameList = this.className.split("\\.");
         String shortClassName = classNameList[classNameList.length - 1];
         // Thread and class String (short version) -
-        String threadAndClassString = "<" + this.threadName + ">" + " " + "[" + shortClassName + "]" + ": ";
+        String threadAndClassString = "<" + Thread.currentThread().getName() + ">" + " " + "[" + shortClassName + "]" + ": ";
         // Thread and class String -
         String ClassString = "[" + shortClassName + "]" + ": ";
         // Check if defined log level allow to print that log -

@@ -7,11 +7,10 @@ import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
 import lombok.*;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_CAPACITY;
-import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_RATE_BY_MOBGEN_COUNT;
+import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_RATE_BY_MOB_GEN_COUNT;
 
 @Data
 @AllArgsConstructor
@@ -46,7 +45,7 @@ public class Field extends MapData {
         this.expeditionOnly = mapData.isExpeditionOnly();
         this.needSkillForFly = mapData.isNeedSkillForFly();
         this.fixedMobCapacity = mapData.getFixedMobCapacity() != 0 ? mapData.getFixedMobCapacity() : DEFAULT_FIELD_MOB_CAPACITY;
-        this.fixedMobCapacity = mapData.getFixedMobCapacity() != 0 ? mapData.getFixedMobCapacity() : (int) DEFAULT_FIELD_MOB_RATE_BY_MOBGEN_COUNT;
+        this.fixedMobCapacity = mapData.getFixedMobCapacity() != 0 ? mapData.getFixedMobCapacity() : (int) DEFAULT_FIELD_MOB_RATE_BY_MOB_GEN_COUNT;
         this.createMobInterval = mapData.getCreateMobInterval();
         this.timeOut = mapData.getTimeOut();
         this.timeLimit = mapData.getTimeLimit();

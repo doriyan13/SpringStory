@@ -15,7 +15,7 @@ public interface ServerConstants {
     String MINOR_VERSION = "1";
     byte LOCALE = 8;
     // Maple World stuff -
-    byte DEFAULT_WORLD_ID = 0; //1- bera / 0 - scania
+    byte DEFAULT_WORLD_ID = 0; //1- Bera | 0 - Scania
     int CHANNELS_PER_WORLD = 1;
     int WORLD_EVENT_EXP_WSE = 100;
     int WORLD_EVENT_DROP_WSE = 100;
@@ -32,6 +32,8 @@ public interface ServerConstants {
     String HANDLERS_DIR = DIR + "/src/main/java/com/dori/SpringStory/connection/packet/handlers";
     String WZ_DIR = DIR + "/wz";
     // WZ reading stuff -
+    int AMOUNT_OF_LOADERS = 5;
+    int MAX_LOADING_TIME_IN_MIN = 2;
     boolean PRINT_WZ_UNK = System.getenv("PRINT_WZ_UNK") != null && Boolean.getBoolean(System.getenv("PRINT_WZ_UNK"));
     String MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/Map";
     String WORLD_MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/WorldMap";
