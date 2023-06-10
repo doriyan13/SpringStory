@@ -42,6 +42,33 @@ public enum OutHeader {
     NpcEnterField(311),
     NpcLeaveField(312),
     NpcChangeController(313),
+    // CMobPool::OnPacket -
+    MobEnterField(284),
+    MobLeaveField(285),
+    MobChangeController(286),
+    MobCrcKeyChanged(297),
+    // CMobPool::OnMobPacket (CMob) -
+    MobMove(287),
+    MobCtrlAck(288),
+    MobStatSet(290),
+    MobStatReset(291),
+    MobSuspendReset(292),
+    MobAffected(293),
+    MobDamaged(294),
+    MobSpecialEffectBySkill(295),
+    MobHPIndicator(298),
+    MobCatchEffect(299),
+    MobEffectByItem(300),
+    MobMobSpeaking(301),
+    IncMobChargeCount(302),
+    MobSkillDelay(303),
+    MobEscortFullPath(304),
+    MobEscortStopEndPermmision(305),
+    MobEscortStopSay(306),
+    MobEscortReturnBefore(307),
+    MobNextAttack(308),
+    MobAttackedByMob(309),
+
 
     /*CHANGE_CHANNEL(16),
     ALIVE_REQ(17),
@@ -316,8 +343,7 @@ public enum OutHeader {
     REPORT_RESPONSE(56),
     ENABLE_REPORT(48),
     CLAIM_SERVER_AVAILABLE_TIME(47),
-    BUFFED_ZONE_EFFECT(267)*/
-    ;
+    BUFFED_ZONE_EFFECT(267)*/;
 
 
     private static final List<OutHeader> spam = Arrays.asList(

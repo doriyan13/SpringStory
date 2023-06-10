@@ -1,6 +1,7 @@
 package com.dori.SpringStory.world.fieldEntities;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.connection.packet.packets.CNpcPool;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
@@ -22,11 +23,11 @@ public class Field extends MapData {
     private Map<Integer, Npc> npcs = new HashMap<>();
     private Map<Integer, Mob> mobs = new HashMap<>();
 
-    public Field(int id){
+    public Field(int id) {
         super(id);
     }
 
-    public Field(MapData mapData){
+    public Field(MapData mapData) {
         // TODO: maybe the id management will change in the future!
         this.id = mapData.getId();
         this.fieldType = mapData.getFieldType();
@@ -62,13 +63,11 @@ public class Field extends MapData {
             this.addPortal(portal.deepCopy());
         }
         for (Life life : mapData.getLifes().values()) {
-            if(life.getLifeType().equalsIgnoreCase("n")){
+            if (life.getLifeType().equalsIgnoreCase("n")) {
                 this.addNPC(new Npc(life));
-            }
-            else if(life.getLifeType().equalsIgnoreCase("m")){
+            } else if (life.getLifeType().equalsIgnoreCase("m")) {
                 this.addMob(new Mob(life));
-            }
-            else {
+            } else {
                 this.addLife(life.deepCopy());
             }
         }
@@ -80,46 +79,44 @@ public class Field extends MapData {
         return MapleUtils.findWithPred(getPortals(), portal -> portal.getName().equals(name));
     }
 
-    public void addPlayer(MapleChar chr){
+    public void addPlayer(MapleChar chr) {
         players.put(chr.getId(), chr);
     }
 
-    public void removePlayer(MapleChar chr){
+    public void removePlayer(MapleChar chr) {
         players.remove(chr.getId(), chr);
     }
 
-    public void addNPC(Npc npc){
-        if(npc.getObjectId() < 0){
+    public void addNPC(Npc npc) {
+        if (npc.getObjectId() < 0) {
             Integer newObjID = generateObjID();
-            if (newObjID != null){
+            if (newObjID != null) {
                 npc.setObjectId(newObjID);
             }
         }
         // Only if the object ID is valid add life to list -
-        if(npc.getObjectId() != -1){
+        if (npc.getObjectId() != -1) {
             npcs.putIfAbsent(npc.getObjectId(), npc);
         }
     }
 
-    public void addMob(Mob mob){
-        if(mob.getObjectId() < 0){
+    public void addMob(Mob mob) {
+        if (mob.getObjectId() < 0) {
             Integer newObjID = generateObjID();
-            if (newObjID != null){
+            if (newObjID != null) {
                 mob.setObjectId(newObjID);
             }
         }
         // Only if the object ID is valid add life to list -
-        if(mob.getObjectId() != -1){
+        if (mob.getObjectId() != -1) {
             mobs.putIfAbsent(mob.getObjectId(), mob);
         }
     }
 
-    public void spawnLifesForCharacter(MapleChar chr){
+    public void spawnLifesForCharacter(MapleChar chr) {
         // Spawn NPCs for the client -
-        npcs.forEach((id, npc) ->{
-            chr.write(CNpcPool.npcEnterField(npc));
-        });
+        npcs.forEach((id, npc) -> chr.write(CNpcPool.npcEnterField(npc)));
         // Spawn Mobs for the client -
-        //TODO: need to handle~!
+        mobs.forEach((id, mob) -> chr.write(CMobPool.mobEnterField(mob)));
     }
 }
