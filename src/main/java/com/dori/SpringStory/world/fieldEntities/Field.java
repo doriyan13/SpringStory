@@ -3,6 +3,7 @@ package com.dori.SpringStory.world.fieldEntities;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.connection.packet.packets.CNpcPool;
+import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
 import lombok.*;
@@ -114,9 +115,17 @@ public class Field extends MapData {
     }
 
     public void spawnLifesForCharacter(MapleChar chr) {
+        // TODO: Maybe need to refactor and rethink when to respawn npc/mobs? cuz if there is more then 1 player it can act weird
         // Spawn NPCs for the client -
-        npcs.forEach((id, npc) -> chr.write(CNpcPool.npcEnterField(npc)));
+        npcs.values().forEach(npc -> chr.write(CNpcPool.npcEnterField(npc)));
         // Spawn Mobs for the client -
-        mobs.forEach((id, mob) -> chr.write(CMobPool.mobEnterField(mob)));
+        mobs.values().forEach(mob -> chr.write(CMobPool.mobEnterField(mob)));
+    }
+
+    public void assignControllerToMobs(MapleChar chr){
+        //TODO: assigning a char suppose to be random and not the new char that enter the map each time!
+
+        // Assign Controller to Mobs for the client -
+        mobs.values().forEach(mob -> chr.write(CMobPool.mobChangeController(mob, MobControllerType.ActiveInit)));
     }
 }

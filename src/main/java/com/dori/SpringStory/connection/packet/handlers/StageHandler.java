@@ -46,6 +46,9 @@ public class StageHandler {
                 chr.setField(field);
                 // Spawn lifes for the client -
                 field.spawnLifesForCharacter(chr);
+                // Assign Controllers For life -
+                field.assignControllerToMobs(chr);
+                //TODO: need to handle controller for npcs!!
             }
             else {
                 logger.error("got un-valid mapID for a char that cause a null field!, closing session for: " + chr.getName());
@@ -85,6 +88,8 @@ public class StageHandler {
                         "", new String[]{""}));
                 // Spawn lifes for the client -
                 field.spawnLifesForCharacter(chr);
+                // Assign Controllers For life -
+                field.assignControllerToMobs(chr);
             }
             else {
                 logger.error("Got an invalid field ID while trying to transfer between maps - " + targetPortal.getTargetMapId());

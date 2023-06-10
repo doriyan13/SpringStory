@@ -1,6 +1,9 @@
 package com.dori.SpringStory.world.fieldEntities;
 
+import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.connection.packet.packets.CMobPool;
+import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.enums.MobSummonType;
 import lombok.*;
 
@@ -21,6 +24,7 @@ public class Mob extends Life{
     private MobSummonType appearType;
     private int option;
     private byte teamForMCarnival;
+    private MapleChar controller;
 
     public Mob(int templateId) {
         super(templateId);
@@ -29,6 +33,7 @@ public class Mob extends Life{
         this.appearType = MobSummonType.Normal;
         this.option = 0;
         this.teamForMCarnival = 0;
+        this.controller = null;
     }
 
     public Mob(Life life){
@@ -59,6 +64,7 @@ public class Mob extends Life{
         this.appearType = MobSummonType.Normal;
         this.option = 0;
         this.teamForMCarnival = 0;
+        this.controller = null;
     }
 
     public void encode(OutPacket outPacket){
@@ -79,5 +85,17 @@ public class Mob extends Life{
         outPacket.encodeByte(getTeamForMCarnival());
         outPacket.encodeInt(0); // nEffectItemID
         outPacket.encodeInt(0); // this
+    }
+
+    public void setController(MapleChar chr, MobControllerType controllerType){
+        // If the mob had an old controller, reset the controller -
+        if(getController() != null){
+            // Notify old controller -
+            chr.write(CMobPool.mobChangeController(this, MobControllerType.Reset));
+        }
+        // Set the new Character as the new controller -
+        setController(chr);
+        // Notify new controller -
+        chr.write(CMobPool.mobChangeController(this, controllerType));
     }
 }
