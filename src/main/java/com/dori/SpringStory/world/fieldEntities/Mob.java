@@ -41,6 +41,7 @@ public class Mob extends Life{
         this.setObjectId(life.getObjectId());
         this.setLifeType(life.getLifeType());
         this.setPosition(life.getPosition());
+        this.setVPosition(life.getVPosition());
         this.setMobTime(life.getMobTime());
         this.setFlip(life.isFlip());
         this.setHide(life.isHide());

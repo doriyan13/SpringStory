@@ -4,7 +4,6 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.world.fieldEntities.Mob;
-import com.dori.SpringStory.world.fieldEntities.Npc;
 
 public interface CMobPool {
     static OutPacket mobEnterField(Mob mob) {
@@ -31,6 +30,34 @@ public interface CMobPool {
             // Encode mob data -
             mob.encode(outPacket);
         }
+        return outPacket;
+    }
+
+    static OutPacket mobMoveAck(int mobID, short mobCtrlSN, boolean isNextAtkPossible, int mp) {
+        OutPacket outPacket = new OutPacket(OutHeader.MobCtrlAck);
+
+        outPacket.encodeInt(mobID);
+        outPacket.encodeShort(mobCtrlSN);
+        outPacket.encodeBool(isNextAtkPossible);
+        outPacket.encodeShort(Math.min(Short.MAX_VALUE, mp));
+        outPacket.encodeByte(0); // pCommand.nSkillID
+        outPacket.encodeByte(0); // pCommand.nSLV
+
+        return outPacket;
+    }
+
+    static OutPacket mobMove(int mobID, boolean isNextAtkPossible, byte actionAndDir,  int skillData){
+        OutPacket outPacket = new OutPacket(OutHeader.MobMove);
+
+        outPacket.encodeInt(mobID);
+        outPacket.encodeBool(false); // bNotForceLanding
+        outPacket.encodeBool(false); // bNotChangeAction
+        outPacket.encodeBool(isNextAtkPossible);
+        outPacket.encodeByte(actionAndDir);
+        outPacket.encodeInt(skillData); // skill information
+        outPacket.encodeInt(0); // aMultiTargetForBall LOOP
+        outPacket.encodeInt(0); // aRandTimeforAreaAttack LOOP
+
         return outPacket;
     }
 }

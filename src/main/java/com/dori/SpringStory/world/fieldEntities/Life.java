@@ -13,7 +13,8 @@ import lombok.ToString;
 public class Life {
     private int objectId = -1;
     private Position position;
-    protected int cy, fh, templateId, mobTime, rx0, rx1, type;
+    protected int cy, templateId, mobTime, rx0, rx1, type;
+    protected short fh;
     protected boolean flip;
     private String lifeType = "";
     private boolean hide;
@@ -37,6 +38,7 @@ public class Life {
     public Life(int templateId) {
         this.templateId = templateId;
         this.position = new Position(0, 0);
+        this.vPosition = new Position(0, 0);
     }
 
     public Life deepCopy() {
@@ -44,6 +46,7 @@ public class Life {
         copy.setObjectId(getObjectId());
         copy.setLifeType(getLifeType());
         copy.setPosition(getPosition());
+        copy.setVPosition(getVPosition());
         copy.setMobTime(getMobTime());
         copy.setFlip(isFlip());
         copy.setHide(isHide());

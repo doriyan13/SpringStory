@@ -190,7 +190,7 @@ public class MapDataHandler {
                         case "mobTime" -> life.setMobTime(Integer.parseInt(value));
                         case "f" -> life.setFlip(Integer.parseInt(value) != 0);
                         case "hide" -> life.setHide(Integer.parseInt(value) != 0);
-                        case "fh" -> life.setFh(Integer.parseInt(value));
+                        case "fh" -> life.setFh((short) Integer.parseInt(value));
                         case "cy" -> life.setCy(Integer.parseInt(value));
                         case "rx0" -> life.setRx0(Integer.parseInt(value));
                         case "rx1" -> life.setRx1(Integer.parseInt(value));

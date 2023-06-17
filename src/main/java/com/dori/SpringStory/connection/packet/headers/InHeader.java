@@ -236,7 +236,7 @@ public enum InHeader {
 //CP_BEGIN_LIFEPOOL = 0xE1,
 //CP_BEGIN_MOB = 0xE2,
     MobMove(227),
-    MobApplyCtrl(228),
+    MobApplyCtrl(228), // MobCtrlAck
     MobDropPickUpRequest(229),
     MobHitByObstacle(230),
     MobHitByMob(231),
