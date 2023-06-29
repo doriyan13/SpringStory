@@ -3,6 +3,7 @@ package com.dori.SpringStory.enums;
 import java.util.Arrays;
 
 public enum MovementPathAttr {
+    None(-1),
     Normal(0),
     Jump(1),
     Impact(2),
@@ -56,6 +57,6 @@ public enum MovementPathAttr {
         return Arrays.stream(values())
                 .filter(mpa -> mpa.getVal() == attrNum)
                 .findFirst()
-                .orElse(Normal);
+                .orElse(None);
     }
 }

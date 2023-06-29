@@ -1,5 +1,6 @@
 package com.dori.SpringStory.connection.netty;
 
+import com.dori.SpringStory.Server;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.Handler;
@@ -77,6 +78,8 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             // Remove the character from the list of online characters -
             chr.getMapleClient().getMapleChannelInstance().removeChar(chr);
             ((MapleCharService)ServiceManager.getService(ServiceType.Character)).update((long) chr.getId(), chr);
+            // Remove client from list of connected clients -
+            Server.removeClient(c);
         }
         else {
             logger.warning("Was not able to save character, data inconsistency may have occurred.");

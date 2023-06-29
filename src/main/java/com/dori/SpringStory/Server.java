@@ -38,6 +38,8 @@ public class Server {
     private static final List<MapleWorld> worldList = new ArrayList<>();
     // Migrate in users -
     private static final Map<Integer, MigrateInUser> migrateUsers = new HashMap<>();
+    // List of Connected clients -
+    private static final List<MapleClient> connectedClients = new ArrayList<>();
 
     public static List<MapleWorld> getWorlds() {
         return worldList;
@@ -152,6 +154,8 @@ public class Server {
             client.setChr(chr);
             // Remove from the list of users that need to migrate -
             migrateUsers.remove(chr.getId());
+            // Add to the list of connected clients -
+            connectedClients.add(client);
         } else {
             // trying to log in with a char that wasn't migrate in ?
             client.close();
@@ -160,5 +164,13 @@ public class Server {
 
     public static boolean isWorldExist(int worldID) {
         return getWorldById(worldID) != null;
+    }
+
+    public static void removeClient(MapleClient client){
+        connectedClients.remove(client);
+    }
+
+    public static MapleClient getFirstConnectedClient(){
+        return connectedClients.get(0);
     }
 }

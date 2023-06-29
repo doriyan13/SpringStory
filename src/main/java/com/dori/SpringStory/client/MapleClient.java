@@ -6,6 +6,7 @@ import com.dori.SpringStory.connection.netty.NettyClient;
 import com.dori.SpringStory.world.MapleChannel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

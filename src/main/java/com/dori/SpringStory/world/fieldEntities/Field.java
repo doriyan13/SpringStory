@@ -1,6 +1,7 @@
 package com.dori.SpringStory.world.fieldEntities;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.connection.packet.packets.CNpcPool;
 import com.dori.SpringStory.enums.MobControllerType;
@@ -126,6 +127,19 @@ public class Field extends MapData {
         //TODO: assigning a char suppose to be random and not the new char that enter the map each time!
 
         // Assign Controller to Mobs for the client -
-        mobs.values().forEach(mob -> chr.write(CMobPool.mobChangeController(mob, MobControllerType.ActiveInit)));
+        mobs.values().forEach(mob -> {
+            mob.setController(chr);
+            chr.write(CMobPool.mobChangeController(mob, MobControllerType.ActiveInit));
+        });
+    }
+
+    public void broadcastPacket(OutPacket outPacket, MapleChar exceptChr) {
+        getPlayers().values().forEach(
+            chr -> {
+                if(chr.getId() != exceptChr.getId()){
+                    chr.write(outPacket);
+                }
+            }
+        );
     }
 }

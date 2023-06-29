@@ -7,6 +7,7 @@ import com.dori.SpringStory.connection.crypto.MapleCrypto;
 import com.dori.SpringStory.connection.netty.ChannelHandler;
 import com.dori.SpringStory.connection.netty.ChatAcceptor;
 import com.dori.SpringStory.connection.netty.LoginAcceptor;
+import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.enums.CharacterGender;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.logger.Logger;
@@ -18,6 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 @Configuration
 public class ServerConfig {
