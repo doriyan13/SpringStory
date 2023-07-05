@@ -1,7 +1,9 @@
 package com.dori.SpringStory.inventory;
 
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.enums.EquipType;
 import com.dori.SpringStory.enums.InventoryType;
+import com.dori.SpringStory.utils.ItemUtils;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,6 +47,17 @@ public class Inventory {
         outPacket.encodeByte(0);
     }
 
+    public void encodeEquips(OutPacket outPacket, EquipType type, boolean isCashIndex) {
+        for (Item item : getItems()) {
+            Equip equip = (Equip) item;
+            if(ItemUtils.shouldEncodeEquipByType(type,equip)){
+                outPacket.encodeShort(isCashIndex ? (equip.getBagIndex() - 100) : equip.getBagIndex());
+                equip.encode(outPacket);
+            }
+        }
+        outPacket.encodeShort(0);
+    }
+
     public int getFirstOpenSlot() {
         int oldIndex = 0;
         for (Item item : getItems()) {
@@ -60,7 +73,9 @@ public class Inventory {
 
     public void addItem(Item item) {
         if(getItems().size() < getSlots()) {
-            item.setBagIndex(getFirstOpenSlot());
+            if(item.getBagIndex() == 0){
+                item.setBagIndex(getFirstOpenSlot());
+            }
             getItems().add(item);
             item.setInvType(getType());
             getItems().sort(Comparator.comparingInt(Item::getBagIndex));

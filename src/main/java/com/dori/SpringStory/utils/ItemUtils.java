@@ -5,6 +5,7 @@ import com.dori.SpringStory.enums.BodyPart;
 import com.dori.SpringStory.enums.EquipPrefix;
 import com.dori.SpringStory.enums.EquipType;
 import com.dori.SpringStory.inventory.Equip;
+import com.dori.SpringStory.inventory.Item;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -68,7 +69,7 @@ public interface ItemUtils {
                                Map<BodyPart, Integer> charEquips,
                                Map<BodyPart, Integer> charMaskedEquips,
                                List<Integer> cWeapon) {
-        for (Equip item : chr.getEquippedInventory().getItems()) {
+        for (Item item : chr.getEquippedInventory().getItems()) {
             BodyPart bodyPart = getBodyPartFromItem(item.getItemId());
             if(bodyPart != BodyPart.BPBase){
                 if(bodyPart.getVal() < BodyPart.BPEnd.getVal()){

@@ -5,7 +5,6 @@ import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.EnchantStat;
-import com.dori.SpringStory.enums.InventoryType;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
 import com.dori.SpringStory.wzHandlers.wzEntities.EquipData;
 import jakarta.persistence.*;
@@ -17,28 +16,18 @@ import java.util.List;
 import java.util.Map;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 
 @Entity
 @Table(name = "equips")
-public class Equip {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private long id;
-    private boolean isCash;
+@PrimaryKeyJoinColumn(name = "dbItemId")
+public class Equip extends Item{
+
     private long serialNumber;
-    private int itemId;
     private int equipItemID;
-    private int bagIndex;
-    private String owner = "";
-    @Column(name = "type")
-    private ItemType type;
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "inventoryType")
-    private InventoryType invType;
     @Convert(converter = FileTimeConverter.class)
     private FileTime equippedDate = FileTime.fromType(FileTime.Type.PLAIN_ZERO);
     @Convert(converter = FileTimeConverter.class)
@@ -169,24 +158,15 @@ public class Equip {
         this.options = equipData.getOptions();
     }
 
-    public void encodeBaseItemData(OutPacket outPacket) {
-        outPacket.encodeInt(getItemId());
-        outPacket.encodeByte(isCash());
-        if (isCash()) {
-            outPacket.encodeLong(getId());
-        }
-        outPacket.encodeFT(getDateExpire());
-    }
 
     public void encode(OutPacket outPacket) {
         // GW_ItemSlotEquip::RawDecode:
         // Encode item type (equip) -
         outPacket.encodeByte(getType().getVal());
         // Encode base item data - GW_ItemSlotBase::RawDecode
-        encodeBaseItemData(outPacket);
+        super.encodeItemSlotBase(outPacket);
         outPacket.encodeByte(tuc); // ruc ? IDK why they call it in the client ruc but in the wz it's tuc :kek
         outPacket.encodeByte(cuc);
-
         outPacket.encodeShort(iStr);
         outPacket.encodeShort(iDex);
         outPacket.encodeShort(iInt);
@@ -199,20 +179,16 @@ public class Equip {
         outPacket.encodeShort(iMDD);
         outPacket.encodeShort(iAcc);
         outPacket.encodeShort(iEva);
-
         outPacket.encodeShort(iCraft);
         outPacket.encodeShort(iSpeed);
         outPacket.encodeShort(iJump);
         outPacket.encodeString(owner);
         outPacket.encodeShort(attribute);
-
         outPacket.encodeByte(levelUpType);
         outPacket.encodeByte(level);
         outPacket.encodeInt(exp);
         outPacket.encodeInt(durability);
-
         outPacket.encodeInt(iuc);
-
         outPacket.encodeByte(grade);
         outPacket.encodeByte(chuc);
 

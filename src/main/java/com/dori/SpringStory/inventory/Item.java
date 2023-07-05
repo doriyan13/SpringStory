@@ -18,25 +18,26 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "items")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
-    private int itemId;
-    private int bagIndex;
-    private long cashItemSerialNumber;
+    protected int itemId;
+    protected int bagIndex;
+    protected long cashItemSerialNumber;
     @Convert(converter = FileTimeConverter.class)
-    private FileTime dateExpire = FileTime.fromType(FileTime.Type.MAX_TIME);
+    protected FileTime dateExpire = FileTime.fromType(FileTime.Type.MAX_TIME);
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "inventoryType")
-    private InventoryType invType;
+    protected InventoryType invType;
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "type")
-    private ItemType type;
-    private boolean isCash;
-    private int quantity;
-    private String owner = "";
+    protected ItemType type;
+    protected boolean isCash;
+    protected int quantity;
+    protected String owner = "";
 
     public Item(int itemId, int bagIndex, long cashItemSerialNumber, FileTime dateExpire, InventoryType invType,
                 boolean isCash, ItemType type) {
@@ -49,15 +50,19 @@ public class Item {
         this.type = type;
     }
 
-    public void encode(OutPacket outPacket) {
-        outPacket.encodeByte(getType().getVal());
-        // GW_ItemSlotBase
+    public void encodeItemSlotBase(OutPacket outPacket){
         outPacket.encodeInt(getItemId());
         outPacket.encodeByte(isCash());
         if (isCash()) {
             outPacket.encodeLong(getId());
         }
         outPacket.encodeFT(getDateExpire());
+    }
+
+    public void encode(OutPacket outPacket) {
+        outPacket.encodeByte(getType().getVal());
+        // GW_ItemSlotBase
+        encodeItemSlotBase(outPacket);
         outPacket.encodeInt(getBagIndex());
         outPacket.encodeShort(getQuantity()); // nQuantity
         outPacket.encodeString(getOwner()); // sOwner

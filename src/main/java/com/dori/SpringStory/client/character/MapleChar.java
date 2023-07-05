@@ -4,7 +4,6 @@ import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
-import com.dori.SpringStory.inventory.EquipInventory;
 import com.dori.SpringStory.inventory.Inventory;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.ItemUtils;
@@ -78,10 +77,10 @@ public class MapleChar {
     // Inventory fields -
     @JoinColumn(name = "equippedInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private EquipInventory equippedInventory = new EquipInventory(EQUIPPED, DEFAULT_INVENTORY_SIZE);
+    private Inventory equippedInventory = new Inventory(EQUIPPED, DEFAULT_INVENTORY_SIZE);
     @JoinColumn(name = "equipInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private EquipInventory equipInventory = new EquipInventory(EQUIP, DEFAULT_INVENTORY_SIZE);
+    private Inventory equipInventory = new Inventory(EQUIP, DEFAULT_INVENTORY_SIZE);
     @JoinColumn(name = "consumeInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Inventory consumeInventory = new Inventory(CONSUME, DEFAULT_INVENTORY_SIZE);
@@ -93,7 +92,7 @@ public class MapleChar {
     private Inventory installInventory = new Inventory(INSTALL, DEFAULT_INVENTORY_SIZE);
     @JoinColumn(name = "cashInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private EquipInventory cashInventory = new EquipInventory(CASH, DEFAULT_CASH_INVENTORY_SIZE);
+    private Inventory cashInventory = new Inventory(CASH, DEFAULT_CASH_INVENTORY_SIZE);
     // Skill fields -
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -490,4 +489,5 @@ public class MapleChar {
         // Update the portal ID of the instance -
         this.setPortalId(targetPortal.getId());
     }
+
 }

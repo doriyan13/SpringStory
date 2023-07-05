@@ -63,6 +63,9 @@ public final class MapleCrypto {
     };
     // Maple 95v key -
     private static final SecretKeySpec SECRET_KEY = new SecretKeySpec(new byte[]{
+            // At ZInflator::`vftable (entry point to get to the AES key)
+            // Found in ZLZ.dll at sub_10001340() | if i'm not wrong xD
+            // Good Ref -> https://forum.ragezone.com/threads/trying-to-learn-ida.994320/ | auto generator to get the key for low version: https://forum.ragezone.com/threads/release-gms-key-retriever.895646/page-2
             0x13, 0x00, 0x00, 0x00, 0x08,
             0x00, 0x00, 0x00, 0x06, 0x00,
             0x00, 0x00, (byte) 0xB4, 0x00,
