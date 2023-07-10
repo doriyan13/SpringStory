@@ -44,7 +44,6 @@ public class MapleChar {
     private int skin;
     private int face;
     private int hair;
-    private int hairColor;
     private int level;
     private int job;
     private int nStr;
@@ -154,8 +153,7 @@ public class MapleChar {
         this.gender = CharacterGender.getGenderByOrdinal(gender); // 0 - boy | 1 - girl
         // Character appearance -
         this.face = charAppearance[0];
-        this.hair = charAppearance[1];
-        this.hairColor = charAppearance[2];
+        this.hair = charAppearance[1] + charAppearance[2]; // Hair contain: hair + hairColor values!
         this.skin = charAppearance[3];
         this.level = DEFAULT_START_LVL;
         this.job = job;
@@ -180,8 +178,7 @@ public class MapleChar {
         for (int i = 4; i <= 7; i++) { // Start of equips is from the 5th spot (aka i = 4) till the end (which is the 8th spot, aka i = 7)
             Equip equip = ItemDataHandler.getEquipByID(charAppearance[i]);
             if (equip != null) {
-                equip.setBagIndex(ItemUtils.getBodyPartFromItem(equip.getItemId()).getVal());
-                this.getEquippedInventory().addItem(equip);
+                getEquippedInventory().addItem(equip);
             }
         }
         // LinkedChar -
@@ -509,7 +506,6 @@ public class MapleChar {
     }
 
     public void equip(Item item){
-        item.setBagIndex(ItemUtils.getBodyPartFromItem(item.getItemId()).getVal());
         getEquipInventory().removeItem(item);
         getEquippedInventory().addItem(item);
     }

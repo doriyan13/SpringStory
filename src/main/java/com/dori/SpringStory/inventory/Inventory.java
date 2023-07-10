@@ -73,6 +73,9 @@ public class Inventory {
 
     public void addItem(Item item) {
         if (getItems().size() < getSlots()) {
+            if(getType() == InventoryType.EQUIPPED){
+                item.setBagIndex(ItemUtils.getBodyPartFromItem(item.getItemId()).getVal());
+            }
             if (item.getBagIndex() == 0) {
                 item.setBagIndex(getFirstOpenSlot());
             }

@@ -11,7 +11,8 @@ import static com.dori.SpringStory.enums.InventoryType.EQUIPPED;
 
 public interface CWvsContext {
 
-    static OutPacket inventoryOperation(boolean exclRequestSent, InventoryOperation type, short oldPos, short newPos, Item item) {
+    static OutPacket inventoryOperation(boolean exclRequestSent, InventoryOperation type, short oldPos, short newPos,
+                                        Item item) {
         InventoryType invType = item.getInvType();
         if ((oldPos > 0 && newPos < 0 && invType == EQUIPPED) || (invType == EQUIPPED && oldPos < 0)) {
             invType = InventoryType.EQUIP;
