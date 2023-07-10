@@ -39,7 +39,7 @@ public class Inventory {
         this.slots = (byte) slots;
     }
 
-    public void encodeInventory(OutPacket outPacket) {
+    public void encode(OutPacket outPacket) {
         for (Item item : getItems()) {
             outPacket.encodeByte(item.getBagIndex());
             item.encode(outPacket);
@@ -50,7 +50,7 @@ public class Inventory {
     public void encodeEquips(OutPacket outPacket, EquipType type, boolean isCashIndex) {
         for (Item item : getItems()) {
             Equip equip = (Equip) item;
-            if(ItemUtils.shouldEncodeEquipByType(type,equip)){
+            if (ItemUtils.shouldEncodeEquipByType(type, equip)) {
                 outPacket.encodeShort(isCashIndex ? (equip.getBagIndex() - 100) : equip.getBagIndex());
                 equip.encode(outPacket);
             }
@@ -72,8 +72,8 @@ public class Inventory {
     }
 
     public void addItem(Item item) {
-        if(getItems().size() < getSlots()) {
-            if(item.getBagIndex() == 0){
+        if (getItems().size() < getSlots()) {
+            if (item.getBagIndex() == 0) {
                 item.setBagIndex(getFirstOpenSlot());
             }
             getItems().add(item);
@@ -81,17 +81,23 @@ public class Inventory {
             getItems().sort(Comparator.comparingInt(Item::getBagIndex));
         }
     }
+
     public void removeItem(Item item) {
         getItems().remove(item);
         getItems().sort(Comparator.comparingInt(Item::getBagIndex));
     }
 
-    private Item getItemByIndex(int bagIndex) {
-        return getItems().stream().filter(item -> item.getBagIndex() == bagIndex).findAny().orElse(null);
+    public Item getItemByIndex(int bagIndex) {
+        int bagIndexAbsVal = Math.abs(bagIndex);
+        return getItems().stream().filter(item -> item.getBagIndex() == bagIndexAbsVal)
+                .findAny()
+                .orElse(null);
     }
 
     public Item getItemByItemID(int itemId) {
-        return getItems().stream().filter(item -> (item.getItemId() == itemId) && item.getQuantity() != 0).findFirst().orElse(null);
+        return getItems().stream().filter(item -> (item.getItemId() == itemId) && item.getQuantity() != 0)
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean isFull() {

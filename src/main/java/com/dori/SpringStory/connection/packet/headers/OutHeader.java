@@ -28,6 +28,9 @@ public enum OutHeader {
     RecommendWorldMessage(25),
     ExtraCharInfoResult(26),
     CheckSPWResult(27),
+    // CWvsContext::OnPacket -
+    InventoryOperation(28),
+
     // CMapLoadable::OnPacket -
     SetBackEffect(144),
     SetMapObjectVisible(145),

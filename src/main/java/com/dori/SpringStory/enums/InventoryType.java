@@ -3,7 +3,7 @@ package com.dori.SpringStory.enums;
 import java.util.Arrays;
 
 public enum InventoryType {
-    EQUIPPED(0),
+    EQUIPPED(-1),
     EQUIP(1),
     CONSUME(2),
     ETC(4),

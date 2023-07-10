@@ -5,6 +5,7 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Inventory;
+import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
@@ -377,16 +378,16 @@ public class MapleChar {
             encodeEquipments(outPacket);
         }
         if (mask.isInMask(DBChar.ItemSlotConsume)) {
-            getConsumeInventory().encodeInventory(outPacket);
+            getConsumeInventory().encode(outPacket);
         }
         if (mask.isInMask(DBChar.ItemSlotInstall)) {
-            getInstallInventory().encodeInventory(outPacket);
+            getInstallInventory().encode(outPacket);
         }
         if (mask.isInMask(DBChar.ItemSlotEtc)) {
-            getEtcInventory().encodeInventory(outPacket);
+            getEtcInventory().encode(outPacket);
         }
         if (mask.isInMask(DBChar.ItemSlotCash)) {
-            getCashInventory().encodeInventory(outPacket);
+            getCashInventory().encode(outPacket);
         }
         if (mask.isInMask(DBChar.SkillRecord)) {
             outPacket.encodeShort(getSkills().size());
@@ -490,4 +491,40 @@ public class MapleChar {
         this.setPortalId(targetPortal.getId());
     }
 
+    public Inventory getInventoryByType(InventoryType invType) {
+        return switch (invType) {
+            case EQUIPPED -> getEquippedInventory();
+            case EQUIP -> getEquipInventory();
+            case CONSUME -> getConsumeInventory();
+            case ETC -> getEtcInventory();
+            case INSTALL -> getInstallInventory();
+            case CASH -> getCashInventory();
+        };
+    }
+
+    public void unEquip(Item item){
+        getEquippedInventory().removeItem(item);
+        getEquipInventory().addItem(item);
+        // TODO: need in the future to add handling for updating remove avatarLook && Item Skills!
+    }
+
+    public void equip(Item item){
+        item.setBagIndex(ItemUtils.getBodyPartFromItem(item.getItemId()).getVal());
+        getEquipInventory().removeItem(item);
+        getEquippedInventory().addItem(item);
+    }
+
+    public void swapItems(Item item, Item swappedItem, boolean fromEquippedInv){
+        // If it's equipped, need to un-equip the item -
+        if (fromEquippedInv) {
+            unEquip(item);
+        } else {
+            // If there is an item to swap, first un-equip the equipped item -
+            if (swappedItem != null) {
+                unEquip(swappedItem);
+            }
+            // If it's a not equipped item, need to equip the item -
+            equip(item);
+        }
+    }
 }
