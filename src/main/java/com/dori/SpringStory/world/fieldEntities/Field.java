@@ -133,6 +133,10 @@ public class Field extends MapData {
         });
     }
 
+    public void broadcastPacket(OutPacket outPacket) {
+        getPlayers().values().forEach(chr -> chr.write(outPacket));
+    }
+
     public void broadcastPacket(OutPacket outPacket, MapleChar exceptChr) {
         getPlayers().values().forEach(
             chr -> {

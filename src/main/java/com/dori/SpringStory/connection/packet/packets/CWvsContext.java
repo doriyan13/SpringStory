@@ -32,8 +32,8 @@ public interface CWvsContext {
             case Remove -> {/*Do nothing O.o*/}
             case ItemExp ->outPacket.encodeLong(((Equip) item).getExp());
         }
-        // I don't know what is this random bool at the end? -
-        outPacket.encodeBool(false);
+        // Related to the case if you drop an equip straight to the field -
+        outPacket.encodeBool(!(oldPos >= 0)); // bSN == bStat
         return outPacket;
     }
 }

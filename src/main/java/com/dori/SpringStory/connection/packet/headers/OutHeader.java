@@ -71,7 +71,23 @@ public enum OutHeader {
     MobEscortReturnBefore(307),
     MobNextAttack(308),
     MobAttackedByMob(309),
-
+    // CUser::OnPacket -
+    UserChat(181),
+    UserChat2(182),
+    UserADBoard(183),
+    UserMiniRoomBalloon(184),
+    UserSetConsumeItemEffect(185),
+    UserShowItemUpgradeEffect(186),
+    UserShowItemHyperUpgradeEffect(187),
+    UserShowItemOptionUpgradeEffect(188),
+    UserShowItemReleaseEffect(189),
+    UserShowItemUnreleaseEffect(190),
+    UserOnHitByUser(191),
+    UserTeslaTriangle(192),
+    UserFollowCharacter(193),
+    UserShowPQReward(194),
+    UserSetPhase(195),
+    UserShowRecoverUpgradeCountEffect(197)
 
     /*CHANGE_CHANNEL(16),
     ALIVE_REQ(17),
