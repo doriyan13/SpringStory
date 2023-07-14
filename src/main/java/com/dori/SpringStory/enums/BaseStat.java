@@ -58,12 +58,12 @@ public enum BaseStat {
 
     public static BaseStat getFromStat(Stat s) {
         return switch (s) {
-            case str -> str;
-            case dex -> dex;
-            case inte -> inte;
-            case luk -> luk;
-            case mhp -> mhp;
-            case mmp -> mmp;
+            case Str -> str;
+            case Dex -> dex;
+            case Inte -> inte;
+            case Luk -> luk;
+            case MaxHp -> mhp;
+            case MaxMp -> mmp;
             default -> unk;
         };
     }
@@ -104,12 +104,12 @@ public enum BaseStat {
 
     public Stat toStat() {
         return switch (this) {
-            case str -> Stat.str;
-            case dex -> Stat.dex;
-            case inte -> Stat.inte;
-            case luk -> Stat.luk;
-            case mhp -> Stat.mhp;
-            case mmp -> Stat.mmp;
+            case str -> Stat.Str;
+            case dex -> Stat.Dex;
+            case inte -> Stat.Inte;
+            case luk -> Stat.Luk;
+            case mhp -> Stat.MaxHp;
+            case mmp -> Stat.MaxMp;
             default -> null;
         };
     }

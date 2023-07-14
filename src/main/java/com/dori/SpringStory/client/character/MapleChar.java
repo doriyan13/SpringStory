@@ -2,6 +2,7 @@ package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Inventory;
@@ -340,7 +341,7 @@ public class MapleChar {
         getEquippedInventory().encodeEquips(outPacket, EquipType.Mechanic, false);
     }
 
-    private void encodeSkillCoolTime(OutPacket outPacket){
+    private void encodeSkillCoolTime(OutPacket outPacket) {
         long currTime = System.currentTimeMillis();
         Map<Integer, Long> skillsCoolTimes = new HashMap<>();
         getSkillCoolTimes().forEach((skillID, coolTimeExpirationTimeStamp) -> {
@@ -419,11 +420,11 @@ public class MapleChar {
             // for (lFriendRecord : lFriendRecord.all)
             // encode ring -
             // {
-                outPacket.encodeInt(0); // dwPairCharacterID
-                outPacket.encodeString("",13); // sPairCharacterName
-                outPacket.encodeLong(0); // liSN
-                outPacket.encodeLong(0); // liPairSN
-                outPacket.encodeInt(0); // dwFriendItemID
+            outPacket.encodeInt(0); // dwPairCharacterID
+            outPacket.encodeString("", 13); // sPairCharacterName
+            outPacket.encodeLong(0); // liSN
+            outPacket.encodeLong(0); // liPairSN
+            outPacket.encodeInt(0); // dwFriendItemID
             // }
             outPacket.encodeShort(0);
         }
@@ -458,7 +459,7 @@ public class MapleChar {
             outPacket.encodeByte(0x28); // not sure?
             // for (int i = 0; i < adwTempMobID.Length; i++)
             // {
-                outPacket.encodeInt(0); // adwTempMobID[i]
+            outPacket.encodeInt(0); // adwTempMobID[i]
             // }
         }
         if (mask.isInMask(DBChar.QuestCompleteOld)) {
@@ -471,11 +472,11 @@ public class MapleChar {
         }
     }
 
-    public void addSkillCoolTime(int skillID, int timeInSec){
+    public void addSkillCoolTime(int skillID, int timeInSec) {
         getSkillCoolTimes().put(skillID, System.currentTimeMillis() + timeInSec * 1_000L);
     }
 
-    public void warp(Field from, Field to, Portal targetPortal){
+    public void warp(Field from, Field to, Portal targetPortal) {
         // Update the char instance in both the old and new map -
         from.removePlayer(this);
         to.addPlayer(this);
@@ -499,18 +500,18 @@ public class MapleChar {
         };
     }
 
-    public void unEquip(Item item){
+    public void unEquip(Item item) {
         getEquippedInventory().removeItem(item);
         getEquipInventory().addItem(item);
         // TODO: need in the future to add handling for updating remove avatarLook && Item Skills!
     }
 
-    public void equip(Item item){
+    public void equip(Item item) {
         getEquipInventory().removeItem(item);
         getEquippedInventory().addItem(item);
     }
 
-    public void swapItems(Item item, Item swappedItem, boolean fromEquippedInv){
+    public void swapItems(Item item, Item swappedItem, boolean fromEquippedInv) {
         // If it's equipped, need to un-equip the item -
         if (fromEquippedInv) {
             unEquip(item);
@@ -522,5 +523,14 @@ public class MapleChar {
             // If it's a not equipped item, need to equip the item -
             equip(item);
         }
+    }
+
+    public void changeStats(HashMap<Stat, Object> stats) {
+        write(CWvsContext.statChanged(stats, true, (byte) 0, 0, 0));
+    }
+
+    public void enableAction() {
+        // Handle the famous dispose -
+        changeStats(new HashMap<>());
     }
 }

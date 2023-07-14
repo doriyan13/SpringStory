@@ -24,7 +24,7 @@ public class ChatHandler {
 
         MapleChar chr = c.getChr();
         boolean isCharAdmin = c.getAccount().getAccountType().getLvl() >= AccountType.GameMaster.getLvl();
-
+        // Broadcast the packet to all the char in the field -
         chr.getField().broadcastPacket(CUser.chat(chr.getId(), isCharAdmin, msg, isOnlyBalloon));
     }
 }

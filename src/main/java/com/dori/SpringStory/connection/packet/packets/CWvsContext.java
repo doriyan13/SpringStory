@@ -1,15 +1,24 @@
 package com.dori.SpringStory.connection.packet.packets;
 
+import com.dori.SpringStory.client.character.ExtendSP;
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.connection.packet.handlers.StageHandler;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import com.dori.SpringStory.enums.InventoryOperation;
 import com.dori.SpringStory.enums.InventoryType;
+import com.dori.SpringStory.enums.Stat;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Item;
+import com.dori.SpringStory.logger.Logger;
+
+import java.util.*;
 
 import static com.dori.SpringStory.enums.InventoryType.EQUIPPED;
 
 public interface CWvsContext {
+
+    // Logger -
+    Logger logger = new Logger(CWvsContext.class);
 
     static OutPacket inventoryOperation(boolean exclRequestSent, InventoryOperation type, short oldPos, short newPos,
                                         Item item) {
@@ -34,6 +43,53 @@ public interface CWvsContext {
         }
         // Related to the case if you drop an equip straight to the field -
         outPacket.encodeBool(!(oldPos >= 0)); // bSN == bStat
+        return outPacket;
+    }
+
+    static OutPacket statChanged(Map<Stat, Object> stats, boolean exclRequestSent, byte charm,
+                                        int hpRecovery, int mpRecovery) {
+        OutPacket outPacket = new OutPacket(OutHeader.StatChanged);
+
+        outPacket.encodeByte(exclRequestSent); // enableActions
+        // GW_CharacterStat::DecodeChangeStat
+        int mask = 0;
+        for (Stat stat : stats.keySet()) {
+            mask |= stat.getVal();
+        }
+        outPacket.encodeInt(mask);
+        // Sort the Stats by their mask val -
+        List<Map.Entry<Stat,Object>> sortedListOfStats = new ArrayList<>(stats.entrySet());
+        sortedListOfStats.sort(Comparator.comparingInt(stat -> stat.getKey().getVal()));
+        // Encode Stats -
+        sortedListOfStats.forEach(stat ->{
+            switch (stat.getKey()){
+                case Skin, Level -> outPacket.encodeByte((byte) stat.getValue());
+                case Face, Hair, Hp, MaxHp, Mp, MaxMp, Exp, Money -> outPacket.encodeInt((int) stat.getValue());
+                case SubJob, Str, Dex, Inte, Luk, AbilityPoint, Pop -> outPacket.encodeShort((short) stat.getValue());
+                case SkillPoint -> {
+                    if (stat.getValue() instanceof ExtendSP) {
+                        ((ExtendSP) stat.getValue()).encode(outPacket);
+                    } else {
+                        outPacket.encodeShort((Short) stat.getValue());
+                    }
+                }
+                case Pet, Pet2, Pet3 -> outPacket.encodeLong((long) stat.getValue());
+                case TempExp -> logger.warning("Attempt to change TempExp, which isn't implemented!");
+            }
+        });
+        // Encode Charm -
+        boolean isCharm = charm > 0;
+        outPacket.encodeBool(isCharm);
+        if(isCharm){
+            outPacket.encodeByte(charm);
+        }
+        // Encode Recovery -
+        boolean isRecovery = hpRecovery > 0 && mpRecovery > 0;
+        outPacket.encodeBool(isRecovery);
+        if(isRecovery){
+            outPacket.encodeInt(hpRecovery);
+            outPacket.encodeInt(mpRecovery);
+        }
         return outPacket;
     }
 }
