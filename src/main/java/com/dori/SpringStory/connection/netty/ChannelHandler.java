@@ -66,7 +66,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 e.printStackTrace();
             }
         }
-        logger.info("Initialized " + handlers.size() + " handlers in " + (System.currentTimeMillis() - start) + "ms.");
+        logger.serverNotice("Initialized " + handlers.size() + " handlers in " + (System.currentTimeMillis() - start) + "ms.");
     }
 
     @Override
@@ -108,7 +108,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             if (method == null) {
                 handleUnknown(inPacket, op);
             } else {
-                Class clazz = method.getParameterTypes()[0];
+                Class<?> clazz = method.getParameterTypes()[0];
                 try {
                     if (method.getParameterTypes().length == 3) {
                         method.invoke(this, chr, inPacket, inHeader);

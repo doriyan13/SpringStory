@@ -7,6 +7,7 @@ import com.dori.SpringStory.connection.netty.ChannelAcceptor;
 import com.dori.SpringStory.connection.netty.ChannelHandler;
 import com.dori.SpringStory.connection.netty.ChatAcceptor;
 import com.dori.SpringStory.connection.netty.LoginAcceptor;
+import com.dori.SpringStory.connection.packet.handlers.ChatHandler;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.services.*;
 import com.dori.SpringStory.world.MapleChannel;
@@ -110,6 +111,8 @@ public class Server {
         initAcceptors();
         // Init all the MapleWorlds (including channels) -
         initMapleWorlds();
+        // Init Commands -
+        ChatHandler.initCmdMap();
         // Load all the WZ data -
         loadWzData(executorService);
         // Register all the DB services -

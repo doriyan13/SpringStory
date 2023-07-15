@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Abstraction for Netty channels that contains some attribute keys
  * for important resources used by the net.swordie.ms.client during encryption,
  * decryption, and general functions. <B>Note: Some methods cannot be
- * overridden by descendents due to the nature of the functionality they 
+ * overridden by descendants due to the nature of the functionality they
  * provide</B>
  * 
  * @author Zygon
@@ -46,14 +46,14 @@ public class NettyClient {
     public static final AttributeKey<NettyClient> CLIENT_KEY = AttributeKey.valueOf("C");
 
     /**
-     * Stored length used for net.swordie.ms.connection.packet decryption. This is used for
-     * storing the net.swordie.ms.connection.packet length for the next net.swordie.ms.connection.packet that is readable.
+     * Stored length used for packet decryption. This is used for
+     * storing the packet length for the next packet that is readable.
      * Since TCP sessions ensure that all data arrives to the server in order,
-     * we can decodeByte net.swordie.ms.connection.packet data in the correct order.
+     * we can decodeByte packet data in the correct order.
      */
     private int storedLength = -1;
     /**
-     * Channel object associated with this specific net.swordie.ms.client. Used for all
+     * Channel object associated with this specific client. Used for all
      * I/O operations regarding a MapleStory game session.
      */
     protected final Channel ch;

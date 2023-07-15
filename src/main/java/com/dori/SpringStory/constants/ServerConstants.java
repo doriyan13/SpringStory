@@ -48,4 +48,6 @@ public interface ServerConstants {
     int MAX_RETRIES = 10_000;
     int MAX_OBJ_ID = 9_999_999;
     int MIN_OBJ_ID = 1_000_000;
+    // Commands stuff -
+    String COMMANDS_DIR = DIR + "/src/main/java/com/dori/SpringStory/client/commands";
 }
