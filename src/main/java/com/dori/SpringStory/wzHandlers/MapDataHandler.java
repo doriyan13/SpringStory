@@ -26,6 +26,81 @@ public class MapDataHandler {
     private static final Map<Integer, MapData> fields = new LinkedHashMap<>();
     // List of world map fields -
     private static final List<Integer> worldMapFields = new ArrayList<>();
+    // List of maps for goto command -
+    private static final HashMap<String,Integer> goToMaps = new HashMap<>();
+
+    public static void initGoToMaps(){
+        //TODO:: will be removed after i will manage the string of maps and will create a !search command!!!
+        goToMaps.put("ardent", 910001000);
+        goToMaps.put("ariant", 260000100);
+        goToMaps.put("amherst", 1010000);
+        goToMaps.put("amoria", 680000000);
+        goToMaps.put("aqua", 860000000);
+        goToMaps.put("aquaroad", 230000000);
+        goToMaps.put("boatquay", 541000000);
+        goToMaps.put("cwk", 610030000);
+        goToMaps.put("edelstein", 310000000);
+        goToMaps.put("ellin", 300000000);
+        goToMaps.put("ellinia", 101000000);
+        goToMaps.put("elnath", 211000000);
+        goToMaps.put("ereve", 130000000);
+        goToMaps.put("florina", 120000300);
+        goToMaps.put("fm", 910000000);
+        goToMaps.put("gmmap", 180000000);
+        goToMaps.put("happy", 209000000);
+        goToMaps.put("harbor", 104000000);
+        goToMaps.put("henesys", 100000000);
+        goToMaps.put("kerning", 103000000);
+        goToMaps.put("korean", 222000000);
+        goToMaps.put("leafre", 240000000);
+        goToMaps.put("ludi", 220000000);
+        goToMaps.put("malaysia", 550000000);
+        goToMaps.put("mulung", 250000000);
+        goToMaps.put("nautilus", 120000000);
+        goToMaps.put("nlc", 600000000);
+        goToMaps.put("omega", 221000000);
+        goToMaps.put("orbis", 200000000);
+        goToMaps.put("pinkbean", 270050100);
+        goToMaps.put("perion", 102000000);
+        goToMaps.put("rien", 140000000);
+        goToMaps.put("showatown", 801000000);
+        goToMaps.put("singapore", 540000000);
+        goToMaps.put("sixpath", 104020000);
+        goToMaps.put("sleepywood", 105000000);
+        goToMaps.put("tot", 270000000);
+        goToMaps.put("tynerum", 301000000);
+        goToMaps.put("zipangu", 800000000);
+        goToMaps.put("pianus", 230040420);
+        goToMaps.put("horntail", 240060200);
+        goToMaps.put("chorntail", 240060201);
+        goToMaps.put("griffey", 240020101);
+        goToMaps.put("manon", 240020401);
+        goToMaps.put("zakum", 280030000);
+        goToMaps.put("czakum", 280030001);
+        goToMaps.put("pap", 220080001);
+        goToMaps.put("oxquiz", 109020001);
+        goToMaps.put("ola", 109030101);
+        goToMaps.put("fitness", 109040000);
+        goToMaps.put("snowball", 109060000);
+        goToMaps.put("dojo", 925020001);
+        goToMaps.put("pq", 910002000);
+        goToMaps.put("h", 100000000);
+        goToMaps.put("ursus", 970072200);
+        goToMaps.put("pno", 811000008);
+        goToMaps.put("cygnus", 271040000);
+        goToMaps.put("goldenbeach", 914200000);
+        goToMaps.put("ardentmill", 910001000);
+        goToMaps.put("oz", 992000000);
+    }
+
+    public static HashMap<String,Integer> getGoToMaps(){
+        return goToMaps;
+    }
+
+    public static Field getMapByName(String mapName){
+        Integer mapId = getGoToMaps().get(mapName.toLowerCase());
+        return mapId != null ? getMapByID(mapId) : null;
+    }
 
     public static Field getMapByID(Integer mapID) {
         MapData mapData = fields.get(mapID);

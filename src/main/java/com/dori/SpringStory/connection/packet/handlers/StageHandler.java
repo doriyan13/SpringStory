@@ -80,16 +80,8 @@ public class StageHandler {
                 byte townPortal = inPacket.decodeByte();
                 boolean premium = inPacket.decodeBool();
                 byte chase = inPacket.decodeByte();
-                // Update the field and chr instances -
-                chr.warp(chr.getField(),field, portal);
-                // Set the field for the character to spawn in -
-                c.write(CStage.onSetField(c.getChr(), field, (short) 0, (int) c.getChannel(),
-                        0, false, (byte) 1, (short) 0,
-                        "", new String[]{""}));
-                // Spawn lifes for the client -
-                field.spawnLifesForCharacter(chr);
-                // Assign Controllers For life -
-                field.assignControllerToMobs(chr);
+                // Update the field and chr instances & warp -
+                chr.warp(field, portal);
             }
             else {
                 logger.error("Got an invalid field ID while trying to transfer between maps - " + targetPortal.getTargetMapId());

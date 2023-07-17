@@ -113,6 +113,8 @@ public class Server {
         initMapleWorlds();
         // Init Commands -
         ChatHandler.initCmdMap();
+        // Init Goto Maps - TODO: need to remove in the future!!!
+        MapDataHandler.initGoToMaps();
         // Load all the WZ data -
         loadWzData(executorService);
         // Register all the DB services -

@@ -81,6 +81,15 @@ public class Field extends MapData {
         return MapleUtils.findWithPred(getPortals(), portal -> portal.getName().equals(name));
     }
 
+    public Portal getPortalByID(int id) {
+        return MapleUtils.findWithPred(getPortals(), portal -> portal.getId() == id);
+    }
+
+    public Portal getDefaultPortal() {
+        Portal portal = getPortalByName("sp");
+        return portal != null ? portal : getPortalByID(0);
+    }
+
     public void addPlayer(MapleChar chr) {
         players.put(chr.getId(), chr);
     }

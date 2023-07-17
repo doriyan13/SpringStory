@@ -18,4 +18,6 @@ public interface GameConstants {
     int DEFAULT_HAIR = 30_027;
     int DEFAULT_INVENTORY_SIZE = 52;
     int DEFAULT_CASH_INVENTORY_SIZE = 96;
+    int MAX_LVL = 200;
+    // World -
 }

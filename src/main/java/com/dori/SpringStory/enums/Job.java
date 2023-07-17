@@ -1,5 +1,7 @@
 package com.dori.SpringStory.enums;
 
+import java.util.Arrays;
+
 public enum Job {
     Beginner(0),
     Warrior(100),
@@ -105,5 +107,12 @@ public enum Job {
 
     public int getId() {
         return id;
+    }
+
+    public static Job getJobById(int id){
+        return Arrays.stream(values())
+                .filter(job -> job.getId() == id)
+                .findFirst()
+                .orElse(null);
     }
 }

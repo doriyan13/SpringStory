@@ -2,6 +2,7 @@ package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.connection.packet.packets.CStage;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
@@ -9,6 +10,7 @@ import com.dori.SpringStory.inventory.Inventory;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.ItemUtils;
+import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
@@ -476,9 +478,9 @@ public class MapleChar {
         getSkillCoolTimes().put(skillID, System.currentTimeMillis() + timeInSec * 1_000L);
     }
 
-    public void warp(Field from, Field to, Portal targetPortal) {
+    public void warp(Field to, Portal targetPortal) {
         // Update the char instance in both the old and new map -
-        from.removePlayer(this);
+        getField().removePlayer(this);
         to.addPlayer(this);
         // Update for the char instance the field data -
         this.setField(to);
@@ -487,6 +489,14 @@ public class MapleChar {
         this.setPosition(targetPortal.getPosition());
         // Update the portal ID of the instance -
         this.setPortalId(targetPortal.getId());
+        // Set the field for the character to spawn in -
+        write(CStage.onSetField(this, field, (short) 0, (int) getMapleClient().getChannel(),
+                0, false, (byte) 1, (short) 0,
+                "", new String[]{""}));
+        // Spawn lifes for the client -
+        field.spawnLifesForCharacter(this);
+        // Assign Controllers For life -
+        field.assignControllerToMobs(this);
     }
 
     public Inventory getInventoryByType(InventoryType invType) {
@@ -525,12 +535,76 @@ public class MapleChar {
         }
     }
 
-    public void changeStats(HashMap<Stat, Object> stats) {
+    public void changeStats(Map<Stat, Object> stats) {
         write(CWvsContext.statChanged(stats, true, (byte) 0, 0, 0));
+    }
+
+    public void updateStat(Stat stat, Object value) {
+        Map<Stat, Object> stats = new HashMap<>();
+        stats.put(stat, value);
+        changeStats(stats);
     }
 
     public void enableAction() {
         // Handle the famous dispose -
         changeStats(new HashMap<>());
+    }
+
+    public void healHp(int amount) {
+        if (amount > 0) {
+            int newHp = Math.min(Math.abs(amount + getHp()), getMaxHp());
+            setHp(newHp);
+            updateStat(Stat.Hp, newHp);
+        }
+    }
+
+    public void healMp(int amount) {
+        if (amount > 0) {
+            int newMp = Math.min(Math.abs(amount + getMp()), getMaxMp());
+            setMp(newMp);
+            updateStat(Stat.Mp, newMp);
+        }
+    }
+
+    public void fullHeal() {
+        int amountOfHpToHeal = getMaxHp() - getHp();
+        int amountOfMpToHeal = getMaxMp() - getMp();
+
+        if (amountOfHpToHeal > 0) {
+            healHp(amountOfHpToHeal);
+        }
+        if (amountOfMpToHeal > 0) {
+            healMp(amountOfMpToHeal);
+        }
+    }
+
+    public void lvlUp(int amountOfLevels) {
+        int optionalNewLvl = amountOfLevels + getLevel();
+        int amountOfLvlUps = MAX_LVL - optionalNewLvl > 0 ? amountOfLevels : MAX_LVL - getLevel();
+        if (amountOfLevels > 0) {
+            Map<Stat, Object> stats = new HashMap<>();
+            int apToAdd = amountOfLvlUps * 5;
+            int spToAdd = amountOfLvlUps * 3;
+            int hpToAdd = 0;
+            int mpToAdd = 0;
+            for (int i = 0; i < amountOfLvlUps; i++) {
+                hpToAdd += MapleUtils.getRandom(15, 50);
+                mpToAdd += MapleUtils.getRandom(15, 50);
+            }
+            setLevel(getLevel() + amountOfLvlUps);
+            stats.put(Stat.Level, getLevel());
+            setAp(getAp() + apToAdd);
+            stats.put(Stat.AbilityPoint, getAp());
+            setSp(getSp() + spToAdd);
+            stats.put(Stat.SkillPoint, getSp());
+            setMaxHp(getMaxHp() + hpToAdd);
+            stats.put(Stat.MaxHp, getMaxHp());
+            setMaxMp(getMaxMp() + mpToAdd);
+            stats.put(Stat.MaxMp, getMaxMp());
+            setExp(0);
+            stats.put(Stat.Exp, getExp());
+
+            changeStats(stats);
+        }
     }
 }

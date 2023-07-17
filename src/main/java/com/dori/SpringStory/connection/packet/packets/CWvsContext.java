@@ -39,7 +39,7 @@ public interface CWvsContext {
             case UpdateQuantity -> outPacket.encodeShort(item.getQuantity());
             case Move -> outPacket.encodeShort(newPos);
             case Remove -> {/*Do nothing O.o*/}
-            case ItemExp ->outPacket.encodeLong(((Equip) item).getExp());
+            case ItemExp -> outPacket.encodeLong(((Equip) item).getExp());
         }
         // Related to the case if you drop an equip straight to the field -
         outPacket.encodeBool(!(oldPos >= 0)); // bSN == bStat
@@ -47,7 +47,7 @@ public interface CWvsContext {
     }
 
     static OutPacket statChanged(Map<Stat, Object> stats, boolean exclRequestSent, byte charm,
-                                        int hpRecovery, int mpRecovery) {
+                                 int hpRecovery, int mpRecovery) {
         OutPacket outPacket = new OutPacket(OutHeader.StatChanged);
 
         outPacket.encodeByte(exclRequestSent); // enableActions
@@ -58,35 +58,40 @@ public interface CWvsContext {
         }
         outPacket.encodeInt(mask);
         // Sort the Stats by their mask val -
-        List<Map.Entry<Stat,Object>> sortedListOfStats = new ArrayList<>(stats.entrySet());
+        List<Map.Entry<Stat, Object>> sortedListOfStats = new ArrayList<>(stats.entrySet());
         sortedListOfStats.sort(Comparator.comparingInt(stat -> stat.getKey().getVal()));
         // Encode Stats -
-        sortedListOfStats.forEach(stat ->{
-            switch (stat.getKey()){
-                case Skin, Level -> outPacket.encodeByte((byte) stat.getValue());
-                case Face, Hair, Hp, MaxHp, Mp, MaxMp, Exp, Money -> outPacket.encodeInt((int) stat.getValue());
-                case SubJob, Str, Dex, Inte, Luk, AbilityPoint, Pop -> outPacket.encodeShort((short) stat.getValue());
-                case SkillPoint -> {
-                    if (stat.getValue() instanceof ExtendSP) {
-                        ((ExtendSP) stat.getValue()).encode(outPacket);
-                    } else {
-                        outPacket.encodeShort((Short) stat.getValue());
+        sortedListOfStats.forEach(stat -> {
+            try {
+                switch (stat.getKey()) {
+                    case Skin, Level -> outPacket.encodeByte(((Integer) stat.getValue()).byteValue());
+                    case Face, Hair, Hp, MaxHp, Mp, MaxMp, Exp, Money -> outPacket.encodeInt((int) stat.getValue());
+                    case SubJob, Str, Dex, Inte, Luk, AbilityPoint, Pop -> outPacket.encodeShort(((Integer) stat.getValue()).shortValue());
+                    case SkillPoint -> {
+                        if (stat.getValue() instanceof ExtendSP) {
+                            ((ExtendSP) stat.getValue()).encode(outPacket);
+                        } else {
+                            outPacket.encodeShort(((Integer) stat.getValue()).shortValue());
+                        }
                     }
+                    case Pet, Pet2, Pet3 -> outPacket.encodeLong(((Integer) stat.getValue()).longValue());
+                    case TempExp -> logger.warning("Attempt to change TempExp, which isn't implemented!");
                 }
-                case Pet, Pet2, Pet3 -> outPacket.encodeLong((long) stat.getValue());
-                case TempExp -> logger.warning("Attempt to change TempExp, which isn't implemented!");
+            }catch (Exception e){
+                logger.error("error occured!");
+                e.printStackTrace();
             }
         });
         // Encode Charm -
         boolean isCharm = charm > 0;
         outPacket.encodeBool(isCharm);
-        if(isCharm){
+        if (isCharm) {
             outPacket.encodeByte(charm);
         }
         // Encode Recovery -
         boolean isRecovery = hpRecovery > 0 && mpRecovery > 0;
         outPacket.encodeBool(isRecovery);
-        if(isRecovery){
+        if (isRecovery) {
             outPacket.encodeInt(hpRecovery);
             outPacket.encodeInt(mpRecovery);
         }
