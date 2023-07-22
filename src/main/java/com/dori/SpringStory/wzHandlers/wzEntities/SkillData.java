@@ -2,6 +2,8 @@ package com.dori.SpringStory.wzHandlers.wzEntities;
 
 import com.dori.SpringStory.enums.SkillStat;
 import com.dori.SpringStory.utils.utilEntities.Rect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,9 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SkillData {
     // Fields -
     private int skillId;

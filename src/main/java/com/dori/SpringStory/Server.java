@@ -72,11 +72,9 @@ public class Server {
     }
 
     private static void loadWzData(ExecutorService executorService) {
-        executorService.submit(MapDataHandler::loadMapData);
-        executorService.submit(MapDataHandler::loadWorldMapData);
-        executorService.submit(ItemDataHandler::loadItemData);
-        executorService.submit(ItemDataHandler::loadEquipData);
-        executorService.submit(SkillDataHandler::loadSkillData);
+        executorService.submit(MapDataHandler::load);
+        executorService.submit(ItemDataHandler::load);
+        executorService.submit(SkillDataHandler::load);
         //TODO: next is MOBS and then QUESTS and then String <-> id matching
     }
 

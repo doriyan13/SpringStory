@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Reactor extends Life{
+public class Reactor extends Life {
     private byte state;
     private String name = "";
     private int ownerID;

@@ -6,10 +6,13 @@ import com.dori.SpringStory.enums.SpecStat;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.ItemRewardInfo;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.utils.JsonUtils;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.XMLApi;
 import com.dori.SpringStory.wzHandlers.wzEntities.EquipData;
 import com.dori.SpringStory.wzHandlers.wzEntities.ItemData;
+import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 
@@ -19,7 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.dori.SpringStory.constants.ServerConstants.PRINT_WZ_UNK;
+import static com.dori.SpringStory.constants.ServerConstants.*;
+import static com.dori.SpringStory.constants.ServerConstants.MAP_JSON_DIR;
 import static com.dori.SpringStory.enums.ScrollStat.*;
 
 @Service
@@ -210,7 +214,7 @@ public class ItemDataHandler {
         }
     }
 
-    private static void loadMainNode(Node mainNode, EquipData equip){
+    private static void loadMainNode(Node mainNode, EquipData equip) {
         for (Node n : XMLApi.getAllChildren(mainNode)) {
             String name = XMLApi.getNamedAttribute(n, "name");
             String value = XMLApi.getNamedAttribute(n, "value");
@@ -331,7 +335,7 @@ public class ItemDataHandler {
             File subFolderFile = new File(String.format("%s/%s", ServerConstants.EQUIP_BASE_WZ_DIR, subDir));
             File[] files = subFolderFile.listFiles();
             if (files == null) {
-                if(PRINT_WZ_UNK){
+                if (PRINT_WZ_UNK) {
                     logger.warning("Null subfolder: " + subDir);
                 }
                 break;
@@ -359,7 +363,6 @@ public class ItemDataHandler {
     public static void loadItemData() {
         logger.serverNotice("Start loading Item data...");
         long startTime = System.currentTimeMillis();
-        //TODO: in the future to add dat files reading and loading which will be called here -
         loadItemsFromWZ();
         logger.serverNotice("~ Finished loading " + items.size() + " Items data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
     }
@@ -367,8 +370,89 @@ public class ItemDataHandler {
     public static void loadEquipData() {
         logger.serverNotice("Start loading Equip data...");
         long startTime = System.currentTimeMillis();
-        //TODO: in the future to add dat files reading and loading which will be called here -
         loadEquipsFromWZ();
         logger.serverNotice("~ Finished loading " + equips.size() + " Equips data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+    }
+
+    private static void exportItemsToJson() {
+        logger.serverNotice("Start creating the JSONs for items..");
+        MapleUtils.makeDirIfAbsent(JSON_DIR);
+        MapleUtils.makeDirIfAbsent(ITEM_JSON_DIR);
+        items.values().forEach(item -> JsonUtils.createJsonFile(item, ITEM_JSON_DIR + item.getItemId() + ".json"));
+        logger.serverNotice("~ Finished creating the items JSON files! ~");
+    }
+
+    private static void exportEquipsToJson() {
+        logger.serverNotice("Start creating the JSONs for equips..");
+        MapleUtils.makeDirIfAbsent(JSON_DIR);
+        MapleUtils.makeDirIfAbsent(EQUIP_JSON_DIR);
+        equips.values().forEach(equip -> JsonUtils.createJsonFile(equip, EQUIP_JSON_DIR + equip.getItemID() + ".json"));
+        logger.serverNotice("~ Finished creating the equips JSON files! ~");
+    }
+
+    public static void exportDataToJson() {
+        exportItemsToJson();
+        exportEquipsToJson();
+    }
+
+    public static void loadJsonItems() {
+        long startTime = System.currentTimeMillis();
+        File dir = new File(ITEM_JSON_DIR);
+        File[] files = dir.listFiles();
+        logger.serverNotice("Start loading the JSONs for items..");
+        if (files != null) {
+            for (File file : files) {
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    ItemData item = mapper.readValue(file, ItemData.class);
+                    items.put(item.getItemId(), item);
+                } catch (Exception e) {
+                    logger.error("Error occurred while trying to load the file: " + file.getName());
+                    e.printStackTrace();
+                }
+            }
+            logger.serverNotice("~ Finished loading " + files.length + " items JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        } else {
+            logger.error("Didn't found items JSONs to load!");
+        }
+    }
+
+    public static void loadJsonEquips() {
+        long startTime = System.currentTimeMillis();
+        File dir = new File(EQUIP_JSON_DIR);
+        File[] files = dir.listFiles();
+        logger.serverNotice("Start loading the JSONs for equips..");
+        if (files != null) {
+            for (File file : files) {
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    EquipData item = mapper.readValue(file, EquipData.class);
+                    equips.put(item.getItemID(), item);
+                } catch (Exception e) {
+                    logger.error("Error occurred while trying to load the file: " + file.getName());
+                    e.printStackTrace();
+                }
+            }
+            logger.serverNotice("~ Finished loading " + files.length + " equips JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        } else {
+            logger.error("Didn't found equips JSONs to load!");
+        }
+    }
+
+    private static boolean isJsonDataExist() {
+        File itemDir = new File(ITEM_JSON_DIR);
+        File equipDir = new File(EQUIP_JSON_DIR);
+        return itemDir.exists() && equipDir.exists();
+    }
+
+    public static void load() {
+        if (isJsonDataExist()) {
+            loadJsonItems();
+            loadJsonEquips();
+        } else {
+            loadItemData();
+            loadEquipData();
+            exportDataToJson();
+        }
     }
 }

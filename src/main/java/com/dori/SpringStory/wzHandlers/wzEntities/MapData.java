@@ -2,12 +2,12 @@ package com.dori.SpringStory.wzHandlers.wzEntities;
 
 import com.dori.SpringStory.world.fieldEntities.Foothold;
 import com.dori.SpringStory.world.fieldEntities.Life;
-import com.dori.SpringStory.world.fieldEntities.Npc;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.FieldType;
 import com.dori.SpringStory.utils.utilEntities.Position;
-import com.dori.SpringStory.utils.utilEntities.Tuple;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +24,9 @@ import static com.dori.SpringStory.constants.ServerConstants.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MapData {
     protected int id;
     protected int vrTop, vrLeft, vrBottom, vrRight;
@@ -68,7 +71,7 @@ public class MapData {
         Foothold res = null;
         int lastY = Integer.MAX_VALUE;
         for (Foothold fh : footholds) {
-            int y = fh.getYFromX(pos.getX());
+            int y = fh.findYFromX(pos.getX());
             if (res == null && y >= pos.getY()) {
                 res = fh;
                 lastY = y;
@@ -82,19 +85,19 @@ public class MapData {
         return res;
     }
 
-    public Tuple<Foothold, Foothold> getMinMaxNonWallFH() {
-        Set<Foothold> footholds = getFootholds().stream().filter(fh -> !fh.isWall()).collect(Collectors.toSet());
-        Foothold left = footholds.iterator().next(), right = footholds.iterator().next(); // return values
-
-        for (Foothold fh : footholds) {
-            if (fh.getX1() < left.getX1()) {
-                left = fh;
-            } else if (fh.getX1() > right.getX1()) {
-                right = fh;
-            }
-        }
-        return new Tuple<>(left, right);
-    }
+//    public Tuple<Foothold, Foothold> getMinMaxNonWallFH() {
+//        Set<Foothold> footholds = getFootholds().stream().filter(fh -> !fh.isWall()).collect(Collectors.toSet());
+//        Foothold left = footholds.iterator().next(), right = footholds.iterator().next(); // return values
+//
+//        for (Foothold fh : footholds) {
+//            if (fh.getX1() < left.getX1()) {
+//                left = fh;
+//            } else if (fh.getX1() > right.getX1()) {
+//                right = fh;
+//            }
+//        }
+//        return new Tuple<>(left, right);
+//    }
 
     public void addPortal(Portal portal) {
         getPortals().add(portal);

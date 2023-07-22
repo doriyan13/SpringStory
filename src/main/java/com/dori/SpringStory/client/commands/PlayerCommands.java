@@ -28,4 +28,9 @@ public class PlayerCommands {
         logger.debug("chr: " + chr.getId());
         logger.debug("args: " + args.toString());
     }
+
+    @Command(names = {"dispose", "ea"}, requiredPermission = AccountType.Player)
+    public static void dispose(MapleChar chr, List<String> args){
+        chr.enableAction();
+    }
 }

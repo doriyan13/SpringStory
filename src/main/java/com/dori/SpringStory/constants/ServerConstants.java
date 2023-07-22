@@ -44,6 +44,16 @@ public interface ServerConstants {
     String ITEM_BASE_WZ_DIR = ServerConstants.WZ_DIR + "/Item.wz";
     String[] ITEM_SUB_WZ_DIRS = new String[]{"Cash", "Consume", "Etc", "Install", "Special"}; // exclude Pets - will be handled separately
     String PET_WZ_DIR = ServerConstants.WZ_DIR + "/Item.wz/Pet";
+    String JSON_DIR = DIR + "/json";
+    // Map Data -
+    String MAP_JSON_DIR = JSON_DIR + "/Map/";
+    String WORLD_MAP_JSON_DIR = JSON_DIR + "/WorldMap/";
+    String WORLD_MAP_JSON_FILE = "worldMaps.json";
+    // Item Data -
+    String ITEM_JSON_DIR = JSON_DIR + "/Item/";
+    String EQUIP_JSON_DIR = JSON_DIR + "/Equip/";
+    // Skill Data -
+    String SKILL_JSON_DIR = JSON_DIR + "/Skill/";
     // Life stuff -
     int MAX_RETRIES = 10_000;
     int MAX_OBJ_ID = 9_999_999;

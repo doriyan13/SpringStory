@@ -17,8 +17,7 @@ public class AdminCommands {
 
     private static AdminCommands instance;
 
-    private AdminCommands() {
-    }
+    private AdminCommands() {}
 
     @SuppressWarnings("InstantiationOfUtilityClass")
     public static AdminCommands getInstance() {
@@ -50,7 +49,7 @@ public class AdminCommands {
         if (!args.isEmpty()) {
             Field toField = MapDataHandler.getMapByName(args.get(0));
             if (toField != null) {
-                Portal targetPortal = toField.getDefaultPortal();
+                Portal targetPortal = toField.findDefaultPortal();
                 chr.warp(toField, targetPortal);
             }
             // TODO: need to handle nonExist portals!

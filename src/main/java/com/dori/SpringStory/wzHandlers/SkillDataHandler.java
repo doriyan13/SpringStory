@@ -4,17 +4,21 @@ import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.enums.SkillStat;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.utils.JsonUtils;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.XMLApi;
 import com.dori.SpringStory.utils.utilEntities.Rect;
+import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
 import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 
 import java.io.File;
 import java.util.*;
 
-import static com.dori.SpringStory.constants.ServerConstants.PRINT_WZ_UNK;
+import static com.dori.SpringStory.constants.ServerConstants.*;
+import static com.dori.SpringStory.constants.ServerConstants.MAP_JSON_DIR;
 
 @Service
 public class SkillDataHandler {
@@ -107,27 +111,29 @@ public class SkillDataHandler {
     public static void loadSkillsFromWZ() {
         File dir = new File(ServerConstants.SKILL_WZ_DIR);
         File[] files = dir.listFiles();
-        for (File file : files) {
-            if (file.getName().contains("Dragon")) {
-                continue;
-            }
-            Node node = XMLApi.getRoot(file);
-            if (node == null) {
-                continue;
-            }
-            List<Node> nodes = XMLApi.getAllChildren(node);
-            for (Node mainNode : nodes) {
-                Map<String, String> attributes = XMLApi.getAttributes(mainNode);
-                String rootIdStr = attributes.get("name").replace(".img", "");
-                int rootId;
-                if (MapleUtils.isNumber(rootIdStr)) {
-                    rootId = Integer.parseInt(rootIdStr);
-                } else {
+        if (files != null) {
+            for (File file : files) {
+                if (file.getName().contains("Dragon")) {
                     continue;
                 }
-                Node skillChild = XMLApi.getFirstChildByNameBF(mainNode, "skill");
-                // Handle the Skill node -
-                handleSkillNode(skillChild, rootId);
+                Node node = XMLApi.getRoot(file);
+                if (node == null) {
+                    continue;
+                }
+                List<Node> nodes = XMLApi.getAllChildren(node);
+                for (Node mainNode : nodes) {
+                    Map<String, String> attributes = XMLApi.getAttributes(mainNode);
+                    String rootIdStr = attributes.get("name").replace(".img", "");
+                    int rootId;
+                    if (MapleUtils.isNumber(rootIdStr)) {
+                        rootId = Integer.parseInt(rootIdStr);
+                    } else {
+                        continue;
+                    }
+                    Node skillChild = XMLApi.getFirstChildByNameBF(mainNode, "skill");
+                    // Handle the Skill node -
+                    handleSkillNode(skillChild, rootId);
+                }
             }
         }
     }
@@ -135,8 +141,51 @@ public class SkillDataHandler {
     public static void loadSkillData() {
         logger.serverNotice("Start loading Skill data...");
         long startTime = System.currentTimeMillis();
-        //TODO: in the future to add dat files reading and loading which will be called here -
         loadSkillsFromWZ();
         logger.serverNotice("~ Finished loading " + skills.size() + " Skills in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+    }
+
+    private static void exportSkillsToJson() {
+        logger.serverNotice("Start creating the JSONs for skills..");
+        MapleUtils.makeDirIfAbsent(JSON_DIR);
+        MapleUtils.makeDirIfAbsent(SKILL_JSON_DIR);
+        skills.values().forEach(skill -> JsonUtils.createJsonFile(skill, SKILL_JSON_DIR + skill.getSkillId() + ".json"));
+        logger.serverNotice("~ Finished creating the skills JSON files! ~");
+    }
+
+    public static void loadJsonSkills() {
+        long startTime = System.currentTimeMillis();
+        File dir = new File(SKILL_JSON_DIR);
+        File[] files = dir.listFiles();
+        logger.serverNotice("Start loading the JSONs for skills..");
+        if (files != null) {
+            for (File file : files) {
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    SkillData skill = mapper.readValue(file, SkillData.class);
+                    skills.put(skill.getSkillId(), skill);
+                } catch (Exception e) {
+                    logger.error("Error occurred while trying to load the file: " + file.getName());
+                    e.printStackTrace();
+                }
+            }
+            logger.serverNotice("~ Finished loading " + files.length + " skills JSON files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        } else {
+            logger.error("Didn't found skills JSONs to load!");
+        }
+    }
+
+    private static boolean isJsonDataExist() {
+        File skillDir = new File(SKILL_JSON_DIR);
+        return skillDir.exists();
+    }
+
+    public static void load() {
+        if (isJsonDataExist()) {
+            loadJsonSkills();
+        } else {
+            loadSkillData();
+            exportSkillsToJson();
+        }
     }
 }

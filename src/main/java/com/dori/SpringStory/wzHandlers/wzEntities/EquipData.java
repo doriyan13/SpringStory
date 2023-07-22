@@ -1,7 +1,8 @@
 package com.dori.SpringStory.wzHandlers.wzEntities;
 
 
-import com.dori.SpringStory.utils.utilEntities.FileTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +11,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EquipData {
     private long serialNumber;
-    private String title = "";
-    private FileTime equippedDate = FileTime.fromType(FileTime.Type.PLAIN_ZERO);
     private int prevBonusExpRate;
     private short tuc;
     private short cuc;

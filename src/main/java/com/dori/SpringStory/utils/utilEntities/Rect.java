@@ -26,7 +26,7 @@ public class Rect {
      * Returns the width of this Rect.
      * @return the width of this Rect.
      */
-    public int getWidth() {
+    public int calcWidth() {
         return Math.abs(getLeft() - getRight());
     }
 
@@ -34,7 +34,7 @@ public class Rect {
      * Returns the height of this Rect.
      * @return The height of this Rect.
      */
-    public int getHeight() {
+    public int calcHeight() {
         return Math.abs(getTop() - getBottom());
     }
 
@@ -69,7 +69,7 @@ public class Rect {
      * @return The resulting Rect from the move.
      */
     public Rect moveLeft() {
-        return new Rect(getLeft() - getWidth(), getTop(), getLeft(), getBottom());
+        return new Rect(getLeft() - calcWidth(), getTop(), getLeft(), getBottom());
     }
 
     /**
@@ -77,7 +77,7 @@ public class Rect {
      * @return The resulting Rect from the move.
      */
     public Rect moveRight() {
-        return new Rect(getRight(), getTop(), getRight() + getWidth(), getBottom());
+        return new Rect(getRight(), getTop(), getRight() + calcWidth(), getBottom());
     }
 
     /**
@@ -111,7 +111,7 @@ public class Rect {
      * Returns a random Position that is inside this Rect.
      * @return the random Position
      */
-    public Position getRandomPositionInside() {
+    public Position calcRandomPositionInside() {
         int randX = MapleUtils.getRandom(getLeft(), getRight());
         int randY = MapleUtils.getRandom(getTop(), getBottom());
         return new Position(randX, randY);

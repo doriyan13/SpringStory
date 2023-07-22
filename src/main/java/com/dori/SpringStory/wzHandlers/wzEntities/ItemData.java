@@ -4,6 +4,8 @@ import com.dori.SpringStory.enums.InventoryType;
 import com.dori.SpringStory.enums.ScrollStat;
 import com.dori.SpringStory.enums.SpecStat;
 import com.dori.SpringStory.inventory.ItemRewardInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,9 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ItemData {
     private int itemId;
     private InventoryType invType;

@@ -63,22 +63,26 @@ public interface CWvsContext {
         // Encode Stats -
         sortedListOfStats.forEach(stat -> {
             try {
+                Integer statValue = 0;
+                if (stat.getKey() != Stat.SkillPoint) {
+                    statValue = (Integer) stat.getValue();
+                }
                 switch (stat.getKey()) {
-                    case Skin, Level -> outPacket.encodeByte(((Integer) stat.getValue()).byteValue());
-                    case Face, Hair, Hp, MaxHp, Mp, MaxMp, Exp, Money -> outPacket.encodeInt((int) stat.getValue());
-                    case SubJob, Str, Dex, Inte, Luk, AbilityPoint, Pop -> outPacket.encodeShort(((Integer) stat.getValue()).shortValue());
+                    case Skin, Level -> outPacket.encodeByte(statValue.byteValue());
+                    case Face, Hair, Hp, MaxHp, Mp, MaxMp, Exp, Money -> outPacket.encodeInt(statValue);
+                    case SubJob, Str, Dex, Inte, Luk, AbilityPoint, Pop -> outPacket.encodeShort(statValue.shortValue());
                     case SkillPoint -> {
                         if (stat.getValue() instanceof ExtendSP) {
                             ((ExtendSP) stat.getValue()).encode(outPacket);
                         } else {
-                            outPacket.encodeShort(((Integer) stat.getValue()).shortValue());
+                            outPacket.encodeShort(statValue.shortValue());
                         }
                     }
                     case Pet, Pet2, Pet3 -> outPacket.encodeLong(((Integer) stat.getValue()).longValue());
                     case TempExp -> logger.warning("Attempt to change TempExp, which isn't implemented!");
                 }
-            }catch (Exception e){
-                logger.error("error occured!");
+            } catch (Exception e) {
+                logger.error("error occurred!");
                 e.printStackTrace();
             }
         });

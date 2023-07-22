@@ -4,19 +4,25 @@ import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.enums.FieldType;
 import com.dori.SpringStory.enums.PortalType;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.utils.JsonUtils;
 import com.dori.SpringStory.utils.MapleUtils;
+import com.dori.SpringStory.utils.StringUtils;
 import com.dori.SpringStory.utils.XMLApi;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.*;
 import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
+import com.dori.SpringStory.wzHandlers.wzEntities.WorldMapData;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.util.*;
 
-import static com.dori.SpringStory.constants.ServerConstants.PRINT_WZ_UNK;
+import static com.dori.SpringStory.constants.ServerConstants.*;
 
 @Service
 public class MapDataHandler {
@@ -25,11 +31,14 @@ public class MapDataHandler {
     // Map Cache of all the maps -
     private static final Map<Integer, MapData> fields = new LinkedHashMap<>();
     // List of world map fields -
-    private static final List<Integer> worldMapFields = new ArrayList<>();
+    private static final WorldMapData worldMapFields = new WorldMapData(new ArrayList<>());
     // List of maps for goto command -
-    private static final HashMap<String,Integer> goToMaps = new HashMap<>();
+    private static final HashMap<String, Integer> goToMaps = new HashMap<>();
 
-    public static void initGoToMaps(){
+    private MapDataHandler() {
+    }
+
+    public static void initGoToMaps() {
         //TODO:: will be removed after i will manage the string of maps and will create a !search command!!!
         goToMaps.put("ardent", 910001000);
         goToMaps.put("ariant", 260000100);
@@ -93,11 +102,11 @@ public class MapDataHandler {
         goToMaps.put("oz", 992000000);
     }
 
-    public static HashMap<String,Integer> getGoToMaps(){
+    public static HashMap<String, Integer> getGoToMaps() {
         return goToMaps;
     }
 
-    public static Field getMapByName(String mapName){
+    public static Field getMapByName(String mapName) {
         Integer mapId = getGoToMaps().get(mapName.toLowerCase());
         return mapId != null ? getMapByID(mapId) : null;
     }
@@ -259,7 +268,11 @@ public class MapDataHandler {
                     switch (name) {
                         case "id" -> life.setTemplateId(Integer.parseInt(value));
                         case "type" -> life.setLifeType(value);
-                        case "limitedname" -> life.setLimitedName(value);
+                        case "limitedname" -> {
+                            if (StringUtils.isSupportedFormatString(value)) {
+                                life.setLimitedName(value);
+                            }
+                        }
                         case "x" -> life.getPosition().setX(Integer.parseInt(value));
                         case "y" -> life.getPosition().setY(Integer.parseInt(value));
                         case "mobTime" -> life.setMobTime(Integer.parseInt(value));
@@ -313,7 +326,11 @@ public class MapDataHandler {
                         }
                         case "reactorTime" -> reactor.setMobTime(iVal); //They multiplied by 1000 ?
                         case "f" -> reactor.setFlip(iVal != 0);
-                        case "name" -> reactor.setLimitedName(value);
+                        case "name" -> {
+                            if (!value.isEmpty() && StringUtils.isSupportedFormatString(value)) {
+                                reactor.setLimitedName(value);
+                            }
+                        }
                         default -> {
                             if (PRINT_WZ_UNK) {
                                 logger.warning(String.format("Unknown reactor property %s with value %s", name, value));
@@ -391,20 +408,22 @@ public class MapDataHandler {
     public static void loadWorldMapFromWz() {
         File dir = new File(ServerConstants.WORLD_MAP_WZ_DIR);
         File[] files = dir.listFiles();
-        for (File file : files) {
-            Document doc = XMLApi.getRoot(file);
-            Node node = XMLApi.getAllChildren(doc).get(0);
-            if (node == null) {
-                continue;
-            }
-            Node mapList = XMLApi.getFirstChildByNameBF(node, "MapList");
-            for (Node n : XMLApi.getAllChildren(Objects.requireNonNull(mapList))) {
-                Node infoNode = XMLApi.getFirstChildByNameBF(n, "mapNo");
-                for (Node info : XMLApi.getAllChildren(Objects.requireNonNull(infoNode))) {
-                    Map<String, String> attr = XMLApi.getAttributes(info);
-                    int fieldId = Integer.parseInt(attr.get("value"));
-                    if (!worldMapFields.contains(fieldId)) {
-                        worldMapFields.add(fieldId);
+        if (files != null) {
+            for (File file : files) {
+                Document doc = XMLApi.getRoot(file);
+                Node node = XMLApi.getAllChildren(doc).get(0);
+                if (node == null) {
+                    continue;
+                }
+                Node mapList = XMLApi.getFirstChildByNameBF(node, "MapList");
+                for (Node n : XMLApi.getAllChildren(Objects.requireNonNull(mapList))) {
+                    Node infoNode = XMLApi.getFirstChildByNameBF(n, "mapNo");
+                    for (Node info : XMLApi.getAllChildren(Objects.requireNonNull(infoNode))) {
+                        Map<String, String> attr = XMLApi.getAttributes(info);
+                        int fieldId = Integer.parseInt(attr.get("value"));
+                        if (!worldMapFields.getMaps().contains(fieldId)) {
+                            worldMapFields.getMaps().add(fieldId);
+                        }
                     }
                 }
             }
@@ -412,18 +431,93 @@ public class MapDataHandler {
     }
 
     public static void loadMapData() {
-        logger.serverNotice("Start loading Map data...");
+        logger.serverNotice("Start loading Map WZ data...");
         long startTime = System.currentTimeMillis();
-        //TODO: in the future to add dat files reading and loading which will be called here -
         loadMapsFromWZ();
-        logger.serverNotice("~ Finished loading " + fields.size() + " Map data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.serverNotice("~ Finished loading " + fields.size() + " Map WZ data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
     }
 
     public static void loadWorldMapData() {
-        logger.serverNotice("Start Loading WorldMap...");
+        logger.serverNotice("Start Loading WorldMap WZ...");
         long startTime = System.currentTimeMillis();
-        //TODO: in the future to add dat files reading and loading which will be called here -
         loadWorldMapFromWz();
-        logger.serverNotice("~ Finished loading " + worldMapFields.size() + " WorldMaps in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.serverNotice("~ Finished loading " + worldMapFields.getMaps().size() + " WorldMaps WZ in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
     }
+
+    private static void exportFieldsToJson() {
+        logger.serverNotice("Start creating the JSONs for maps..");
+        MapleUtils.makeDirIfAbsent(JSON_DIR);
+        MapleUtils.makeDirIfAbsent(MAP_JSON_DIR);
+        fields.values().forEach(field -> JsonUtils.createJsonFile(field, MAP_JSON_DIR + field.getId() + ".json"));
+        logger.serverNotice("~ Finished creating the maps JSONs files! ~");
+    }
+
+    private static void exportWorldMapsToJson() {
+        logger.serverNotice("Start creating the JSONs for world maps..");
+        MapleUtils.makeDirIfAbsent(WORLD_MAP_JSON_DIR);
+        JsonUtils.createJsonFile(worldMapFields, WORLD_MAP_JSON_DIR + WORLD_MAP_JSON_FILE);
+        logger.serverNotice("~ Finished creating the world maps JSONs file! ~");
+    }
+
+    public static void exportDataToJson() {
+        exportFieldsToJson();
+        exportWorldMapsToJson();
+    }
+
+    public static void loadJsonMaps() {
+        long startTime = System.currentTimeMillis();
+        File dir = new File(MAP_JSON_DIR);
+        File[] files = dir.listFiles();
+        logger.serverNotice("Start loading the JSONs for maps..");
+        if (files != null) {
+            for (File file : files) {
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    MapData field = mapper.readValue(file, MapData.class);
+                    fields.put(field.getId(), field);
+                } catch (Exception e) {
+                    logger.error("Error occurred while trying to load the file: " + file.getName());
+                    e.printStackTrace();
+                }
+            }
+            logger.serverNotice("~ Finished loading " + files.length + " maps JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        } else {
+            logger.error("Didn't found maps JSONs to load!");
+        }
+    }
+
+    public static void loadJsonWorldMaps() {
+        long startTime = System.currentTimeMillis();
+        File file = new File(WORLD_MAP_JSON_DIR + WORLD_MAP_JSON_FILE);
+        if (file.exists()) {
+            ObjectMapper mapper = new ObjectMapper();
+            logger.serverNotice("Start loading the JSON for worlds map..");
+            try {
+                WorldMapData worldMaps = mapper.readValue(file, WorldMapData.class);
+                worldMapFields.setMaps(worldMaps.getMaps());
+            } catch (Exception e) {
+                logger.error("Error occurred while trying to load the file: " + file.getName());
+                e.printStackTrace();
+            }
+            logger.serverNotice("~ Finished loading " + 1 + " worlds map JSON file! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        }
+    }
+
+    private static boolean isJsonDataExist() {
+        File mapDir = new File(MAP_JSON_DIR);
+        File worldMapDir = new File(WORLD_MAP_WZ_DIR);
+        return mapDir.exists() && worldMapDir.exists();
+    }
+
+    public static void load() {
+        if (isJsonDataExist()) {
+            loadJsonMaps();
+            loadJsonWorldMaps();
+        } else {
+            loadMapData();
+            loadWorldMapData();
+            exportDataToJson();
+        }
+    }
+
 }
