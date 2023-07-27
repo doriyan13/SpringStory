@@ -21,7 +21,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ItemData {
     private int itemId;

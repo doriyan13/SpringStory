@@ -19,21 +19,21 @@ public class MapleCharService implements BaseService<MapleChar>{
 
     private static MapleCharService instance;
 
-    public static MapleCharService getInstance(){
-        if(instance == null){
-            instance = new MapleCharService(charRepo);
-        }
-        return instance;
-    }
+    // Logger -
+    private static final Logger logger = new Logger(MapleAccountService.class);
 
     @Autowired
     public MapleCharService(MapleCharRepo charRepo){
         MapleCharService.charRepo = charRepo;
     }
 
-    // Logger -
-    private static final Logger logger = new Logger(MapleAccountService.class);
 
+    public static MapleCharService getInstance(){
+        if(instance == null){
+            instance = new MapleCharService(charRepo);
+        }
+        return instance;
+    }
 
     @Override
     public Optional<MapleChar> getEntityById(Long id) {

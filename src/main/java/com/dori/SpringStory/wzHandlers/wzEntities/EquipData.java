@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EquipData {
     private long serialNumber;

@@ -32,8 +32,8 @@ public interface ServerConstants {
     String HANDLERS_DIR = DIR + "/src/main/java/com/dori/SpringStory/connection/packet/handlers";
     String WZ_DIR = DIR + "/wz";
     // WZ reading stuff -
-    int AMOUNT_OF_LOADERS = 5;
-    int MAX_LOADING_TIME_IN_MIN = 2;
+    int AMOUNT_OF_LOADERS = 3;
+    int MAX_LOADING_TIME_IN_MIN = 1;
     boolean PRINT_WZ_UNK = System.getenv("PRINT_WZ_UNK") != null && Boolean.getBoolean(System.getenv("PRINT_WZ_UNK"));
     String MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/Map";
     String WORLD_MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/WorldMap";
@@ -44,6 +44,7 @@ public interface ServerConstants {
     String ITEM_BASE_WZ_DIR = ServerConstants.WZ_DIR + "/Item.wz";
     String[] ITEM_SUB_WZ_DIRS = new String[]{"Cash", "Consume", "Etc", "Install", "Special"}; // exclude Pets - will be handled separately
     String PET_WZ_DIR = ServerConstants.WZ_DIR + "/Item.wz/Pet";
+    String STRING_WZ_DIR = WZ_DIR + "/String.wz/";
     String JSON_DIR = DIR + "/json";
     // Map Data -
     String MAP_JSON_DIR = JSON_DIR + "/Map/";

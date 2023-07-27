@@ -4,6 +4,7 @@ import com.dori.SpringStory.client.character.MapleChar;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
@@ -11,6 +12,7 @@ import java.util.Optional;
  * This is the Maple Character Repository.
  * @author Dori.
  */
+@Repository
 public interface MapleCharRepo extends JpaRepository<MapleChar, Long>,
         JpaSpecificationExecutor<MapleChar> {
     // Spring implement all the functions behind the scene so the interface is relatively empty ~

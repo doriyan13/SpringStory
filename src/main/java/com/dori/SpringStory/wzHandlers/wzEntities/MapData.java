@@ -25,7 +25,7 @@ import static com.dori.SpringStory.constants.ServerConstants.*;
 @AllArgsConstructor
 @ToString
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MapData {
     protected int id;

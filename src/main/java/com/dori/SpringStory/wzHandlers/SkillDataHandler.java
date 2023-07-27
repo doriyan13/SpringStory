@@ -108,7 +108,7 @@ public class SkillDataHandler {
         }
     }
 
-    public static void loadSkillsFromWZ() {
+    private static void loadSkillsFromWZ() {
         File dir = new File(ServerConstants.SKILL_WZ_DIR);
         File[] files = dir.listFiles();
         if (files != null) {
