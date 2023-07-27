@@ -6,6 +6,7 @@ public enum ServiceType {
     Inventory,
     Item,
     Account,
-    Character
+    Character,
+    StringData
     ;
 }

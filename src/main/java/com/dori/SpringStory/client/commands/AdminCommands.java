@@ -4,10 +4,13 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.enums.AccountType;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.enums.Stat;
+import com.dori.SpringStory.enums.StringDataType;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.wzHandlers.MapDataHandler;
+import com.dori.SpringStory.wzHandlers.wzEntities.StringData;
 
 import java.util.*;
 
@@ -65,6 +68,22 @@ public class AdminCommands {
             if (job != null) {
                 chr.setJob(id);
                 chr.updateStat(Stat.SubJob, id);
+            }
+        }
+    }
+
+    @Command(names = {"find", "search"}, requiredPermission = AccountType.GameMaster)
+    public static void find(MapleChar chr, List<String> args) {
+        if (args.size() == 2) {
+            StringDataType type = StringDataType.findTypeByName(args.get(0));
+            String name = args.get(1);
+
+            if(type != StringDataType.None){
+                Optional<List<StringData>> results = StringDataService.getInstance().findStringByNameAndType(name,type);
+
+                results.ifPresent(resultsData ->
+                        resultsData.forEach(entity ->
+                                logger.debug(entity.toString())));
             }
         }
     }

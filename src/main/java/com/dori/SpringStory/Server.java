@@ -87,6 +87,7 @@ public class Server {
         ServiceManager.registerNewService(ServiceType.Item, ItemService.getInstance());
         ServiceManager.registerNewService(ServiceType.Account, MapleAccountService.getInstance());
         ServiceManager.registerNewService(ServiceType.Character, MapleCharService.getInstance());
+        ServiceManager.registerNewService(ServiceType.StringData, StringDataService.getInstance());
     }
 
     private static void shutdown(){

@@ -12,7 +12,6 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 
 @Entity
 @Table(name = "stringData")
@@ -27,4 +26,9 @@ public class StringData {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "type")
     private StringDataType type;
+
+    @Override
+    public String toString() {
+        return "|> " + id + " | Name: " + name;
+    }
 }
