@@ -48,9 +48,8 @@ public class NormalMovement extends BaseMovement {
     @Override
     public void applyTo(MapleChar chr) {
         chr.setPosition(getPosition());
-        //TODO: need to handle!
-//        chr.setFoothold(getFh());
-//        chr.setMoveAction(getMoveAction());
+        chr.setFoothold(getFh());
+        chr.setMoveAction(getMoveAction());
     }
 
     @Override

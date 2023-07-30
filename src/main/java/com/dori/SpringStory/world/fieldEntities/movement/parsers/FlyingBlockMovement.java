@@ -32,8 +32,7 @@ public class FlyingBlockMovement extends BaseMovement {
     @Override
     public void applyTo(MapleChar chr) {
         chr.setPosition(getPosition());
-        //TODO: NEED TO HANDLE!
-        //chr.setMoveAction(getMoveAction());
+        chr.setMoveAction(getMoveAction());
     }
 
     @Override

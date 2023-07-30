@@ -22,6 +22,11 @@ public class Position {
         return new Position(getX(), getY());
     }
 
+    public Position(Position position){
+        this.x = position.getX();
+        this.y = position.getY();
+    }
+
     /**
      * Creates a Rect around this Position at its center.
      * Corners will be (pos.x + left, pos.y + top), (pos.x + right, pos.y + bottom)

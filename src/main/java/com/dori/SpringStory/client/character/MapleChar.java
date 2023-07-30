@@ -3,6 +3,7 @@ package com.dori.SpringStory.client.character;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CStage;
+import com.dori.SpringStory.connection.packet.packets.CUserLocal;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
@@ -114,6 +115,10 @@ public class MapleChar {
     private Position position;
     @Transient
     private Field field;
+    @Transient
+    private short foothold;
+    @Transient
+    private byte moveAction;
 
     public MapleChar(int accountID, String name, int gender) {
         // Set char base data -
@@ -606,5 +611,13 @@ public class MapleChar {
 
             changeStats(stats);
         }
+    }
+
+    public void message(String msg, ChatType type){
+        write(CUserLocal.chatMsg(msg,type));
+    }
+
+    public void noticeMsg(String msg){
+        write(CUserLocal.noticeMsg(msg));
     }
 }

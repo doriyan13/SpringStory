@@ -23,8 +23,7 @@ public class ActionMovement extends BaseMovement {
 
     @Override
     public void applyTo(MapleChar chr) {
-        //TODO: need to implement -
-        //chr.setMoveAction(moveAction);
+        chr.setMoveAction(moveAction);
     }
 
     @Override

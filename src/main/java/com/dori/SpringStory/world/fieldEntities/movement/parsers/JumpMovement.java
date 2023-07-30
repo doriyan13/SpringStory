@@ -31,8 +31,7 @@ public class JumpMovement extends BaseMovement {
     @Override
     public void applyTo(MapleChar chr) {
         chr.setPosition(getPosition());
-        //TODO: need to handle!
-        //chr.setMoveAction(getMoveAction());
+        chr.setMoveAction(getMoveAction());
     }
 
     @Override

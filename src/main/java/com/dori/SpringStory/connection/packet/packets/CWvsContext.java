@@ -16,7 +16,6 @@ import java.util.*;
 import static com.dori.SpringStory.enums.InventoryType.EQUIPPED;
 
 public interface CWvsContext {
-
     // Logger -
     Logger logger = new Logger(CWvsContext.class);
 

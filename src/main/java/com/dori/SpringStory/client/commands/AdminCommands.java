@@ -1,10 +1,7 @@
 package com.dori.SpringStory.client.commands;
 
 import com.dori.SpringStory.client.character.MapleChar;
-import com.dori.SpringStory.enums.AccountType;
-import com.dori.SpringStory.enums.Job;
-import com.dori.SpringStory.enums.Stat;
-import com.dori.SpringStory.enums.StringDataType;
+import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.world.fieldEntities.Field;
@@ -80,11 +77,26 @@ public class AdminCommands {
 
             if(type != StringDataType.None){
                 Optional<List<StringData>> results = StringDataService.getInstance().findStringByNameAndType(name,type);
-
+                chr.message("Query Result: ", ChatType.SpeakerWorld);
                 results.ifPresent(resultsData ->
                         resultsData.forEach(entity ->
-                                logger.debug(entity.toString())));
+                                chr.message(entity.toString(), ChatType.SpeakerWorld)));
+            } else {
+                chr.message("Un-valid Search type! only can choose: Mob | Map | Item | Skill | NPC _name_ ", ChatType.SpeakerChannel);
             }
+        } else {
+            chr.message("Un-valid Search type! only can choose: Mob | Map | Item | Skill | NPC _name_ ", ChatType.SpeakerChannel);
+        }
+    }
+
+
+    @Command(names = {"say", "speak"}, requiredPermission = AccountType.GameMaster)
+    public static void say(MapleChar chr, List<String> args) {
+        if(!args.isEmpty()){
+            StringBuilder sb = new StringBuilder();
+            args.forEach(word -> sb.append(word).append(" "));
+
+            chr.noticeMsg(sb.toString());
         }
     }
 }

@@ -35,9 +35,8 @@ public class StartFallDownMovement extends BaseMovement {
     @Override
     public void applyTo(MapleChar chr) {
         chr.setPosition(getPosition());
-        //TODO:!!!
-//        chr.setFoothold(getFh());
-//        chr.setMoveAction(getMoveAction());
+        chr.setFoothold(getFh());
+        chr.setMoveAction(getMoveAction());
     }
 
     @Override

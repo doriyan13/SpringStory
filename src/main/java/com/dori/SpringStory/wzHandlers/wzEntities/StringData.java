@@ -29,6 +29,6 @@ public class StringData {
 
     @Override
     public String toString() {
-        return "|> " + id + " | Name: " + name;
+        return "| " + id + " | Name: " + name;
     }
 }

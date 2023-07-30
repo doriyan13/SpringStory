@@ -132,7 +132,7 @@ public class Field extends MapData {
         mobs.values().forEach(mob -> chr.write(CMobPool.mobEnterField(mob)));
     }
 
-    public void assignControllerToMobs(MapleChar chr){
+    public void assignControllerToMobs(MapleChar chr) {
         //TODO: assigning a char suppose to be random and not the new char that enter the map each time!
 
         // Assign Controller to Mobs for the client -
@@ -147,12 +147,15 @@ public class Field extends MapData {
     }
 
     public void broadcastPacket(OutPacket outPacket, MapleChar exceptChr) {
-        getPlayers().values().forEach(
-            chr -> {
-                if(chr.getId() != exceptChr.getId()){
-                    chr.write(outPacket);
-                }
-            }
-        );
+        // No point broadcast a packet when you're alone in the map -
+        if (getPlayers().size() > 1) {
+            getPlayers().values().forEach(
+                    chr -> {
+                        if (chr.getId() != exceptChr.getId()) {
+                            chr.write(outPacket);
+                        }
+                    }
+            );
+        }
     }
 }
