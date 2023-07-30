@@ -142,6 +142,13 @@ public class Field extends MapData {
         });
     }
 
+    public void spawnMob(Mob mob, MapleChar chr){
+        addMob(mob);
+        chr.write(CMobPool.mobEnterField(mob));
+        mob.setController(chr);
+        chr.write(CMobPool.mobChangeController(mob, MobControllerType.ActiveInit));
+    }
+
     public void broadcastPacket(OutPacket outPacket) {
         getPlayers().values().forEach(chr -> chr.write(outPacket));
     }

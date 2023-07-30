@@ -34,6 +34,7 @@ public class Mob extends Life{
         this.option = 0;
         this.teamForMCarnival = 0;
         this.controller = null;
+        this.setMoveAction((byte) 5);
     }
 
     public Mob(Life life){

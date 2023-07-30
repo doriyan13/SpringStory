@@ -74,7 +74,7 @@ public interface CWvsContext {
                         if (stat.getValue() instanceof ExtendSP) {
                             ((ExtendSP) stat.getValue()).encode(outPacket);
                         } else {
-                            outPacket.encodeShort(statValue.shortValue());
+                            outPacket.encodeShort(((Integer) stat.getValue()).shortValue());
                         }
                     }
                     case Pet, Pet2, Pet3 -> outPacket.encodeLong(((Integer) stat.getValue()).longValue());

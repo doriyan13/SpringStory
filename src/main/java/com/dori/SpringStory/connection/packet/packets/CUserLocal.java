@@ -28,7 +28,7 @@ public interface CUserLocal {
     static OutPacket teleport(byte portalNum) {
         OutPacket outPacket = new OutPacket(OutHeader.CUserLocalTeleport);
         outPacket.encodeBool(false); // I don't know what this check does?
-        outPacket.encodeByte(0); // Portal number (in array i guess?)
+        outPacket.encodeByte(portalNum); // Portal number (in array i guess?)
 
         return outPacket;
     }
