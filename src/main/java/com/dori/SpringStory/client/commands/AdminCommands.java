@@ -137,6 +137,7 @@ public class AdminCommands {
                     mob.setFh(chr.getFoothold());
                     mob.setHomeFh(chr.getFoothold());
                     mob.setRespawnable(false);
+                    mob.setField(field);
                     field.spawnMob(mob, chr);
                 }
             }

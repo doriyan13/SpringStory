@@ -111,7 +111,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 Class<?> clazz = method.getParameterTypes()[0];
                 try {
                     if (method.getParameterTypes().length == 3) {
-                        method.invoke(this, chr, inPacket, inHeader);
+                        method.invoke(this, c, inPacket, inHeader);
                     } else if (clazz == MapleClient.class) {
                         method.invoke(this, c, inPacket);
                     } else if (clazz == MapleChar.class) {

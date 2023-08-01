@@ -64,4 +64,13 @@ public interface CMobPool {
 
         return outPacket;
     }
+
+    static OutPacket hpIndicator(int mobObjID, byte percDamage) {
+        OutPacket outPacket = new OutPacket(OutHeader.MobHPIndicator);
+
+        outPacket.encodeInt(mobObjID);
+        outPacket.encodeByte(percDamage);
+
+        return outPacket;
+    }
 }

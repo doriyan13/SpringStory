@@ -2,15 +2,20 @@ package com.dori.SpringStory.connection.packet.handlers;
 
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.client.character.attack.AttackInfo;
 import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
+import com.dori.SpringStory.connection.packet.headers.InHeader;
+import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import com.dori.SpringStory.connection.packet.packets.CUserRemote;
+import com.dori.SpringStory.enums.AttackType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
 
-import static com.dori.SpringStory.connection.packet.headers.InHeader.UserMove;
+import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
+import static com.dori.SpringStory.enums.AttackType.*;
 
 public class UserHandler {
     // Logger -
@@ -43,11 +48,30 @@ public class UserHandler {
         // Fail-safe when the char falls outside the map
         if (chr.getPosition().getY() > 5000) {
             Portal portal = field.findDefaultPortal();
-            chr.warp(chr.getField(),portal);
+            chr.warp(chr.getField(), portal);
         }
         // client has stopped moving. this might not be the best way
         if (chr.getMoveAction() == 4 || chr.getMoveAction() == 5) {
             //TODO: need to handle TSM (Temporary stat manager)
+        }
+    }
+
+    @Handler(ops = {UserMeleeAttack, UserShootAttack, UserMagicAttack, UserBodyAttack})
+    public static void handleUserAttack(MapleClient c, InPacket inPacket, InHeader header) {
+        // CUserLocal::TryDoingMeleeAttack -> line 2878
+        MapleChar chr = c.getChr();
+        AttackInfo ai = new AttackInfo();
+        AttackType type = None;
+        switch (header) {
+            case UserMeleeAttack -> type = Melee;
+            case UserShootAttack -> type = Shoot;
+            case UserMagicAttack -> type = Magic;
+            case UserBodyAttack -> type = Body;
+        }
+        if (type != None) {
+            ai.decode(type, inPacket);
+            chr.getField().broadcastPacket(CUserRemote.attack(chr, ai), chr);
+            ai.apply(chr);
         }
     }
 

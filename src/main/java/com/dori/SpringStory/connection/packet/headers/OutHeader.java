@@ -239,9 +239,9 @@ public enum OutHeader {
     // CUserPool::OnUserRemotePacket -
     CUserRemoteMove(210),
     CUserRemoteAttack(211),
-    CUserRemoteAttack2(212),
-    CUserRemoteAttack3(213),
-    CUserRemoteAttack4(214),
+    CUserRemoteShootAttack(212),
+    CUserRemoteMagicAttack(213),
+    CUserRemoteBodyAttack(214),
     CUserRemoteSkillPrepare(215),
     CUserRemoteMovingShootAttackPrepare(216),
     CUserRemoteSkillCancel(217),

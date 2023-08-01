@@ -120,6 +120,7 @@ public class Field extends MapData {
         }
         // Only if the object ID is valid add life to list -
         if (mob.getObjectId() != -1) {
+            mob.setField(this);
             mobs.putIfAbsent(mob.getObjectId(), mob);
         }
     }
@@ -147,6 +148,13 @@ public class Field extends MapData {
         chr.write(CMobPool.mobEnterField(mob));
         mob.setController(chr);
         chr.write(CMobPool.mobChangeController(mob, MobControllerType.ActiveInit));
+    }
+
+    public void removeMob(int objId) {
+        Mob mob = getMobs().get(objId);
+        if (mob != null) {
+            getMobs().remove(mob.getObjectId());
+        }
     }
 
     public void broadcastPacket(OutPacket outPacket) {

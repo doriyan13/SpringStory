@@ -5,7 +5,11 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.enums.MobSummonType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -13,10 +17,10 @@ import lombok.*;
 @ToString
 
 @EqualsAndHashCode(callSuper = true)
-public class Mob extends Life{
+public class Mob extends Life {
     // Fields -
-    private int hp;
-    private int maxHp;
+    private long hp;
+    private long maxHp;
     private int mp;
     private int maxMp;
     private int exp;
@@ -25,6 +29,8 @@ public class Mob extends Life{
     private int option;
     private byte teamForMCarnival;
     private MapleChar controller;
+    @JsonIgnore
+    private Map<Integer, Long> damageDone = new HashMap<>();
 
     public Mob(int templateId) {
         super(templateId);
@@ -37,7 +43,7 @@ public class Mob extends Life{
         this.setMoveAction((byte) 5);
     }
 
-    public Mob(Life life){
+    public Mob(Life life) {
         this.setTemplateId(life.getTemplateId());
         this.setObjectId(life.getObjectId());
         this.setLifeType(life.getLifeType());
@@ -69,7 +75,7 @@ public class Mob extends Life{
         this.controller = null;
     }
 
-    public void encode(OutPacket outPacket){
+    public void encode(OutPacket outPacket) {
         //CMob::SetTemporaryStat
         //Temp stats - TODO: need to handle it properly!
         outPacket.encodeArr(new byte[16]);
@@ -81,7 +87,7 @@ public class Mob extends Life{
         outPacket.encodeShort(getHomeFh()); //  m_nHomeFoothold
         outPacket.encodeByte(appearType.getVal());
 
-        if(appearType == MobSummonType.Revived || appearType.getVal() >= 0){
+        if (appearType == MobSummonType.Revived || appearType.getVal() >= 0) {
             outPacket.encodeInt(option); // summon option
         }
         outPacket.encodeByte(getTeamForMCarnival());
@@ -89,9 +95,9 @@ public class Mob extends Life{
         outPacket.encodeInt(0); // this
     }
 
-    public void setController(MapleChar chr, MobControllerType controllerType){
+    public void setController(MapleChar chr, MobControllerType controllerType) {
         // If the mob had an old controller, reset the controller -
-        if(getController() != null){
+        if (getController() != null) {
             // Notify old controller -
             chr.write(CMobPool.mobChangeController(this, MobControllerType.Reset));
         }
@@ -99,5 +105,38 @@ public class Mob extends Life{
         setController(chr);
         // Notify new controller -
         chr.write(CMobPool.mobChangeController(this, controllerType));
+    }
+
+    public void registerCharDmg(int chrID, long damage) {
+        long cur = 0;
+        if (getDamageDone().containsKey(chrID)) {
+            cur = getDamageDone().get(chrID);
+        }
+        cur += Math.min(damage, getHp());
+        getDamageDone().put(chrID, cur);
+    }
+
+    public void die(boolean drops) {
+        getDamageDone().clear();
+        getField().removeMob(getObjectId());
+        // TODO: need to handle mobLeaveField packet!
+        // TODO: need to handle revive of mob after X delay
+        // TODO: need to handle exp distribution!
+    }
+
+    public void damage(MapleChar chr, long totalDamage) {
+        registerCharDmg(chr.getId(), totalDamage);
+        long maxHP = getMaxHp();
+        long oldHp = getHp();
+        long newHp = oldHp - totalDamage;
+        setHp(newHp);
+        double percentageDamage = ((double) newHp / maxHP);
+
+        if (oldHp > 0 && newHp <= 0) {
+            die(true);
+            //TODO: need to handle HpIndicator packet from MobPool!
+        } else {
+            getField().broadcastPacket(CMobPool.hpIndicator(getObjectId(), (byte) (percentageDamage * 100)));
+        }
     }
 }
