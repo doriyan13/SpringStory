@@ -14,10 +14,7 @@ import com.dori.SpringStory.world.MapleChannel;
 import com.dori.SpringStory.world.MapleWorld;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.world.MigrateInUser;
-import com.dori.SpringStory.wzHandlers.ItemDataHandler;
-import com.dori.SpringStory.wzHandlers.MapDataHandler;
-import com.dori.SpringStory.wzHandlers.SkillDataHandler;
-import com.dori.SpringStory.wzHandlers.StringDataHandler;
+import com.dori.SpringStory.wzHandlers.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -76,8 +73,8 @@ public class Server {
         executorService.submit(MapDataHandler::load);
         executorService.submit(ItemDataHandler::load);
         executorService.submit(SkillDataHandler::load);
-        // Work in progress -
         executorService.submit(StringDataHandler::loadStringData);
+        executorService.submit(MobDataHandler::load);
         //TODO: next is MOBS and then QUESTS and then String <-> id matching
     }
 

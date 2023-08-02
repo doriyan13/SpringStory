@@ -85,20 +85,6 @@ public class MapData {
         return res;
     }
 
-//    public Tuple<Foothold, Foothold> getMinMaxNonWallFH() {
-//        Set<Foothold> footholds = getFootholds().stream().filter(fh -> !fh.isWall()).collect(Collectors.toSet());
-//        Foothold left = footholds.iterator().next(), right = footholds.iterator().next(); // return values
-//
-//        for (Foothold fh : footholds) {
-//            if (fh.getX1() < left.getX1()) {
-//                left = fh;
-//            } else if (fh.getX1() > right.getX1()) {
-//                right = fh;
-//            }
-//        }
-//        return new Tuple<>(left, right);
-//    }
-
     public void addPortal(Portal portal) {
         getPortals().add(portal);
     }

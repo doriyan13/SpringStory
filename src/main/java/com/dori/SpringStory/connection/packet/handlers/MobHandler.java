@@ -5,7 +5,7 @@ import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.logger.Logger;
-import com.dori.SpringStory.world.fieldEntities.Mob;
+import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
 
 

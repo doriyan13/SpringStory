@@ -32,7 +32,7 @@ public interface ServerConstants {
     String HANDLERS_DIR = DIR + "/src/main/java/com/dori/SpringStory/connection/packet/handlers";
     String WZ_DIR = DIR + "/wz";
     // WZ reading stuff -
-    int AMOUNT_OF_LOADERS = 3;
+    int AMOUNT_OF_LOADERS = 6;
     int MAX_LOADING_TIME_IN_MIN = 1;
     boolean PRINT_WZ_UNK = System.getenv("PRINT_WZ_UNK") != null && Boolean.getBoolean(System.getenv("PRINT_WZ_UNK"));
     String MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/Map";
@@ -45,6 +45,7 @@ public interface ServerConstants {
     String[] ITEM_SUB_WZ_DIRS = new String[]{"Cash", "Consume", "Etc", "Install", "Special"}; // exclude Pets - will be handled separately
     String PET_WZ_DIR = ServerConstants.WZ_DIR + "/Item.wz/Pet";
     String STRING_WZ_DIR = WZ_DIR + "/String.wz/";
+    String MOB_WZ_DIR = WZ_DIR + "/Mob.wz/";
     String JSON_DIR = DIR + "/json";
     // Map Data -
     String MAP_JSON_DIR = JSON_DIR + "/Map/";
@@ -55,6 +56,8 @@ public interface ServerConstants {
     String EQUIP_JSON_DIR = JSON_DIR + "/Equip/";
     // Skill Data -
     String SKILL_JSON_DIR = JSON_DIR + "/Skill/";
+    // Mob Data -
+    String MOB_JSON_DIR = JSON_DIR + "/Mob/";
     // Life stuff -
     int MAX_RETRIES = 10_000;
     int MAX_OBJ_ID = 9_999_999;

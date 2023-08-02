@@ -3,7 +3,7 @@ package com.dori.SpringStory.connection.packet.packets;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import com.dori.SpringStory.enums.MobControllerType;
-import com.dori.SpringStory.world.fieldEntities.Mob;
+import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
 
 public interface CMobPool {

@@ -6,6 +6,7 @@ import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.connection.packet.packets.CNpcPool;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.utils.MapleUtils;
+import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
 import lombok.*;
 

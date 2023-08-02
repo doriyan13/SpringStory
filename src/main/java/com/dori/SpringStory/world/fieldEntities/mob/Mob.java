@@ -1,10 +1,11 @@
-package com.dori.SpringStory.world.fieldEntities;
+package com.dori.SpringStory.world.fieldEntities.mob;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.enums.MobSummonType;
+import com.dori.SpringStory.world.fieldEntities.Life;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -23,6 +24,7 @@ public class Mob extends Life {
     private long maxHp;
     private int mp;
     private int maxMp;
+    private int level;
     private int exp;
     private short homeFh;
     private MobSummonType appearType;
@@ -31,6 +33,7 @@ public class Mob extends Life {
     private MapleChar controller;
     @JsonIgnore
     private Map<Integer, Long> damageDone = new HashMap<>();
+    // Mob reader Fields -
 
     public Mob(int templateId) {
         super(templateId);

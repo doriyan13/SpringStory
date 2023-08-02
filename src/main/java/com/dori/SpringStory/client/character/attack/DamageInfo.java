@@ -3,7 +3,7 @@ package com.dori.SpringStory.client.character.attack;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.utils.utilEntities.Position;
-import com.dori.SpringStory.world.fieldEntities.Mob;
+import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

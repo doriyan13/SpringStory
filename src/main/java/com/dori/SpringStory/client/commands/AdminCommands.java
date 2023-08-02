@@ -6,7 +6,7 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
-import com.dori.SpringStory.world.fieldEntities.Mob;
+import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.wzHandlers.MapDataHandler;
 import com.dori.SpringStory.wzHandlers.wzEntities.StringData;

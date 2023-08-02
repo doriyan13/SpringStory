@@ -6,7 +6,6 @@ import com.dori.SpringStory.client.character.attack.AttackInfo;
 import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.headers.InHeader;
-import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import com.dori.SpringStory.connection.packet.packets.CUserRemote;
 import com.dori.SpringStory.enums.AttackType;
 import com.dori.SpringStory.logger.Logger;
