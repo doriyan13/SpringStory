@@ -16,7 +16,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MobData{
+public class MobData {
     // Mob Fields -
     private int id;
     private long maxHp;
@@ -56,7 +56,7 @@ public class MobData{
         this.id = templateId;
     }
 
-    public void addSkill(MobSkill skill){
+    public void addSkill(MobSkill skill) {
         getSkills().add(skill);
     }
 }

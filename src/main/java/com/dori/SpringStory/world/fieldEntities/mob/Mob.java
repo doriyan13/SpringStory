@@ -6,6 +6,7 @@ import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.enums.MobSummonType;
 import com.dori.SpringStory.world.fieldEntities.Life;
+import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -33,7 +34,8 @@ public class Mob extends Life {
     private MapleChar controller;
     @JsonIgnore
     private Map<Integer, Long> damageDone = new HashMap<>();
-    // Mob reader Fields -
+    @JsonIgnore
+    private MobData statsData;
 
     public Mob(int templateId) {
         super(templateId);
@@ -76,6 +78,38 @@ public class Mob extends Life {
         this.option = 0;
         this.teamForMCarnival = 0;
         this.controller = null;
+    }
+
+    public void applyMobData(MobData mobData){
+        this.hp = mobData.getMaxHp();
+        this.maxHp = mobData.getMaxHp();
+        this.mp = mobData.getMaxMp();
+        this.maxMp = mobData.getMaxMp();
+        this.level = mobData.getLevel();
+        this.exp = mobData.getExp();
+        // Link mobData to entity -
+        this.statsData = mobData;
+    }
+
+    public Mob(MobData mobData){
+        // Super constructor -
+        super(mobData.getId());
+        // Default Mob data -
+        this.homeFh = 0;
+        this.appearType = MobSummonType.Normal;
+        this.option = 0;
+        this.teamForMCarnival = 0;
+        this.controller = null;
+        this.setMoveAction((byte) 5);
+        // Mob Data -
+        this.hp = mobData.getMaxHp();
+        this.maxHp = mobData.getMaxHp();
+        this.mp = mobData.getMaxMp();
+        this.maxMp = mobData.getMaxMp();
+        this.level = mobData.getLevel();
+        this.exp = mobData.getExp();
+        // Link mobData to entity -
+        this.statsData = mobData;
     }
 
     public void encode(OutPacket outPacket) {

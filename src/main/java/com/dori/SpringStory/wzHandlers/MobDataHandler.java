@@ -1,11 +1,14 @@
 package com.dori.SpringStory.wzHandlers;
 
 import com.dori.SpringStory.constants.ServerConstants;
+import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.JsonUtils;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.XMLApi;
+import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.world.fieldEntities.mob.MobSkill;
+import com.dori.SpringStory.wzHandlers.wzEntities.EquipData;
 import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.w3c.dom.Document;
@@ -23,6 +26,15 @@ public class MobDataHandler {
     private static final String[] deathNodesNames = {"die1", "die2", "dieF"};
     // Map Cache of all the Mobs -
     private static final Map<Integer, MobData> mobs = new HashMap<>();
+
+    public static MobData getMobDataByID(Integer mobID){
+        return mobs.get(mobID);
+    }
+
+    public static Mob getMobByID(Integer mobID) {
+        MobData mobData = mobs.getOrDefault(mobID, null);
+        return mobData != null ? new Mob(mobData) : null;
+    }
 
     private static long calcRespawnDelay(Node mobNode) {
         long respawnDelay = 0;

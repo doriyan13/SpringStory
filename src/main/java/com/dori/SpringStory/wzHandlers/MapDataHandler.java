@@ -35,9 +35,6 @@ public class MapDataHandler {
     // List of maps for goto command -
     private static final HashMap<String, Integer> goToMaps = new HashMap<>();
 
-    private MapDataHandler() {
-    }
-
     public static void initGoToMaps() {
         //TODO:: will be removed after i will manage the string of maps and will create a !search command!!!
         goToMaps.put("ardent", 910001000);
@@ -167,18 +164,13 @@ public class MapDataHandler {
                 case "VRBottom" -> field.setVrBottom(Integer.parseInt(value));
                 case "VRRight" -> field.setVrRight(Integer.parseInt(value));
                 //Skip Them! (don't really need that data)
-                case "version", "bgm", "cloud", "hideMinimap", "mapMark", "noMapCmd", "mapDesc", "moveLimit",
-                        "fs", "miniMapOnOff", "entrustedShop", "dropExpire", "allowedItem", "effect",
-                        "reactorShuffleName", "EscortMinTime", "streetName", "mapName", "help", "autoLieDetector",
-                        "snow", "rain", "VRLimit", "scrollDisable", "escort", "allMoveCheck",
-                        "zakum2Hack", "decMP", "protectSetKey", "decRate", "fieldSubType", "phaseAlpha",
-                        "phase", "phaseBG", "noRegenMap", "damageCheckFree", "blockPBossChange", "timeMob" -> {
-                }
-                default -> {
-                    if (PRINT_WZ_UNK) {
-                        logger.warning("missing handling to: " + name + " | value: " + value);
-                    }
-                }
+//                case "version", "bgm", "cloud", "hideMinimap", "mapMark", "noMapCmd", "mapDesc", "moveLimit",
+//                        "fs", "miniMapOnOff", "entrustedShop", "dropExpire", "allowedItem", "effect",
+//                        "reactorShuffleName", "EscortMinTime", "streetName", "mapName", "help", "autoLieDetector",
+//                        "snow", "rain", "VRLimit", "scrollDisable", "escort", "allMoveCheck",
+//                        "zakum2Hack", "decMP", "protectSetKey", "decRate", "fieldSubType", "phaseAlpha",
+//                        "phase", "phaseBG", "noRegenMap", "damageCheckFree", "blockPBossChange", "timeMob" -> {
+//                }
             }
         }
     }
@@ -202,11 +194,6 @@ public class MapDataHandler {
                                 case "y2" -> fh.setY2(Integer.parseInt(value));
                                 case "next" -> fh.setNext(Integer.parseInt(value));
                                 case "prev" -> fh.setPrev(Integer.parseInt(value));
-                                default -> {
-                                    if (PRINT_WZ_UNK) {
-                                        logger.warning("unknown Foothold property - " + name + " with value: " + value);
-                                    }
-                                }
                             }
                         }
                         field.addFoothold(fh);
@@ -236,11 +223,6 @@ public class MapDataHandler {
                         case "script" -> portal.setScript(value);
                         case "onlyOnce" -> portal.setOnlyOnce(Integer.parseInt(value) != 0);
                         case "delay" -> portal.setDelay(Integer.parseInt(value));
-                        default -> {
-                            if (PRINT_WZ_UNK) {
-                                logger.warning("unknown portal property - " + name + " with value: " + value);
-                            }
-                        }
                     }
                 }
                 field.addPortal(portal);
@@ -283,11 +265,6 @@ public class MapDataHandler {
                         case "rx0" -> life.setRx0(Integer.parseInt(value));
                         case "rx1" -> life.setRx1(Integer.parseInt(value));
                         case "team" -> life.setTeam((byte) Integer.parseInt(value));
-                        default -> {
-                            if (PRINT_WZ_UNK) {
-                                logger.warning("unknown life property - " + name + " with value: " + value);
-                            }
-                        }
                     }
                 }
                 field.addLife(life);
@@ -329,11 +306,6 @@ public class MapDataHandler {
                         case "name" -> {
                             if (!value.isEmpty() && StringUtils.isSupportedFormatString(value)) {
                                 reactor.setLimitedName(value);
-                            }
-                        }
-                        default -> {
-                            if (PRINT_WZ_UNK) {
-                                logger.warning(String.format("Unknown reactor property %s with value %s", name, value));
                             }
                         }
                     }

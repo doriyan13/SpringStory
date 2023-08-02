@@ -145,11 +145,6 @@ public class ItemDataHandler {
                             "accountShareTag", "removeEffect", "forcingItem", "fixFrameIdx", "buffItemID", "removeCharacterInfo", "nameInfo", "bgmInfo", "flip", "pos", "randomChair",
                             "maxLength", "continuity", "specificDX", "groupTWInfo", "face", "removeBody", "mesoChair", "towerBottom", "towerTop", "topOffset", "craftEXP", "willEXP",
                             "spec", "0", "mesomin", "mesomax", "mesostdev" -> {}*/
-                    default -> {
-                        if (PRINT_WZ_UNK) {
-                            logger.warning(String.format("Unknown node: %s, value = %s, itemID = %s", name, value, item.getItemId()));
-                        }
-                    }
                 }
             }
         }

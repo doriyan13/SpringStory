@@ -7,7 +7,9 @@ import com.dori.SpringStory.connection.packet.packets.CNpcPool;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
+import com.dori.SpringStory.wzHandlers.MobDataHandler;
 import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
+import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
 import lombok.*;
 
 import java.util.HashMap;
@@ -69,7 +71,12 @@ public class Field extends MapData {
             if (life.getLifeType().equalsIgnoreCase("n")) {
                 this.addNPC(new Npc(life));
             } else if (life.getLifeType().equalsIgnoreCase("m")) {
-                this.addMob(new Mob(life));
+                Mob mob = new Mob(life);
+                MobData mobData = MobDataHandler.getMobDataByID(life.getTemplateId());
+                if(mobData != null){
+                    mob.applyMobData(mobData);
+                    this.addMob(mob);
+                }
             } else {
                 this.addLife(life.deepCopy());
             }

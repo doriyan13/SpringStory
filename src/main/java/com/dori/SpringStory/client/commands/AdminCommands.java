@@ -9,6 +9,8 @@ import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.wzHandlers.MapDataHandler;
+import com.dori.SpringStory.wzHandlers.MobDataHandler;
+import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
 import com.dori.SpringStory.wzHandlers.wzEntities.StringData;
 
 import java.util.*;
@@ -120,16 +122,17 @@ public class AdminCommands {
     @Command(names = {"spawn"}, requiredPermission = AccountType.GameMaster)
     public static void spawn(MapleChar chr, List<String> args) {
         if(args.size() >= 1){
-            long id = Long.parseLong(args.get(0));
+            int id = Integer.parseInt(args.get(0));
             int count = 1;
             if (args.size() >= 2) {
                 count = Integer.parseInt(args.get(1));
             }
-            Optional<StringData> mobData = StringDataService.getInstance().getEntityById(id);
-            if (mobData.isPresent()) {
+            MobData mobData = MobDataHandler.getMobDataByID(id);
+            if (mobData != null) {
                 for (int i = 0; i < count; i++) {
                     Field field = chr.getField();
-                    Mob mob = new Mob((int) mobData.get().getId());
+                    // TODO: need to redo!
+                    Mob mob = MobDataHandler.getMobByID(id);
                     Position pos = chr.getPosition();
                     mob.setPosition(pos.deepCopy());
                     mob.setVPosition(pos.deepCopy());
