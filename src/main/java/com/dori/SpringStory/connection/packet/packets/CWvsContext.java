@@ -1,6 +1,7 @@
 package com.dori.SpringStory.connection.packet.packets;
 
 import com.dori.SpringStory.client.character.ExtendSP;
+import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.handlers.StageHandler;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
@@ -14,6 +15,7 @@ import com.dori.SpringStory.logger.Logger;
 import java.util.*;
 
 import static com.dori.SpringStory.enums.InventoryType.EQUIPPED;
+import static com.dori.SpringStory.enums.MessageType.*;
 
 public interface CWvsContext {
     // Logger -
@@ -62,14 +64,20 @@ public interface CWvsContext {
         // Encode Stats -
         sortedListOfStats.forEach(stat -> {
             try {
-                Integer statValue = 0;
+                int statValue = 0;
                 if (stat.getKey() != Stat.SkillPoint) {
-                    statValue = (Integer) stat.getValue();
+                    if (stat.getValue() instanceof Integer) {
+                        statValue = (Integer) stat.getValue();
+                    } else if (stat.getValue() instanceof Short) {
+                        statValue = ((Short) stat.getValue()).intValue();
+                    } else if(stat.getValue() instanceof Long){
+                        statValue = ((Long) stat.getValue()).intValue();
+                    }
                 }
                 switch (stat.getKey()) {
-                    case Skin, Level -> outPacket.encodeByte(statValue.byteValue());
+                    case Skin, Level -> outPacket.encodeByte((byte) statValue);
                     case Face, Hair, Hp, MaxHp, Mp, MaxMp, Exp, Money -> outPacket.encodeInt(statValue);
-                    case SubJob, Str, Dex, Inte, Luk, AbilityPoint, Pop -> outPacket.encodeShort(statValue.shortValue());
+                    case SubJob, Str, Dex, Inte, Luk, AbilityPoint, Pop -> outPacket.encodeShort((short) statValue);
                     case SkillPoint -> {
                         if (stat.getValue() instanceof ExtendSP) {
                             ((ExtendSP) stat.getValue()).encode(outPacket);
@@ -77,7 +85,7 @@ public interface CWvsContext {
                             outPacket.encodeShort(((Integer) stat.getValue()).shortValue());
                         }
                     }
-                    case Pet, Pet2, Pet3 -> outPacket.encodeLong(((Integer) stat.getValue()).longValue());
+                    case Pet, Pet2, Pet3 -> outPacket.encodeLong((long) stat.getValue());
                     case TempExp -> logger.warning("Attempt to change TempExp, which isn't implemented!");
                 }
             } catch (Exception e) {
@@ -98,6 +106,78 @@ public interface CWvsContext {
             outPacket.encodeInt(hpRecovery);
             outPacket.encodeInt(mpRecovery);
         }
+        return outPacket;
+    }
+
+    static OutPacket dropPickupMessage(int mesoAmountOrItemID, byte type, short internetCafeExtra, short quantity) {
+        OutPacket outPacket = new OutPacket(OutHeader.Message);
+
+        outPacket.encodeByte(DROP_PICK_UP_MESSAGE.getVal());
+        outPacket.encodeByte(type);
+        switch (type) {
+            case 0 -> {
+                // Item pickup message -
+                outPacket.encodeInt(mesoAmountOrItemID);
+                outPacket.encodeInt(quantity);
+            }
+            case 1 -> {
+                // Meso pickup message -
+                outPacket.encodeBool(false); // Portion was lost after falling to the ground
+                outPacket.encodeInt(mesoAmountOrItemID); // Meso amount
+                outPacket.encodeShort(internetCafeExtra); // Internet cafe
+            }
+            case 2 -> {
+                // IDK?
+                outPacket.encodeInt(100);
+            }
+        }
+
+        return outPacket;
+    }
+
+    static OutPacket cashItemExpireMessage(int itemID) {
+        OutPacket outPacket = new OutPacket(OutHeader.Message);
+
+        outPacket.encodeByte(CASH_ITEM_EXPIRE_MESSAGE.getVal());
+        outPacket.encodeInt(itemID);
+
+        return outPacket;
+    }
+
+    static OutPacket incExpMessage(IncEXPMessage incEXPMessage) {
+        OutPacket outPacket = new OutPacket(OutHeader.Message);
+
+        outPacket.encodeByte(INC_EXP_MESSAGE.getVal());
+        incEXPMessage.encode(outPacket);
+
+        return outPacket;
+    }
+
+    static OutPacket incSpMessage(short job, byte amount) {
+        OutPacket outPacket = new OutPacket(OutHeader.Message);
+
+        outPacket.encodeByte(INC_SP_MESSAGE.getVal());
+        outPacket.encodeShort(job);
+        outPacket.encodeByte(amount);
+
+        return outPacket;
+    }
+
+    static OutPacket incMoneyMessage(int amount) {
+        OutPacket outPacket = new OutPacket(OutHeader.Message);
+
+        outPacket.encodeByte(INC_MESO_MESSAGE.getVal());
+        outPacket.encodeInt(amount);
+
+        return outPacket;
+    }
+
+    static OutPacket incPopMessage(int amount) {
+        OutPacket outPacket = new OutPacket(OutHeader.Message);
+
+        outPacket.encodeByte(INC_FAME_MESSAGE.getVal());
+        outPacket.encodeInt(amount);
+
         return outPacket;
     }
 }

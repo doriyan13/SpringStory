@@ -604,12 +604,43 @@ public class MapleChar {
             stats.put(Stat.SkillPoint, getSp());
             setMaxHp(getMaxHp() + hpToAdd);
             stats.put(Stat.MaxHp, getMaxHp());
+            setHp(getMaxHp());
+            stats.put(Stat.Hp, getHp());
             setMaxMp(getMaxMp() + mpToAdd);
             stats.put(Stat.MaxMp, getMaxMp());
-            setExp(0);
+            setMp(getMaxMp());
+            stats.put(Stat.Mp, getMp());
+            if(getLevel() == MAX_LVL) {
+                setExp(0);
+            }
             stats.put(Stat.Exp, getExp());
 
             changeStats(stats);
+        }
+    }
+
+    public void gainExp(int amountOfExp){
+        if(level< MAX_LVL){
+            int amountOfLevels = 0;
+            int totalExp = amountOfExp + exp;
+            boolean needToCalcExp = true;
+            while(needToCalcExp){
+                int diffExp = totalExp - EXP_TABLE[level];
+                if(diffExp > 0) {
+                    exp = 0;
+                    totalExp -= EXP_TABLE[level];
+                    amountOfLevels++;
+                } else {
+                    needToCalcExp = false;
+                    exp = totalExp;
+                }
+            }
+            if(amountOfLevels > 0){
+                lvlUp(amountOfLevels);
+            } else {
+                updateStat(Stat.Exp, getExp());
+            }
+            System.out.println("currEXP: " + exp);
         }
     }
 

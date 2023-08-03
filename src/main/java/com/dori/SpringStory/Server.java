@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -73,9 +72,9 @@ public class Server {
         executorService.submit(MapDataHandler::load);
         executorService.submit(ItemDataHandler::load);
         executorService.submit(SkillDataHandler::load);
-        executorService.submit(StringDataHandler::loadStringData);
+        executorService.submit(StringDataHandler::load);
         executorService.submit(MobDataHandler::load);
-        //TODO: next is MOBS and then QUESTS and then String <-> id matching
+        //TODO: next is  QUESTS
     }
 
     private static void registerServices() {

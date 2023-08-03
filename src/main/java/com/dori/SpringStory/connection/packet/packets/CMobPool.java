@@ -73,4 +73,13 @@ public interface CMobPool {
 
         return outPacket;
     }
+
+    static OutPacket mobLeaveField(int mobObjID) {
+        OutPacket outPacket = new OutPacket(OutHeader.MobLeaveField);
+
+        outPacket.encodeInt(mobObjID);
+        outPacket.encodeByte(1); // 0 = dissapear, 1 = fade out, 2+ = special
+
+        return outPacket;
+    }
 }

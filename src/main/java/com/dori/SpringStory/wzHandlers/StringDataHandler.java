@@ -1,10 +1,8 @@
 package com.dori.SpringStory.wzHandlers;
 
 import com.dori.SpringStory.constants.ServerConstants;
-import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.enums.StringDataType;
 import com.dori.SpringStory.logger.Logger;
-import com.dori.SpringStory.services.ServiceManager;
 import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.utils.XMLApi;
 import com.dori.SpringStory.wzHandlers.wzEntities.StringData;
@@ -104,7 +102,7 @@ public class StringDataHandler {
                 .forEach(areaMapNode -> handleStringParentNode(areaMapNode,stringData,StringDataType.Map));
     }
 
-    public static void loadStringData() {
+    public static void load() {
         logger.serverNotice("Start loading Skill data...");
         long startTime = System.currentTimeMillis();
         Set<StringData> allStringData = new HashSet<>();

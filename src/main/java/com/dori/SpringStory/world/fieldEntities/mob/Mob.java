@@ -1,8 +1,11 @@
 package com.dori.SpringStory.world.fieldEntities.mob;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CMobPool;
+import com.dori.SpringStory.connection.packet.packets.CWvsContext;
+import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.enums.MobSummonType;
 import com.dori.SpringStory.world.fieldEntities.Life;
@@ -80,7 +83,7 @@ public class Mob extends Life {
         this.controller = null;
     }
 
-    public void applyMobData(MobData mobData){
+    public void applyMobData(MobData mobData) {
         this.hp = mobData.getMaxHp();
         this.maxHp = mobData.getMaxHp();
         this.mp = mobData.getMaxMp();
@@ -91,7 +94,7 @@ public class Mob extends Life {
         this.statsData = mobData;
     }
 
-    public Mob(MobData mobData){
+    public Mob(MobData mobData) {
         // Super constructor -
         super(mobData.getId());
         // Default Mob data -
@@ -153,12 +156,35 @@ public class Mob extends Life {
         getDamageDone().put(chrID, cur);
     }
 
+    public void distributeExp(){
+        int exp = getExp();
+        long totalDamage = getDamageDone().values().stream().mapToLong(l -> l).sum();
+        getField().getPlayers().values().forEach(chr ->{
+            double dmgPercentage = getDamageDone().get(chr.getId()) / (double) totalDamage;
+            int mobExpRate = chr.getLevel() < 10 ? 1 : GameConstants.EXP_RATE;
+            int expForChr = (int) (exp * dmgPercentage * mobExpRate);
+            chr.gainExp(expForChr);
+            // Send the increase exp message -
+            IncEXPMessage expMessage = new IncEXPMessage();
+            expMessage.setLastHit(true);
+            expMessage.setIncEXP(expForChr);
+            chr.write(CWvsContext.incExpMessage(expMessage));
+        });
+    }
+
     public void die(boolean drops) {
-        getDamageDone().clear();
+        // Kill the Old Mob -
         getField().removeMob(getObjectId());
-        // TODO: need to handle mobLeaveField packet!
-        // TODO: need to handle revive of mob after X delay
-        // TODO: need to handle exp distribution!
+        getField().broadcastPacket(CMobPool.mobLeaveField(getObjectId()));
+        // Distribute exp -
+        distributeExp();
+        // Clear the damaged Mob data -
+        this.setHp(getMaxHp());
+        this.setMp(getMaxMp());
+        getDamageDone().clear();
+        //TODO: need to add delay before spawning new mob but for now lets imminently spawn new one -
+        getField().spawnMob(this, getController());
+
     }
 
     public void damage(MapleChar chr, long totalDamage) {
@@ -171,7 +197,6 @@ public class Mob extends Life {
 
         if (oldHp > 0 && newHp <= 0) {
             die(true);
-            //TODO: need to handle HpIndicator packet from MobPool!
         } else {
             getField().broadcastPacket(CMobPool.hpIndicator(getObjectId(), (byte) (percentageDamage * 100)));
         }
