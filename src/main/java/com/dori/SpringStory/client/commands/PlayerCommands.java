@@ -38,9 +38,9 @@ public class PlayerCommands {
 
     @Command(names = {"info", "status"}, requiredPermission = AccountType.Player)
     public static void info(MapleChar chr, List<String> args){
-        chr.message("Name: " + chr.getName(), ChatType.GameDesc);
-        chr.message("Lvl: " + chr.getLevel() + " | Job: " + chr.getJob() +  " | Str: " + chr.getNStr() + " | Dex: " + chr.getNDex() +
-                " | Int: " + chr.getNInt() + " | Luk: " + chr.getNLuk(), ChatType.GameDesc);
-        chr.message("Field: " + chr.getField().getId() + " | Pos:" + chr.getPosition() + " | Fh: " + chr.getFoothold(), ChatType.GameDesc);
+        chr.message("Name: " + chr.getName(), ChatType.SpeakerWorld);
+        chr.message("Lvl: " + chr.getLevel() + " | Job: " + chr.getJob() + " | Exp: " + chr.getExp(), ChatType.SpeakerWorld);
+        chr.message("Str: " + chr.getNStr() + " | Dex: " + chr.getNDex() + " | Int: " + chr.getNInt() + " | Luk: " + chr.getNLuk(), ChatType.SpeakerWorld);
+        chr.message("Field: " + chr.getField().getId() + " | Pos:" + chr.getPosition() + " | Fh: " + chr.getFoothold(), ChatType.SpeakerWorld);
     }
 }

@@ -75,6 +75,7 @@ public class Field extends MapData {
                 MobData mobData = MobDataHandler.getMobDataByID(life.getTemplateId());
                 if(mobData != null){
                     mob.applyMobData(mobData);
+                    mob.setRespawnable(true);
                     this.addMob(mob);
                 }
             } else {

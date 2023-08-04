@@ -41,4 +41,5 @@ public interface GameConstants {
     };
     // World -
     int EXP_RATE = 2;
+    int DEFAULT_MOB_RESPAWN_DELAY = 10;
 }

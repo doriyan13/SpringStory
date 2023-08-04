@@ -9,6 +9,7 @@ import com.dori.SpringStory.connection.netty.ChatAcceptor;
 import com.dori.SpringStory.connection.netty.LoginAcceptor;
 import com.dori.SpringStory.connection.packet.handlers.ChatHandler;
 import com.dori.SpringStory.enums.ServiceType;
+import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.services.*;
 import com.dori.SpringStory.world.MapleChannel;
 import com.dori.SpringStory.world.MapleWorld;
@@ -91,6 +92,8 @@ public class Server {
         for (MapleWorld world : getWorlds()){
             world.shutdown();
         }
+        // Clear all the active events -
+        EventManager.getAllActiveEvents().forEach(event -> event.cancel(true));
         logger.serverNotice("~ Finished Server shutdown ~");
     }
 

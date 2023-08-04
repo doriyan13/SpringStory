@@ -16,9 +16,6 @@ import com.dori.SpringStory.wzHandlers.wzEntities.StringData;
 
 import java.util.*;
 
-import static com.dori.SpringStory.constants.GameConstants.MAX_LVL;
-import static com.dori.SpringStory.constants.GameConstants.MAX_MESO;
-
 public class AdminCommands {
     // Logger -
     private static final Logger logger = new Logger(AdminCommands.class);
@@ -208,12 +205,23 @@ public class AdminCommands {
     public static void MaxStats(MapleChar chr, List<String> args) {
         Map<Stat, Object> stats = new HashMap<>();
         stats.put(Stat.Str, Short.MAX_VALUE);
+        chr.setNStr(Short.MAX_VALUE);
         stats.put(Stat.Dex, Short.MAX_VALUE);
+        chr.setNDex(Short.MAX_VALUE);
         stats.put(Stat.Inte, Short.MAX_VALUE);
+        chr.setNInt(Short.MAX_VALUE);
         stats.put(Stat.Luk, Short.MAX_VALUE);
+        chr.setNLuk(Short.MAX_VALUE);
         //stats.put(Stat.Level, MAX_LVL);
         //stats.put(Stat.Money, MAX_MESO);
         chr.changeStats(stats);
         chr.message("Update stats to max!", ChatType.GameDesc);
+    }
+
+    @Command(names = {"mobStats", "mobs", ",mobStatus"}, requiredPermission = AccountType.GameMaster)
+    public static void MobStatus(MapleChar chr, List<String> args) {
+        Field field = chr.getField();
+        chr.message("Total mobs: " + field.getMobs().size(), ChatType.SpeakerWorld);
+        field.getMobs().values().forEach(mob -> chr.message(mob.toString(), ChatType.SpeakerWorld));
     }
 }

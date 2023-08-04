@@ -8,6 +8,8 @@ import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.enums.MobSummonType;
+import com.dori.SpringStory.events.EventManager;
+import com.dori.SpringStory.events.eventsHandlers.ReviveMobEvent;
 import com.dori.SpringStory.world.fieldEntities.Life;
 import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,10 +18,11 @@ import lombok.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.dori.SpringStory.constants.GameConstants.DEFAULT_MOB_RESPAWN_DELAY;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 
 @EqualsAndHashCode(callSuper = true)
 public class Mob extends Life {
@@ -39,6 +42,8 @@ public class Mob extends Life {
     private Map<Integer, Long> damageDone = new HashMap<>();
     @JsonIgnore
     private MobData statsData;
+    @JsonIgnore
+    private boolean isRespawnable = false;
 
     public Mob(int templateId) {
         super(templateId);
@@ -156,10 +161,10 @@ public class Mob extends Life {
         getDamageDone().put(chrID, cur);
     }
 
-    public void distributeExp(){
+    public void distributeExp() {
         int exp = getExp();
         long totalDamage = getDamageDone().values().stream().mapToLong(l -> l).sum();
-        getField().getPlayers().values().forEach(chr ->{
+        getField().getPlayers().values().forEach(chr -> {
             double dmgPercentage = getDamageDone().get(chr.getId()) / (double) totalDamage;
             int mobExpRate = chr.getLevel() < 10 ? 1 : GameConstants.EXP_RATE;
             int expForChr = (int) (exp * dmgPercentage * mobExpRate);
@@ -179,12 +184,13 @@ public class Mob extends Life {
         // Distribute exp -
         distributeExp();
         // Clear the damaged Mob data -
+        MapleChar chr = this.getController();
         this.setHp(getMaxHp());
         this.setMp(getMaxMp());
+        this.setController(null);
         getDamageDone().clear();
-        //TODO: need to add delay before spawning new mob but for now lets imminently spawn new one -
-        getField().spawnMob(this, getController());
-
+        long delay = getStatsData().getRespawnDelay() > 0 ? getStatsData().getRespawnDelay() : DEFAULT_MOB_RESPAWN_DELAY;
+        EventManager.addEvent(new ReviveMobEvent(this, chr), delay);
     }
 
     public void damage(MapleChar chr, long totalDamage) {
@@ -200,5 +206,16 @@ public class Mob extends Life {
         } else {
             getField().broadcastPacket(CMobPool.hpIndicator(getObjectId(), (byte) (percentageDamage * 100)));
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + getObjectId() +
+                " | Hp: " + hp + "/" + maxHp +
+                " | Mp: " + mp + "/" + maxMp +
+                " | Lvl: " + level +
+                " | Exp: " + exp +
+                " | Controller: " + controller.getId() +
+                " | Pos: " + getPosition();
     }
 }

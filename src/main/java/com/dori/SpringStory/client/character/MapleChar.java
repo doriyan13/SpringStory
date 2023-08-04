@@ -640,7 +640,6 @@ public class MapleChar {
             } else {
                 updateStat(Stat.Exp, getExp());
             }
-            System.out.println("currEXP: " + exp);
         }
     }
 
