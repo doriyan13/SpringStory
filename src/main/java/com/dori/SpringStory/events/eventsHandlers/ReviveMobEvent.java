@@ -21,6 +21,5 @@ public record ReviveMobEvent(Mob mob, MapleChar lastController)
         } else {
             field.addMob(mob);
         }
-        System.out.println("the Mob Delay was - " + mob.getStatsData().getRespawnDelay());
     }
 }

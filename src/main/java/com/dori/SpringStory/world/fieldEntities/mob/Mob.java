@@ -44,6 +44,8 @@ public class Mob extends Life {
     private MobData statsData;
     @JsonIgnore
     private boolean isRespawnable = false;
+    @JsonIgnore
+    private MobTemporaryStat temporaryStats = new MobTemporaryStat();
 
     public Mob(int templateId) {
         super(templateId);
@@ -122,8 +124,8 @@ public class Mob extends Life {
 
     public void encode(OutPacket outPacket) {
         //CMob::SetTemporaryStat
-        //Temp stats - TODO: need to handle it properly!
-        outPacket.encodeArr(new byte[16]);
+        //Temp stats -
+        this.getTemporaryStats().encode(outPacket);
 
         //CMob::Init
         outPacket.encodePosition(getPosition()); //m_ptPosPrev.x | m_ptPosPrev.y
