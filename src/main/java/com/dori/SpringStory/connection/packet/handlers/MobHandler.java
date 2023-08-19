@@ -20,12 +20,17 @@ public class MobHandler {
         // CMob::GenerateMovePath
         int mobObjID = inPacket.decodeInt();
         Mob mob = c.getChr().getField().getMobs().get(mobObjID);
-        if(mob != null){
+        if (mob != null) {
             short mobCtrlSN = inPacket.decodeShort(); // move id
             byte dwFlag = inPacket.decodeByte(); // bSomeRand | 4 * (bRushMove | 2 * (bRiseByToss | 2 * nMobCtrlState));
             boolean isNextAtkPossible = (dwFlag & 0xF) != 0; // is mob should use skill? (saw chronos did 'dwFlag > 0')
             byte nActionAndDir = inPacket.decodeByte();
+            //TODO: need to handle Mob skill properly -> require to wz read MobSkills and then finish the handling! (and apply in mts)
             int skillData = inPacket.decodeInt(); // !CMob::DoSkill(v7, (unsigned __int8)dwData, BYTE1(dwData), dwData >> 16)
+            byte skillID = (byte) (skillData & 0xFF);
+            byte slv = (byte) (skillData >> 8 & 0xFF);
+            int delay = skillData >> 16;
+
             int nMultiTargetSize = inPacket.decodeInt();
             for (int i = 0; i < nMultiTargetSize; i++) {
                 inPacket.decodeInt(); // aMultiTargetForBall[i].x
@@ -44,7 +49,7 @@ public class MobHandler {
             // Encode the mob movement data -
             MovementData movementData = new MovementData(inPacket);
             // TODO: need to manage mob mp!
-            c.write(CMobPool.mobMoveAck(mobObjID, mobCtrlSN, isNextAtkPossible, 0));
+            c.write(CMobPool.mobMoveAck(mobObjID, mobCtrlSN, isNextAtkPossible, 0, skillID, slv));
             // Apply the encoding movement to the mob instance -
             movementData.applyTo(mob);
             // Send the updated move of the mob to the other clients in the field -

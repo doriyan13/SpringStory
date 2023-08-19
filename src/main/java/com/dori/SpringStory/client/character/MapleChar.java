@@ -555,9 +555,15 @@ public class MapleChar {
         changeStats(new HashMap<>());
     }
 
-    public void healHp(int amount) {
+    public void modifyHp(int amount) {
+        int newHp = 0;
+
         if (amount > 0) {
-            int newHp = Math.min(Math.abs(amount + getHp()), getMaxHp());
+            newHp = Math.min(amount + getHp(), getMaxHp());
+            setHp(newHp);
+            updateStat(Stat.Hp, newHp);
+        } else if (amount < 0) {
+            newHp = Math.max(amount + getHp(), 0);
             setHp(newHp);
             updateStat(Stat.Hp, newHp);
         }
@@ -576,7 +582,7 @@ public class MapleChar {
         int amountOfMpToHeal = getMaxMp() - getMp();
 
         if (amountOfHpToHeal > 0) {
-            healHp(amountOfHpToHeal);
+            modifyHp(amountOfHpToHeal);
         }
         if (amountOfMpToHeal > 0) {
             healMp(amountOfMpToHeal);
@@ -610,7 +616,7 @@ public class MapleChar {
             stats.put(Stat.MaxMp, getMaxMp());
             setMp(getMaxMp());
             stats.put(Stat.Mp, getMp());
-            if(getLevel() == MAX_LVL) {
+            if (getLevel() == MAX_LVL) {
                 setExp(0);
             }
             stats.put(Stat.Exp, getExp());
@@ -619,14 +625,14 @@ public class MapleChar {
         }
     }
 
-    public void gainExp(int amountOfExp){
-        if(level< MAX_LVL){
+    public void gainExp(int amountOfExp) {
+        if (level < MAX_LVL) {
             int amountOfLevels = 0;
             int totalExp = amountOfExp + exp;
             boolean needToCalcExp = true;
-            while(needToCalcExp){
+            while (needToCalcExp) {
                 int diffExp = totalExp - EXP_TABLE[level];
-                if(diffExp > 0) {
+                if (diffExp > 0) {
                     exp = 0;
                     totalExp -= EXP_TABLE[level];
                     amountOfLevels++;
@@ -635,7 +641,7 @@ public class MapleChar {
                     exp = totalExp;
                 }
             }
-            if(amountOfLevels > 0){
+            if (amountOfLevels > 0) {
                 lvlUp(amountOfLevels);
             } else {
                 updateStat(Stat.Exp, getExp());
@@ -643,11 +649,11 @@ public class MapleChar {
         }
     }
 
-    public void message(String msg, ChatType type){
-        write(CUserLocal.chatMsg(msg,type));
+    public void message(String msg, ChatType type) {
+        write(CUserLocal.chatMsg(msg, type));
     }
 
-    public void noticeMsg(String msg){
+    public void noticeMsg(String msg) {
         write(CUserLocal.noticeMsg(msg));
     }
 }

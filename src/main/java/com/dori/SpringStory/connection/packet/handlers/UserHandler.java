@@ -8,6 +8,7 @@ import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.headers.InHeader;
 import com.dori.SpringStory.connection.packet.packets.CUserRemote;
 import com.dori.SpringStory.enums.AttackType;
+import com.dori.SpringStory.enums.DamageType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
@@ -73,5 +74,39 @@ public class UserHandler {
             ai.apply(chr);
         }
     }
+
+    @Handler(op = UserHit)
+    public static void handleUserHit(MapleClient c, InPacket inPacket) {
+        MapleChar chr = c.getChr();
+        // CUserLocal::SetDamaged - Line 637
+        int timeStamp = inPacket.decodeInt();
+        DamageType type = DamageType.getTypeByVal(inPacket.decodeByte());
+        byte magicElemAttr = inPacket.decodeByte(); // Element - 0x00 = element-less, 0x01 = ice, 0x02 = fire, 0x03 = lightning
+        int dmg = inPacket.decodeInt();
+        int mobID = 0;
+        boolean isLeft = false;
+
+        switch (type) {
+            case Physical, Magic -> {
+                mobID = inPacket.decodeInt();
+                int objID = inPacket.decodeInt();
+                isLeft = inPacket.decodeBool();
+                byte top = inPacket.decodeByte();
+                byte relativeDir = inPacket.decodeByte();
+                byte damageMissed = inPacket.decodeByte();
+                byte nX = inPacket.decodeByte();
+            }
+            case Obstacle -> {
+
+            }
+            default -> {
+                logger.warning("UnHandled dmg type: " + type);
+                return;
+            }
+        }
+        chr.getField().broadcastPacket(CUserRemote.hit(chr, type, dmg, mobID, isLeft));
+        chr.modifyHp(-dmg);
+    }
+
 
 }

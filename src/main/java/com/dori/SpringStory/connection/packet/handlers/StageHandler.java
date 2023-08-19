@@ -36,7 +36,7 @@ public class StageHandler {
                     0, true, (byte) 1, (short) 0,
                     "", new String[]{""}));
             Field field = c.getMapleChannelInstance().getField(chr.getMapId());
-            if (field != null){
+            if (field != null) {
                 Portal currPortal = field.getPortalByName("sp");
                 // Set char position in field -
                 c.getChr().setPosition(new Position(currPortal.getPosition().getX(), currPortal.getPosition().getY()));
@@ -49,8 +49,7 @@ public class StageHandler {
                 // Assign Controllers For life -
                 field.assignControllerToMobs(chr);
                 //TODO: need to handle controller for npcs!!
-            }
-            else {
+            } else {
                 logger.error("got un-valid mapID for a char that cause a null field!, closing session for: " + chr.getName());
                 c.close();
             }
@@ -60,7 +59,7 @@ public class StageHandler {
     }
 
     @Handler(op = InHeader.UserTransferFieldRequest)
-    public static void handleUserTransferFieldRequest(MapleClient c, InPacket inPacket){
+    public static void handleUserTransferFieldRequest(MapleClient c, InPacket inPacket) {
         if (inPacket.getUnreadAmount() == 0) {
             // Coming back from the cash shop
             logger.warning("currently not handled!");
@@ -71,24 +70,29 @@ public class StageHandler {
         String portalName = inPacket.decodeString();
         MapleChar chr = c.getChr();
         Portal targetPortal = chr.getField().getPortalByName(portalName);
-        if(portalName != null && !portalName.isEmpty() && targetPortal != null){
+        // Handle Death respawn -
+        if (targetPortal == null && chr.getHp() == 0) {
+            targetPortal = chr.getField().findDefaultPortal();
+            chr.fullHeal();
+        }
+        if (targetPortal != null) {
             Field field = c.getMapleChannelInstance().getField(targetPortal.getTargetMapId());
-            if(field != null){
+            // this will be the case for death and respawn request -
+            if(targetPortal.getTargetMapId() == 999999999){
+                chr.warp(chr.getField(), targetPortal);
+            }
+            else if (field != null) {
                 Position position = inPacket.decodePosition(); // short, short
-                Portal portal = field.getPortalByName(targetPortal.getTargetPortalName());
-                logger.debug("portal position: " + portal.getPosition() + ", pos we get from client: " + position);
-                byte townPortal = inPacket.decodeByte();
+                 byte townPortal = inPacket.decodeByte();
                 boolean premium = inPacket.decodeBool();
                 byte chase = inPacket.decodeByte();
                 // Update the field and chr instances & warp -
-                chr.warp(field, portal);
-            }
-            else {
+                chr.warp(field, targetPortal);
+            } else {
                 logger.error("Got an invalid field ID while trying to transfer between maps - " + targetPortal.getTargetMapId());
                 c.close();
             }
-        }
-        else {
+        } else {
             logger.error("Got an invalid portal name while trying to transfer between maps - " + portalName);
             c.close();
         }

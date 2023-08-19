@@ -50,7 +50,8 @@ public enum MobSkillType {
     HealByDamage(0xA1),
     Bind(0xA2),
     Summon(0xC8),
-    SummonCube(0xC9);
+    SummonCube(0xC9)
+    ;
 
     private final int value;
 

@@ -34,15 +34,15 @@ public interface CMobPool {
         return outPacket;
     }
 
-    static OutPacket mobMoveAck(int mobID, short mobCtrlSN, boolean isNextAtkPossible, int mp) {
+    static OutPacket mobMoveAck(int mobID, short mobCtrlSN, boolean isNextAtkPossible, int mp, byte skillID, byte slv) {
         OutPacket outPacket = new OutPacket(OutHeader.MobCtrlAck);
 
         outPacket.encodeInt(mobID);
         outPacket.encodeShort(mobCtrlSN);
         outPacket.encodeBool(isNextAtkPossible);
-        outPacket.encodeShort(0); // Math.min(Short.MAX_VALUE, mp)
-        outPacket.encodeByte(0); // pCommand.nSkillID
-        outPacket.encodeByte(0); // pCommand.nSLV
+        outPacket.encodeShort(Math.min(Short.MAX_VALUE, mp));
+        outPacket.encodeByte(skillID); // pCommand.nSkillID
+        outPacket.encodeByte(slv); // pCommand.nSLV
 
         return outPacket;
     }

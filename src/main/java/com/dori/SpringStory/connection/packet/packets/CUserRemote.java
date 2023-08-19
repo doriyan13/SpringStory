@@ -5,6 +5,7 @@ import com.dori.SpringStory.client.character.attack.AttackInfo;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import com.dori.SpringStory.enums.AttackType;
+import com.dori.SpringStory.enums.DamageType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
@@ -63,6 +64,36 @@ public interface CUserRemote {
             outPacket.encodeShort(0);
             outPacket.encodeShort(0);
         }
+        return outPacket;
+    }
+
+    static OutPacket hit(MapleChar chr, DamageType type, int dmg, int mobID, boolean isLeft){
+        OutPacket outPacket = new OutPacket(OutHeader.CUserRemoteHit);
+        final int thiefDodgeSkillID = 4120002;
+
+        outPacket.encodeInt(chr.getId());
+        outPacket.encodeByte(type.getVal());
+        outPacket.encodeInt(dmg);
+        if( type.getVal() > DamageType.Counter.getVal()) {
+            outPacket.encodeInt(mobID);
+            outPacket.encodeBool(isLeft);
+            boolean isStance = false;
+            outPacket.encodeBool(isStance); // stance?
+            if(isStance){
+                outPacket.encodeByte(0); // bPowerGuard
+                outPacket.encodeInt(0); // ptHit.x
+                outPacket.encodeByte(0); // nHitAction
+                outPacket.encodeShort(0); // ptHit.x
+                outPacket.encodeShort(0); // ptHit.y
+            }
+            outPacket.encodeBool(false); // bGuard
+            outPacket.encodeBool(false); // flag of 1 or 2 -> stance skill thing (stance_skill_id == 33110000)
+        }
+        outPacket.encodeInt(dmg); // nDelta
+        if(dmg < 0){
+            outPacket.encodeInt(thiefDodgeSkillID);
+        }
+
         return outPacket;
     }
 }

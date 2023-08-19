@@ -1,14 +1,12 @@
 package com.dori.SpringStory.wzHandlers;
 
 import com.dori.SpringStory.constants.ServerConstants;
-import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.JsonUtils;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.XMLApi;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.world.fieldEntities.mob.MobSkill;
-import com.dori.SpringStory.wzHandlers.wzEntities.EquipData;
 import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.w3c.dom.Document;
@@ -182,14 +180,14 @@ public class MobDataHandler {
             for (File file : files) {
                 ObjectMapper mapper = new ObjectMapper();
                 try {
-                    MobData field = mapper.readValue(file, MobData.class);
-                    mobs.put(field.getId(), field);
+                    MobData mobData = mapper.readValue(file, MobData.class);
+                    mobs.put(mobData.getId(), mobData);
                 } catch (Exception e) {
                     logger.error("Error occurred while trying to load the file: " + file.getName());
                     e.printStackTrace();
                 }
             }
-            logger.serverNotice("~ Finished loading " + files.length + " maps JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.serverNotice("~ Finished loading " + files.length + " mobs JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
         } else {
             logger.error("Didn't found mobs JSONs to load!");
         }
