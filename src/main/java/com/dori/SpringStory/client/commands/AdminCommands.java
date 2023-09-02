@@ -73,14 +73,7 @@ public class AdminCommands {
     public static void job(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
             int id = Short.parseShort(args.get(0));
-            Job job = Job.getJobById(id);
-            if (job != null) {
-                chr.message("Change " + chr.getName() + " to the Job: " + job.name(), ChatType.GameDesc);
-                chr.setJob(id);
-                chr.updateStat(Stat.SubJob, id);
-            } else {
-                chr.message("Didn't receive a valid Job id!", ChatType.SpeakerChannel);
-            }
+            chr.setJob(id);
         }
     }
 

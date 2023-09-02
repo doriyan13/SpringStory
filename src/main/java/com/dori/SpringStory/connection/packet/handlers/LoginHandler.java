@@ -17,6 +17,7 @@ import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.enums.LoginType;
 import com.dori.SpringStory.services.MapleCharService;
 import com.dori.SpringStory.world.MigrateInUser;
+import org.springframework.core.CoroutinesUtils;
 
 import java.net.InetAddress;
 import java.util.Optional;
@@ -174,7 +175,7 @@ public class LoginHandler {
         String hwID = inPacket.decodeString(); // hardware id
         String macID = inPacket.decodeString(); // machine id
         try {
-            byte[] clientMachineID = InetAddress.getByName(ServerConstants.HOST_IP).getAddress();
+            byte[] clientMachineID = InetAddress.getByName(ServerConstants.HOST_IP).getAddress(); // for normal maple (not local host i need to give the original maple IP: 63.251.217.1)
             c.setMachineID(clientMachineID);
             // Add Migrate in user for the server instance - (preparing for MigrateIn of a chosen character)
             MigrateInUser migrateInUser = new MigrateInUser(c.getAccount(), c.getMapleChannelInstance(), c.getWorldId(), c.getMachineID());

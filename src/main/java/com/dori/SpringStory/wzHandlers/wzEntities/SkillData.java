@@ -30,6 +30,7 @@ public class SkillData {
     private Map<SkillStat, String> skillStatInfo = new HashMap<>();
     private List<Rect> rects = new ArrayList<>();
     private Map<Integer, Integer> reqSkills = new HashMap<>();
+    private Map<Integer, Integer> mpCostByLevel = new HashMap<>(); // this is relevant for some skills that don't manage the mpConsumption in common node in the WZ
 
     public void addReqSkill(int skillID, int slv) {
         getReqSkills().put(skillID, slv);
@@ -37,6 +38,10 @@ public class SkillData {
 
     public void addRect(Rect rect) {
         getRects().add(rect);
+    }
+
+    public void addMpCostByLevel(int lvl, int mpCost) {
+        getMpCostByLevel().putIfAbsent(lvl, mpCost);
     }
 
     public void addSkillStatInfo(SkillStat sc, String value) {

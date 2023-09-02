@@ -34,12 +34,19 @@ public class Skill {
         this.maxLevel = skillData.getMaxLevel();
     }
 
-    public void encode(OutPacket outPacket) {
+    public void encodeRecord(OutPacket outPacket) {
         outPacket.encodeInt(getSkillId());
         outPacket.encodeInt(getCurrentLevel());
         outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME));
         if (isSkillNeedMasterLevel(getSkillId())) {
             outPacket.encodeInt(getMasterLevel());
         }
+    }
+
+    public void encode(OutPacket outPacket) {
+        outPacket.encodeInt(getSkillId());
+        outPacket.encodeInt(getCurrentLevel());
+        outPacket.encodeInt(getMasterLevel());
+        outPacket.encodeFT(FileTime.fromType(FileTime.Type.PLAIN_ZERO));
     }
 }

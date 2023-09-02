@@ -7,12 +7,19 @@ import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.headers.InHeader;
 import com.dori.SpringStory.connection.packet.packets.CUserRemote;
+import com.dori.SpringStory.connection.packet.packets.CWvsContext;
+import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.AttackType;
 import com.dori.SpringStory.enums.DamageType;
+import com.dori.SpringStory.enums.Stat;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
 import static com.dori.SpringStory.enums.AttackType.*;
@@ -96,17 +103,54 @@ public class UserHandler {
                 byte damageMissed = inPacket.decodeByte();
                 byte nX = inPacket.decodeByte();
             }
-            case Obstacle -> {
-
-            }
-            default -> {
-                logger.warning("UnHandled dmg type: " + type);
-                return;
-            }
         }
         chr.getField().broadcastPacket(CUserRemote.hit(chr, type, dmg, mobID, isLeft));
         chr.modifyHp(-dmg);
     }
 
+    @Handler(op = QuickslotKeyMappedModified)
+    public static void handleQuickSlotKeyMappedModified(MapleClient c, InPacket inPacket) {
+        int length = GameConstants.QUICK_SLOT_LENGTH;
+        List<Integer> quickSlotKeys = new ArrayList<>();
+        for (int i = 0; i <= length; i++) {
+            quickSlotKeys.add(inPacket.decodeInt());
+        }
+        c.getChr().setQuickSlotKeys(quickSlotKeys);
+        //TODO:funcKeyMappedManInit!!!!
+    }
+
+    @Handler(op = UserSkillUpRequest)
+    public static void handleUserSkillUpRequest(MapleClient c, InPacket inPacket) {
+        // CWvsContext::SendSkillUpRequest
+        MapleChar chr = c.getChr();
+        inPacket.decodeInt(); // update_time
+        int skillID = inPacket.decodeInt(); // update_time
+        chr.lvlUpSkill(skillID);
+        chr.write(CWvsContext.changeSkillRecordResult(chr.getSkills(), true, true));
+    }
+
+    @Handler(op = UserChangeStatRequest)
+    public static void handleUserChangeStatRequest(MapleClient c, InPacket inPacket) {
+        MapleChar chr = c.getChr();
+        int mask = inPacket.decodeInt();
+        short hp;
+        short mp;
+        HashMap<Stat, Object> stats = new HashMap<>();
+
+        inPacket.decodeInt(); // time_stamp
+        if ((mask & Stat.Hp.getVal()) == Stat.Hp.getVal()) {
+            hp = inPacket.decodeShort();
+            if (hp > 0) stats.put(Stat.Hp, hp);
+        }
+        if ((mask & Stat.Mp.getVal()) == Stat.Mp.getVal()) {
+            mp = inPacket.decodeShort();
+            if (mp > 0) stats.put(Stat.Mp, mp);
+        }
+        //TODO: look into it?
+        // It doesn't feel like it works as intended so i canceled it !
+        if (!stats.isEmpty()) {
+            //chr.changeStats(stats);
+        }
+    }
 
 }

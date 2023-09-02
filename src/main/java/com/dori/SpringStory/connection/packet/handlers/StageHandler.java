@@ -69,27 +69,27 @@ public class StageHandler {
         int targetField = inPacket.decodeInt();
         String portalName = inPacket.decodeString();
         MapleChar chr = c.getChr();
-        Portal targetPortal = chr.getField().getPortalByName(portalName);
+        Portal currentPortal = chr.getField().getPortalByName(portalName);
         // Handle Death respawn -
-        if (targetPortal == null && chr.getHp() == 0) {
-            targetPortal = chr.getField().findDefaultPortal();
+        if (currentPortal == null && chr.getHp() == 0) {
+            currentPortal = chr.getField().findDefaultPortal();
             chr.fullHeal();
         }
-        if (targetPortal != null) {
-            Field field = c.getMapleChannelInstance().getField(targetPortal.getTargetMapId());
+        if (currentPortal != null) {
+            Field field = c.getMapleChannelInstance().getField(currentPortal.getTargetMapId());
             // this will be the case for death and respawn request -
-            if(targetPortal.getTargetMapId() == 999999999){
-                chr.warp(chr.getField(), targetPortal);
-            }
-            else if (field != null) {
+            if (currentPortal.getTargetMapId() == 999999999) {
+                chr.warp(chr.getField(), currentPortal);
+            } else if (field != null) {
                 Position position = inPacket.decodePosition(); // short, short
-                 byte townPortal = inPacket.decodeByte();
+                byte townPortal = inPacket.decodeByte();
                 boolean premium = inPacket.decodeBool();
                 byte chase = inPacket.decodeByte();
                 // Update the field and chr instances & warp -
+                Portal targetPortal = field.getPortalByName(currentPortal.getTargetPortalName());
                 chr.warp(field, targetPortal);
             } else {
-                logger.error("Got an invalid field ID while trying to transfer between maps - " + targetPortal.getTargetMapId());
+                logger.error("Got an invalid field ID while trying to transfer between maps - " + currentPortal.getTargetMapId());
                 c.close();
             }
         } else {

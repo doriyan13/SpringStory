@@ -8,7 +8,6 @@ import com.dori.SpringStory.utils.JsonUtils;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.XMLApi;
 import com.dori.SpringStory.utils.utilEntities.Rect;
-import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
 import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -16,9 +15,9 @@ import org.w3c.dom.Node;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.dori.SpringStory.constants.ServerConstants.*;
-import static com.dori.SpringStory.constants.ServerConstants.MAP_JSON_DIR;
 
 @Service
 public class SkillDataHandler {
@@ -28,9 +27,25 @@ public class SkillDataHandler {
     private static final Map<Integer, SkillData> skills = new LinkedHashMap<>();
     // TODO: need to handle MobSkillInfo!
 
-    public static Skill getSkillByID(Integer skillID) {
+    public static Skill getSkillByID(int skillID) {
         SkillData skillData = skills.getOrDefault(skillID, null);
         return skillData != null ? new Skill(skillData) : null;
+    }
+
+    public static SkillData getSkillDataByID(int skillID) {
+        return skills.getOrDefault(skillID, null);
+    }
+
+    public static Set<SkillData> getSkillsDataByJobID(int jobID) {
+        return skills.values().stream().filter(skill -> skill.getRootId() == jobID).collect(Collectors.toSet());
+    }
+
+    public static Set<Skill> getSkillsByJobID(int jobID) {
+        return skills.values()
+                .stream()
+                .filter(skill -> skill.getRootId() == jobID)
+                .map(Skill::new)
+                .collect(Collectors.toSet());
     }
 
     private static void loadRectFromNodeToSkill(Node commonNode, Node rbNode, SkillData skill) {
@@ -71,6 +86,26 @@ public class SkillDataHandler {
         }
     }
 
+    private static void loadLevelNodeToSkill(Node mainSkillChildNode, SkillData skill) {
+        for (Node levelNode : XMLApi.getAllChildren(mainSkillChildNode)) {
+            Map<String, String> levels = XMLApi.getAttributes(levelNode);
+            String nodeName = levels.get("name");
+            try {
+                int lvl = Integer.parseInt(nodeName);
+                for (Node lvlNode : XMLApi.getAllChildren(levelNode)) {
+                    Map<String, String> lvlAttr = XMLApi.getAttributes(lvlNode);
+                    String lvlNodeName = lvlAttr.get("name");
+                    if (lvlNodeName.equalsIgnoreCase("mpCon")) {
+                        skill.addMpCostByLevel(lvl, Integer.parseInt(lvlAttr.get("value")));
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("this value isn't a number! thus cannot handle mpCon lvl!");
+                e.printStackTrace();
+            }
+        }
+    }
+
     private static void loadSkillChildNodeToSkill(Node mainSkillChildNode, SkillData skill) {
         String mainName = XMLApi.getNamedAttribute(mainSkillChildNode, "name");
         String mainValue = XMLApi.getNamedAttribute(mainSkillChildNode, "value");
@@ -82,6 +117,7 @@ public class SkillDataHandler {
             case "masterLevel" -> skill.setMasterLevel(intVal);
             case "req" -> loadReqNodeToSkill(mainSkillChildNode, skill);
             case "common" -> loadCommonNodeToSkill(mainSkillChildNode, skill);
+            case "level" -> loadLevelNodeToSkill(mainSkillChildNode, skill);
         }
     }
 

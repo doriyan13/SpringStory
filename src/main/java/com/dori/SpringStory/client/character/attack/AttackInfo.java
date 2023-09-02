@@ -1,14 +1,20 @@
 package com.dori.SpringStory.client.character.attack;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.connection.packet.InPacket;
-import com.dori.SpringStory.connection.packet.headers.InHeader;
 import com.dori.SpringStory.enums.AttackType;
+import com.dori.SpringStory.enums.SkillStat;
+import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.SkillUtils;
+import com.dori.SpringStory.wzHandlers.SkillDataHandler;
+import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +37,9 @@ public class AttackInfo {
     private int atkTime; // tick?
     private boolean left = false;
     private List<DamageInfo> mobAttackInfo = new ArrayList<>();
+    // For calculation of expressions in the wz (mpCon, etc..)
+    private static ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+    private static Logger logger = new Logger(AttackInfo.class);
 
     public void decode(AttackType type, InPacket inPacket) {
         // FieldKey -
@@ -56,6 +65,12 @@ public class AttackInfo {
         this.slv = inPacket.decodeByte();
 
         if (type == AttackType.Magic) {
+            inPacket.decodeInt();
+            inPacket.decodeInt();
+            inPacket.decodeInt();
+            inPacket.decodeInt();
+            inPacket.decodeInt();
+            inPacket.decodeInt();
             //TODO: some loop need to happen for 6 times of decodeInt?
         }
 
@@ -99,7 +114,52 @@ public class AttackInfo {
         }
     }
 
-    public void apply(MapleChar chr){
+    private int calcMpToConsumeFromFormula(String mpConsumptionFormula, int slv) {
+        int result = 0;
+        mpConsumptionFormula = mpConsumptionFormula.replace("\n", "").replace("\\n", "")
+                .replace("\r", "").replace("\\r", "")
+                .replace("u", "Math.ceil").replace("d", "Math.floor");
+        // Verify what variable need to replace with skill lvl -
+        String toReplace = mpConsumptionFormula.contains("y") ? "y"
+                : mpConsumptionFormula.contains("X") ? "X"
+                : "x";
+        try {
+            Object res = engine.eval(mpConsumptionFormula.replace(toReplace, slv + ""));
+            if (res instanceof Double) {
+                result = ((Double) res).intValue();
+            } else if (res instanceof Integer) {
+                result = (Integer) res;
+            }
+        } catch (Exception e) {
+            logger.error("Error occurred while parsing the mpCon formula!");
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private int getMpToConsume(MapleChar chr, int skillID) {
+        int result = 0;
+        SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
+        Skill skill = chr.getSkill(skillID);
+        if (skillData != null) {
+            String mpConsumptionFormula = skillData.getSkillStatInfo().getOrDefault(SkillStat.mpCon, "");
+
+            if (skillData.getMpCostByLevel().isEmpty() && !mpConsumptionFormula.isEmpty()) {
+                result = calcMpToConsumeFromFormula(mpConsumptionFormula, skill.getCurrentLevel());
+            } else if (!skillData.getMpCostByLevel().isEmpty()) {
+                result = skillData.getMpCostByLevel().getOrDefault(skill.getCurrentLevel(), 0);
+            } else {
+                logger.error("Cannot clac mpConsume for this skill -" + skillID);
+            }
+        }
+        return result;
+    }
+
+    public void apply(MapleChar chr) {
+        if (skillId != 0) {
+            int mpToConsume = getMpToConsume(chr, skillId);
+            chr.modifyMp(-mpToConsume);
+        }
         this.mobAttackInfo.forEach(mai -> mai.apply(chr));
     }
 }

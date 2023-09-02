@@ -1,6 +1,7 @@
 package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.client.MapleClient;
+import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CStage;
 import com.dori.SpringStory.connection.packet.packets.CUserLocal;
@@ -17,6 +18,7 @@ import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.wzHandlers.ItemDataHandler;
+import com.dori.SpringStory.wzHandlers.SkillDataHandler;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -106,6 +108,8 @@ public class MapleChar {
     @MapKeyColumn(name = "skillId")
     @Column(name = "nextUsableTime")
     private Map<Integer, Long> skillCoolTimes;
+    @Convert(converter = InlinedIntArrayConverter.class)
+    private List<Integer> quickSlotKeys;
     // Non-DB fields -
     @Transient
     private static final Logger logger = new Logger(MapleChar.class);
@@ -397,7 +401,7 @@ public class MapleChar {
         if (mask.isInMask(DBChar.SkillRecord)) {
             outPacket.encodeShort(getSkills().size());
             // For each skill encode the skill data -
-            getSkills().forEach(skill -> skill.encode(outPacket));
+            getSkills().forEach(skill -> skill.encodeRecord(outPacket));
         }
         if (mask.isInMask(DBChar.SkillCooltime)) {
             encodeSkillCoolTime(outPacket);
@@ -556,8 +560,7 @@ public class MapleChar {
     }
 
     public void modifyHp(int amount) {
-        int newHp = 0;
-
+        int newHp;
         if (amount > 0) {
             newHp = Math.min(amount + getHp(), getMaxHp());
             setHp(newHp);
@@ -569,9 +572,14 @@ public class MapleChar {
         }
     }
 
-    public void healMp(int amount) {
+    public void modifyMp(int amount) {
+        int newMp;
         if (amount > 0) {
-            int newMp = Math.min(Math.abs(amount + getMp()), getMaxMp());
+            newMp = Math.min(Math.abs(amount + getMp()), getMaxMp());
+            setMp(newMp);
+            updateStat(Stat.Mp, newMp);
+        } else if (amount < 0) {
+            newMp = Math.max(amount + getMp(), 0);
             setMp(newMp);
             updateStat(Stat.Mp, newMp);
         }
@@ -585,7 +593,7 @@ public class MapleChar {
             modifyHp(amountOfHpToHeal);
         }
         if (amountOfMpToHeal > 0) {
-            healMp(amountOfMpToHeal);
+            modifyMp(amountOfMpToHeal);
         }
     }
 
@@ -655,5 +663,47 @@ public class MapleChar {
 
     public void noticeMsg(String msg) {
         write(CUserLocal.noticeMsg(msg));
+    }
+
+    public Skill getSkill(int skillID) {
+        return getSkills().stream().filter(skill -> skill.getSkillId() == skillID).findFirst().orElse(null);
+    }
+
+    public void lvlUpSkill(int skillID) {
+        Skill currSkill = getSkill(skillID);
+        if (currSkill == null) {
+            currSkill = SkillDataHandler.getSkillByID(skillID);
+            if (currSkill == null) {
+                logger.error("Trying to lvl up a non existing skill- " + skillID);
+                return;
+            } else {
+                getSkills().add(currSkill);
+            }
+        }
+        currSkill.setCurrentLevel(currSkill.getCurrentLevel() + 1);
+        setSp(getSp() - 1);
+        updateStat(Stat.SkillPoint, getSp());
+    }
+
+    private void addSkill(Skill skill) {
+        if (skill.getMasterLevel() > 0 && getSkill(skill.getSkillId()) == null) {
+            getSkills().add(skill);
+        }
+    }
+
+    public void setJob(int jobID) {
+        Job job = Job.getJobById(jobID);
+        if (job != null) {
+            message("Change " + getName() + " to the Job: " + job.name(), ChatType.GameDesc);
+            Set<Skill> skills = SkillDataHandler.getSkillsByJobID(job.getId());
+            if (!skills.isEmpty()) {
+                skills.forEach(this::addSkill);
+                write(CWvsContext.changeSkillRecordResult(getSkills(), true, true));
+            }
+            this.job = jobID;
+            updateStat(Stat.SubJob, jobID);
+        } else {
+            message("Didn't receive a valid Job id, Please contact admin!", ChatType.SpeakerChannel);
+        }
     }
 }

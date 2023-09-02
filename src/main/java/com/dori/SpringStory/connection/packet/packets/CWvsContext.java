@@ -1,6 +1,7 @@
 package com.dori.SpringStory.connection.packet.packets;
 
 import com.dori.SpringStory.client.character.ExtendSP;
+import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.handlers.StageHandler;
@@ -70,7 +71,7 @@ public interface CWvsContext {
                         statValue = (Integer) stat.getValue();
                     } else if (stat.getValue() instanceof Short) {
                         statValue = ((Short) stat.getValue()).intValue();
-                    } else if(stat.getValue() instanceof Long){
+                    } else if (stat.getValue() instanceof Long) {
                         statValue = ((Long) stat.getValue()).intValue();
                     }
                 }
@@ -177,6 +178,17 @@ public interface CWvsContext {
 
         outPacket.encodeByte(INC_FAME_MESSAGE.getVal());
         outPacket.encodeInt(amount);
+
+        return outPacket;
+    }
+
+    static OutPacket changeSkillRecordResult(Set<Skill> skills, boolean exclRequestSent, boolean bSN) {
+        OutPacket outPacket = new OutPacket(OutHeader.ChangeSkillRecordResult);
+
+        outPacket.encodeBool(exclRequestSent);
+        outPacket.encodeShort(skills.size());
+        skills.forEach(skill -> skill.encode(outPacket));
+        outPacket.encodeBool(bSN);
 
         return outPacket;
     }
