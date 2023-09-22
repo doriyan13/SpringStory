@@ -225,7 +225,7 @@ public enum InHeader {
     DragonMove(214),
 //CP_END_DRAGON = 0xD7,
     QuickslotKeyMappedModified(216),
-    PassiveskillInfoUpdate(217),
+    PassiveskillInfoUpdate(217), // In CUserLocal::UpdatePassiveSkillData -> line 154
     UpdateScreenSetting(218),
     UserAttackUser_Specific(219),
     UserPamsSongUseRequest(220),
@@ -329,7 +329,8 @@ public enum InHeader {
             UpdateScreenSetting,
             LogoutWorld,
             UserMove,
-            MobMove
+            MobMove,
+            PassiveskillInfoUpdate
     );
 
     private final short value;

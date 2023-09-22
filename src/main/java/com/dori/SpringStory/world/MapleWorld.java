@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dori.SpringStory.constants.ServerConstants.*;
 
@@ -19,7 +20,7 @@ public class MapleWorld {
     // Fields -
     private int worldID;
     private String name;
-    private List<MapleChannel> mapleChannels;
+    private Map<Integer, MapleChannel> mapleChannels;
     private WorldState worldState;
     private int worldEventEXP_WSE;
     private int worldEventDrop_WSE;
@@ -37,9 +38,9 @@ public class MapleWorld {
         this.worldID = worldID;
         this.name = name;
         this.worldEventDescription = worldEventDescription;
-        List<MapleChannel> mapleChannelList = new ArrayList<>();
-        for (int i = 1; i <= amountOfChannels; i++) {
-            mapleChannelList.add(new MapleChannel(name, worldID, i));
+        Map<Integer, MapleChannel> mapleChannelList = new ConcurrentHashMap<>();
+        for (int channelNum = 1; channelNum <= amountOfChannels; channelNum++) {
+            mapleChannelList.put(channelNum, new MapleChannel(name, worldID, channelNum));
         }
         this.mapleChannels = mapleChannelList;
 
@@ -57,7 +58,7 @@ public class MapleWorld {
 
     public void shutdown(){
         logger.notice("Starting shutdown for the World - ID: " + getWorldID() + " | Name: " + getName());
-        for(MapleChannel channel : mapleChannels){
+        for(MapleChannel channel : mapleChannels.values()){
             logger.warning("Closing Channel - ID: " + channel.getChannelId() + " | Name: " + channel.getName());
             channel.shutdown();
         }
@@ -66,7 +67,7 @@ public class MapleWorld {
 
     public boolean isFull() {
         boolean full = true;
-        for (MapleChannel mapleChannel : this.getMapleChannels()) {
+        for (MapleChannel mapleChannel : this.getMapleChannels().values()) {
             if (mapleChannel.getChars().size() < mapleChannel.MAX_SIZE) {
                 full = false;
                 break;
@@ -75,7 +76,11 @@ public class MapleWorld {
         return full;
     }
 
-    public MapleChannel getChannelById(byte id) {
-        return getMapleChannels().stream().filter(c -> c.getChannelId() == id).findFirst().orElse(null);
+    public MapleChannel getChannelById(int id) {
+        return getMapleChannels().get(id);
+    }
+
+    public List<MapleChannel> getChannelList(){
+        return mapleChannels.values().stream().toList();
     }
 }

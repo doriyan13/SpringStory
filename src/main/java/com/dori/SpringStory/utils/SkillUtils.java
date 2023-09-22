@@ -3,25 +3,27 @@ package com.dori.SpringStory.utils;
 import com.dori.SpringStory.enums.Job;
 import org.springframework.stereotype.Component;
 
+import static com.dori.SpringStory.enums.Skills.*;
+
 @Component
 public interface SkillUtils {
 
     private static boolean isIgnoreMasterLevelForCommon(int nSkillID) {
-        return nSkillID == 3220009
-                || nSkillID == 3220010
-                || nSkillID == 4120010
-                || nSkillID == 4220009
-                || nSkillID == 5220012
-                || nSkillID == 2120009
-                || nSkillID == 1120012
-                || nSkillID == 1220013
-                || nSkillID == 1320011
-                || nSkillID == 2220009
-                || nSkillID == 2320010
-                || nSkillID == 3120010
-                || nSkillID == 3120011
-                || nSkillID == 32120009
-                || nSkillID == 33120010
+        return nSkillID == CROSSBOWMASTER_MARKMAN_SHIP.getId()
+                || nSkillID == CROSSBOWMASTER_ULTIMATE_STRAFE.getId()
+                || nSkillID == NIGHTLORD_EXPERT_JAVELIN.getId()
+                || nSkillID == SHADOWER_GRID.getId()
+                || nSkillID == CAPTAIN_COUNTER_ATTACK.getId()
+                || nSkillID == ARCHMAGE1_MASTER_MAGIC.getId()
+                || nSkillID == HERO_COMBAT_MASTERY.getId()
+                || nSkillID == PALADIN_BLESSING_ARMOR.getId()
+                || nSkillID == DARKKNIGHT_BEHOLDERS_REVENGE.getId()
+                || nSkillID == ARCHMAGE2_MASTER_MAGIC.getId()
+                || nSkillID == BISHOP_MASTER_MAGIC.getId()
+                || nSkillID == BOWMASTER_VENGEANCE.getId()
+                || nSkillID == BOWMASTER_MARKMAN_SHIP.getId()
+                || nSkillID == BMAGE_ENERGIZE.getId()
+                || nSkillID == WILDHUNTER_WILD_INSTINCT.getId()
                 ;
     }
 
@@ -34,15 +36,15 @@ public interface SkillUtils {
         if (nJob / 100 == 22 || nJob == Job.Evan.getId()) {
             int jobLvl = JobUtils.getJobLevel(nJob);
             return jobLvl == 9 || jobLvl == 10
-                    || skillId == 22111001
-                    || skillId == 22141002
-                    || skillId == 22140000;
+                    || skillId == EVAN_MAGIC_GUARD.getId()
+                    || skillId == EVAN_MAGIC_BOOSTER.getId()
+                    || skillId == EVAN_MAGIC_CRITICAL.getId();
         }
         if (nJob / 10 == 43) {
             return JobUtils.getJobLevel(nJob) == 4
                     || skillId == 4130004
-                    || skillId == 4321000
-                    || skillId == 4331004
+                    || skillId == DUAL3_HUSTLE_DASH.getId()
+                    || skillId == DUAL4_UPPER_STAB.getId()
                     || skillId == 4331006;
         }
         return nJob % 10 == 2;
@@ -68,10 +70,17 @@ public interface SkillUtils {
                 skillId == 24121005;
     }
 
-    static boolean isShikigamiHauntingSkill(int skillID) {
-        return switch (skillID) {
-            case 80001850, 42001000, 42001005, 42001006, 40021185, 80011067 -> true;
-            default -> false;
-        };
+    static boolean isAntiRepeatBuffSkill(int skillID) {
+        return skillID == 1001003 || skillID == 1101006 || skillID == 11001001 || skillID == 1111007 || skillID == 11101003 ||
+                skillID == 1121000 || skillID == 1201006 || skillID == 1211009 || skillID == 1211010 || skillID == 12101000 ||
+                skillID == 12101001 || skillID == 1221000 || skillID == 1301006 || skillID == 1301007 || skillID == 1311007 ||
+                skillID == 1321000 || skillID == 14101003 || skillID == 15111005 || skillID == 2101001 || skillID == 2101003 ||
+                skillID == 21121000 || skillID == 2121000 || skillID == 2201001 || skillID == 2201003 || skillID == 22141003 ||
+                skillID == 22171000 || skillID == 22181000 || skillID == 2221000 || skillID == 2301004 || skillID == 2311001 ||
+                skillID == 2311003 || skillID == 2321000 || skillID == 2321005 || skillID == 3121000 || skillID == 3121002 ||
+                skillID == 32111004 || skillID == 32121007 || skillID == 3221000 || skillID == 33121007 || skillID == 35111013 ||
+                skillID == 4101004 || skillID == 4111001 || skillID == 4121000 || skillID == 4201003 || skillID == 4221000 ||
+                skillID == 4311001 || skillID == 4341000 || skillID == 4341007 || skillID == 5111007 || skillID == 5121009 ||
+                skillID == 5121000 || skillID == 5211007 || skillID == 5221000;
     }
 }

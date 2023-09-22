@@ -6,11 +6,14 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import com.dori.SpringStory.enums.AttackType;
 import com.dori.SpringStory.enums.DamageType;
+import com.dori.SpringStory.enums.Skills;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
 
 import java.util.Arrays;
+
+import static com.dori.SpringStory.enums.Skills.*;
 
 public interface CUserRemote {
     // Logger -
@@ -25,17 +28,21 @@ public interface CUserRemote {
     }
 
     static OutPacket attack(MapleChar chr, AttackInfo ai) {
+        // For easier to read skill handling -
+        Skills atkSkill = Skills.getSkillById(ai.getSkillId());
+
         // Generic handling for all the attack types -
         OutPacket outPacket = new OutPacket(OutHeader.CUserRemoteAttack.getValue() + ai.getType().getValue());
 
         outPacket.encodeInt(chr.getId());
+
         outPacket.encodeByte(ai.getMobCount() << 4 | ai.getHits());
         outPacket.encodeByte(chr.getLevel());
         outPacket.encodeByte(ai.getSlv());
         if (ai.getSlv() > 0) {
             outPacket.encodeInt(ai.getSkillId());
         }
-        if( ai.getType() == AttackType.Shoot && SkillUtils.isShikigamiHauntingSkill(ai.getSkillId())){
+        if(atkSkill == SNIPER_STRAFE){
             outPacket.encodeByte(0); // passiveSLV
             if(false){
                 outPacket.encodeInt(0); // passiveSkillID
@@ -61,8 +68,16 @@ public interface CUserRemote {
             });
         }
         if(ai.getType() == AttackType.Shoot){
-            outPacket.encodeShort(0);
-            outPacket.encodeShort(0);
+            outPacket.encodeShort(0); // ptBallStart.x
+            outPacket.encodeShort(0); // ptBallStart.y
+        }
+        switch (atkSkill){
+            case ARCHMAGE1_BIGBANG, ARCHMAGE2_BIGBANG, BISHOP_BIGBANG, EVAN_ICE_BREATH,
+                    EVAN_BREATH -> outPacket.encodeInt(0); // tKeyDown
+            case WILDHUNTER_SWALLOW_DUMMY_ATTACK -> {
+                // mob dwid, not mob template id
+                outPacket.encodeInt(0); // m_dwSwallowMobID
+            }
         }
         return outPacket;
     }

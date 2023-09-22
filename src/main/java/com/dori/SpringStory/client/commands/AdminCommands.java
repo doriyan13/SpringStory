@@ -2,6 +2,7 @@ package com.dori.SpringStory.client.commands;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.enums.*;
+import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.utils.MapleUtils;
@@ -9,6 +10,7 @@ import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.world.fieldEntities.Portal;
+import com.dori.SpringStory.wzHandlers.ItemDataHandler;
 import com.dori.SpringStory.wzHandlers.MapDataHandler;
 import com.dori.SpringStory.wzHandlers.MobDataHandler;
 import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
@@ -56,7 +58,7 @@ public class AdminCommands {
     @Command(names = {"goto"}, requiredPermission = AccountType.GameMaster)
     public static void goToMap(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            Field toField = MapDataHandler.getMapByName(args.get(0));
+            Field toField = chr.getMapleClient().getMapleChannelInstance().getField(args.get(0));
             if (toField != null) {
                 Portal targetPortal = toField.findDefaultPortal();
                 chr.warp(toField, targetPortal);
@@ -66,6 +68,21 @@ public class AdminCommands {
         } else {
             chr.message("Need to choose map from the list -", ChatType.Notice);
             chr.message(MapDataHandler.getGoToMaps().keySet().toString(), ChatType.Notice);
+        }
+    }
+
+    @Command(names = {"warp"}, requiredPermission = AccountType.GameMaster)
+    public static void warp(MapleChar chr, List<String> args) {
+        if (!args.isEmpty()) {
+            Field toField = chr.getMapleClient().getMapleChannelInstance().getField(Integer.parseInt(args.get(0)));
+            if (toField != null) {
+                Portal targetPortal = toField.findDefaultPortal();
+                chr.warp(toField, targetPortal);
+            } else {
+                chr.message("Un-valid Map ID!", ChatType.SpeakerChannel);
+            }
+        } else {
+            chr.message("Need to choose Map ID", ChatType.Notice);
         }
     }
 
@@ -216,5 +233,22 @@ public class AdminCommands {
         Field field = chr.getField();
         chr.message("Total mobs: " + field.getMobs().size(), ChatType.SpeakerWorld);
         field.getMobs().values().forEach(mob -> chr.message(mob.toString(), ChatType.SpeakerWorld));
+    }
+
+    @Command(names = {"heal","fullheal"}, requiredPermission = AccountType.GameMaster)
+    public static void heal(MapleChar chr, List<String> args) {
+        chr.fullHeal();
+    }
+
+    @Command(names = {"item","getitem"}, requiredPermission = AccountType.GameMaster)
+    public static void item(MapleChar chr, List<String> args) {
+        if (!args.isEmpty()) {
+            Equip equip = ItemDataHandler.getEquipByID(Integer.valueOf(args.get(0)));
+            if (equip != null) {
+                chr.getEquipInventory().addItem(equip);
+            } else {
+                //TODO: need to handle normal items (use,etc,setup...)
+            }
+        }
     }
 }

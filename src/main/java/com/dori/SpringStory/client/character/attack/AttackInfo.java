@@ -86,7 +86,7 @@ public class AttackInfo {
 
         this.option = inPacket.decodeByte();
 
-        if (type == AttackType.Shoot) {
+        if (type == AttackType.Shoot) { // CUserLocal::TryDoingShootAttack -> Line 2320
             this.jablin = inPacket.decodeByte() != 0;
         }
 
@@ -102,10 +102,14 @@ public class AttackInfo {
         int finalAttackLastSkillID = inPacket.decodeInt(); // Battle mage thing? | TODO: verify if it acting diff in other atk types?
 
         if (type == AttackType.Shoot) {
-            //TODO: need to verify what it is?
-            inPacket.decodeShort();
-            inPacket.decodeShort();
-            inPacket.decodeByte();
+            short properBulletPosition =inPacket.decodeShort();
+            short pnCashItemPos = inPacket.decodeShort();
+            byte nShootRange0a = inPacket.decodeByte();
+            if (false){
+                //TODO: need to hook all the skills and handle this -
+                // is_shoot_skill_not_consuming_bullit -> Line 2331 | 0x006EEAF0
+                int pnItemID = inPacket.decodeInt();
+            }
         }
         for (int i = 0; i < this.mobCount; i++) {
             DamageInfo di = new DamageInfo();

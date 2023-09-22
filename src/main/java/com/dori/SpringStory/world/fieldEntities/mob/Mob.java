@@ -17,6 +17,7 @@ import lombok.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_MOB_RESPAWN_DELAY;
 
@@ -39,7 +40,7 @@ public class Mob extends Life {
     private byte teamForMCarnival;
     private MapleChar controller;
     @JsonIgnore
-    private Map<Integer, Long> damageDone = new HashMap<>();
+    private Map<Integer, Long> damageDone = new ConcurrentHashMap<>();
     @JsonIgnore
     private MobData statsData;
     @JsonIgnore
@@ -195,7 +196,8 @@ public class Mob extends Life {
         EventManager.addEvent(new ReviveMobEvent(this, chr), delay);
     }
 
-    public void damage(MapleChar chr, long totalDamage) {
+    // need to synchronize this method to avoid double damage/kill a mob in the same time
+    public synchronized void damage(MapleChar chr, long totalDamage) {
         registerCharDmg(chr.getId(), totalDamage);
         long maxHP = getMaxHp();
         long oldHp = getHp();

@@ -118,6 +118,8 @@ public class SkillDataHandler {
             case "req" -> loadReqNodeToSkill(mainSkillChildNode, skill);
             case "common" -> loadCommonNodeToSkill(mainSkillChildNode, skill);
             case "level" -> loadLevelNodeToSkill(mainSkillChildNode, skill);
+            case "psd" -> skill.setPassive(intVal == 1);
+            case "affected" -> skill.setEffected(true);
         }
     }
 

@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 @AllArgsConstructor
@@ -40,7 +41,7 @@ public class MapleChannel {
         this.channelId = channelId;
         this.adultChannel = adultChannel;
         this.port = ServerConstants.LOGIN_PORT + 100 + channelId;
-        this.fields = new HashMap<>();
+        this.fields = new ConcurrentHashMap<>();
     }
 
     public MapleChannel(MapleWorld world, int channelId) {
@@ -56,11 +57,11 @@ public class MapleChannel {
         this.fields = new HashMap<>();
     }
 
-    public void shutdown(){
-        for(MapleChar chr : chars.values()){
+    public void shutdown() {
+        for (MapleChar chr : chars.values()) {
             logger.warning("Logging out - ID: " + chr.getId() + " | Name - " + chr.getName());
             // Save the Character progress in the DB -
-            ((MapleCharService)ServiceManager.getService(ServiceType.Character)).update((long) chr.getId(), chr);
+            ((MapleCharService) ServiceManager.getService(ServiceType.Character)).update((long) chr.getId(), chr);
             logger.warning("Saved - ID: " + chr.getId() + " | Name - " + chr.getName() + " Progress successfully");
             // Close the user client -
             chr.getMapleClient().close();
@@ -102,11 +103,25 @@ public class MapleChannel {
         }
     }
 
-    public Field getField(int fieldID){
+    public Field getField(int fieldID) {
         Field newField;
-        if(fields.get(fieldID) == null){
+        if (fields.get(fieldID) == null) {
             newField = MapDataHandler.getMapByID(fieldID);
-            if(newField != null){
+            if (newField != null) {
+                this.fields.put(newField.getId(), newField);
+            }
+        } else {
+            newField = fields.get(fieldID);
+        }
+        return newField;
+    }
+
+    public Field getField(String fieldName) {
+        Integer fieldID = MapDataHandler.getGoToMaps().get(fieldName.toLowerCase());
+        Field newField;
+        if (fields.get(fieldID) == null) {
+            newField = MapDataHandler.getMapByID(fieldID);
+            if (newField != null) {
                 this.fields.put(newField.getId(), newField);
             }
         } else {

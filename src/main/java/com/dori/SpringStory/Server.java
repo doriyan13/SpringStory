@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -34,27 +35,28 @@ public class Server {
     // Logger -
     private static final Logger logger = new Logger(Server.class);
     // World list -
-    private static final List<MapleWorld> worldList = new ArrayList<>();
+    private static final Map<Integer, MapleWorld> worldList = new ConcurrentHashMap<>();
     // Migrate in users -
     private static final Map<Integer, MigrateInUser> migrateUsers = new HashMap<>();
     // List of Connected clients -
     private static final List<MapleClient> connectedClients = new ArrayList<>();
 
-    public static List<MapleWorld> getWorlds() {
+    public static Map<Integer, MapleWorld> getWorldsMap() {
         return worldList;
     }
 
+    public static List<MapleWorld> getWorlds() {
+        return worldList.values().stream().toList();
+    }
+
     public static MapleWorld getWorldById(int worldID) {
-        return getWorlds().stream()
-                .filter(mapleWorld -> mapleWorld.getWorldID() == worldID)
-                .findFirst()
-                .orElse(null);
+        return getWorldsMap().getOrDefault(worldID,null);
     }
 
     private static void initMapleWorlds() {
-        worldList.add(new MapleWorld(DEFAULT_WORLD_ID, WORLD_NAME, EVENT_MSG, CHANNELS_PER_WORLD));
+        worldList.put((int) DEFAULT_WORLD_ID, new MapleWorld(DEFAULT_WORLD_ID, WORLD_NAME, EVENT_MSG, CHANNELS_PER_WORLD));
         for (MapleWorld world : getWorlds()) {
-            for (MapleChannel mapleChannel : world.getMapleChannels()) {
+            for (MapleChannel mapleChannel : world.getChannelList()) {
                 ChannelAcceptor ca = new ChannelAcceptor();
                 ca.mapleChannel = mapleChannel;
                 new Thread(ca).start();

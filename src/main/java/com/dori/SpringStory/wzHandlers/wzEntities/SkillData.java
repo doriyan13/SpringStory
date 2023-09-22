@@ -27,6 +27,8 @@ public class SkillData {
     private int rootId;
     private int masterLevel;
     private int maxLevel;
+    private boolean isPassive;
+    private boolean isEffected; // relevant for buffs that can buff other people
     private Map<SkillStat, String> skillStatInfo = new HashMap<>();
     private List<Rect> rects = new ArrayList<>();
     private Map<Integer, Integer> reqSkills = new HashMap<>();

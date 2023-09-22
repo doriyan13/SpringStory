@@ -14,6 +14,7 @@ import lombok.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_CAPACITY;
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_RATE_BY_MOB_GEN_COUNT;
@@ -24,9 +25,10 @@ import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_RAT
 @EqualsAndHashCode(callSuper = true)
 public class Field extends MapData {
     // Fields -
-    private Map<Integer, MapleChar> players = new HashMap<>();
-    private Map<Integer, Npc> npcs = new HashMap<>();
-    private Map<Integer, Mob> mobs = new HashMap<>();
+    private Map<Integer, MapleChar> players = new ConcurrentHashMap<>();
+    private Map<Integer, Npc> npcs = new ConcurrentHashMap<>();
+    private Map<Integer, Mob> mobs = new ConcurrentHashMap<>();
+    private long creationTime;
 
     public Field(int id) {
         super(id);
@@ -84,6 +86,7 @@ public class Field extends MapData {
         }
         this.players = new HashMap<>();
         this.dropsDisabled = mapData.isDropsDisabled();
+        this.creationTime = System.currentTimeMillis();
     }
 
     public Portal getPortalByName(String name) {

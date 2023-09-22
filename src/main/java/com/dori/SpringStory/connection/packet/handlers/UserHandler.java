@@ -13,6 +13,8 @@ import com.dori.SpringStory.enums.AttackType;
 import com.dori.SpringStory.enums.DamageType;
 import com.dori.SpringStory.enums.Stat;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.utils.SkillUtils;
+import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
@@ -23,6 +25,8 @@ import java.util.List;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
 import static com.dori.SpringStory.enums.AttackType.*;
+import static com.dori.SpringStory.enums.Skills.NIGHTLORD_SPIRIT_JAVELIN;
+import static com.dori.SpringStory.enums.Skills.PRIEST_DISPEL;
 
 public class UserHandler {
     // Logger -
@@ -153,4 +157,47 @@ public class UserHandler {
         }
     }
 
+    @Handler(op = PassiveskillInfoUpdate)
+    public static void handleUserPassiveSkillInfoUpdate(MapleClient c, InPacket inPacket) {
+        inPacket.decodeInt(); // updateTime
+        // The most not relevant packet i've seen in sometime xD
+    }
+
+    @Handler(op = UserSkillUseRequest)
+    public static void handleUserSkillUseRequest(MapleClient c, InPacket inPacket) {
+        // CUserLocal::SendSkillUseRequest -> Line 176
+        inPacket.decodeInt(); // update_time
+        int skillID = inPacket.decodeInt();
+        byte slv = inPacket.decodeByte();
+        if(SkillUtils.isAntiRepeatBuffSkill(skillID)){
+            // Anti-repeat buff skill -
+            Position chrPos = inPacket.decodePosition();
+            if (skillID == NIGHTLORD_SPIRIT_JAVELIN.getId()) {
+                int nSpiritJavelinItemID = inPacket.decodeInt();
+            }
+            // TODO: can be mapped by each skill in the WZ files!
+            if(false) { // dwAffectedMemberBitmap
+                byte dwAffectedMemberBitmap = inPacket.decodeByte(); // it's a byte map of the effected members from the party that will receive the buff
+                if (skillID == PRIEST_DISPEL.getId()) {
+                    short tDelay = inPacket.decodeShort();
+                }
+            }
+        }
+        if (false) { // inPacket.getUnreadAmount() > 2
+            byte nMobCount = inPacket.decodeByte();
+            for (int i = 0; i < nMobCount; i++) {
+                int adwMobID = inPacket.decodeInt();
+            }
+            int tDelay = inPacket.decodeShort();
+        }
+
+        /**
+         * OKay so i've finally finished thinking how to handle cts -
+         * each char will have a concurrent <Skill,Indie> ID (Tuple but i will join both values to 1 num to have better performance) and a timestamp for expiring
+         * when a skill occur i will add into list/queue an event for checking the chr temp stats for updating state. this way even if the player re-buff i can manage the updates without
+         * concurrency issues!
+         *
+         * need to add for hp/mp custom handling to make note of base stat + passive bonuses!
+         */
+    }
 }

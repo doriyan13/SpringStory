@@ -94,7 +94,7 @@ public interface CLogin {
         outPacket.encodeShort(world.getWorldEventDrop_WSE());
         outPacket.encodeBool(world.isCharCreationBlocked());
         outPacket.encodeByte(world.getMapleChannels().size());
-        for (MapleChannel c : world.getMapleChannels()) {
+        for (MapleChannel c : world.getChannelList()) {
             outPacket.encodeString(c.getName());
             outPacket.encodeInt(c.getGaugePx());
             outPacket.encodeByte(world.getWorldID());

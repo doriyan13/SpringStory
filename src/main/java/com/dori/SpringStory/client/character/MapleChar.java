@@ -1,6 +1,7 @@
 package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.client.MapleClient;
+import com.dori.SpringStory.client.character.temporaryStats.TemporaryStatManager;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CStage;
@@ -19,6 +20,7 @@ import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.wzHandlers.ItemDataHandler;
 import com.dori.SpringStory.wzHandlers.SkillDataHandler;
+import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -123,6 +125,8 @@ public class MapleChar {
     private short foothold;
     @Transient
     private byte moveAction;
+    @Transient
+    private TemporaryStatManager tsm = new TemporaryStatManager();
 
     public MapleChar(int accountID, String name, int gender) {
         // Set char base data -
@@ -639,14 +643,14 @@ public class MapleChar {
             int totalExp = amountOfExp + exp;
             boolean needToCalcExp = true;
             while (needToCalcExp) {
-                int diffExp = totalExp - EXP_TABLE[level];
+                int diffExp = totalExp - EXP_TABLE[level - 1];
                 if (diffExp > 0) {
                     exp = 0;
-                    totalExp -= EXP_TABLE[level];
+                    totalExp = diffExp;
                     amountOfLevels++;
                 } else {
                     needToCalcExp = false;
-                    exp = totalExp;
+                    exp = Math.max(totalExp, exp);
                 }
             }
             if (amountOfLevels > 0) {
@@ -681,6 +685,10 @@ public class MapleChar {
             }
         }
         currSkill.setCurrentLevel(currSkill.getCurrentLevel() + 1);
+        SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
+        if(skillData != null && skillData.isPassive()){
+            //TODO: need to handle passive skills and manage it (for example add maxHP / maxMP) and such!!
+        }
         setSp(getSp() - 1);
         updateStat(Stat.SkillPoint, getSp());
     }
