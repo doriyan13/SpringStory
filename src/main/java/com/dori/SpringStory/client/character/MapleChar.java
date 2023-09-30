@@ -1,7 +1,7 @@
 package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.client.MapleClient;
-import com.dori.SpringStory.client.character.temporaryStats.TemporaryStatManager;
+import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CStage;
@@ -686,7 +686,7 @@ public class MapleChar {
         }
         currSkill.setCurrentLevel(currSkill.getCurrentLevel() + 1);
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
-        if(skillData != null && skillData.isPassive()){
+        if (skillData != null && skillData.isPassive()) {
             //TODO: need to handle passive skills and manage it (for example add maxHP / maxMP) and such!!
         }
         setSp(getSp() - 1);
@@ -712,6 +712,30 @@ public class MapleChar {
             updateStat(Stat.SubJob, jobID);
         } else {
             message("Didn't receive a valid Job id, Please contact admin!", ChatType.SpeakerChannel);
+        }
+    }
+
+    public void resetTemporaryStats(){
+        write(CWvsContext.temporaryStatReset(getTsm()));
+        getTsm().cleanDeletedStats();
+    }
+
+    public void handleSkill(int skillID, int slv) {
+        SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
+        if (skillData != null) {
+            boolean success = tsm.attemptToAutoHandleSkillByID(skillData, slv);
+            if (!success) {
+                //TODO: custom handling required!
+                message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
+            } else {
+                getTsm().validateStats();
+                resetTemporaryStats();
+                write(CWvsContext.temporaryStatSet(getTsm()));
+                getTsm().applyModifiedStats();
+                // after setting the chr stats the chr get locked and need to be released -
+                enableAction();
+            }
+            //TODO: future event to remove the stat!
         }
     }
 }

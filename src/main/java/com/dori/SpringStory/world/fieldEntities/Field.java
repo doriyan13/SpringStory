@@ -13,8 +13,10 @@ import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
 import lombok.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_CAPACITY;
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_RATE_BY_MOB_GEN_COUNT;
@@ -84,7 +86,6 @@ public class Field extends MapData {
                 this.addLife(life.deepCopy());
             }
         }
-        this.players = new HashMap<>();
         this.dropsDisabled = mapData.isDropsDisabled();
         this.creationTime = System.currentTimeMillis();
     }
@@ -103,11 +104,11 @@ public class Field extends MapData {
     }
 
     public void addPlayer(MapleChar chr) {
-        players.put(chr.getId(), chr);
+        players.putIfAbsent(chr.getId(), chr);
     }
 
     public void removePlayer(MapleChar chr) {
-        players.remove(chr.getId(), chr);
+        players.remove(chr.getId());
     }
 
     public void addNPC(Npc npc) {

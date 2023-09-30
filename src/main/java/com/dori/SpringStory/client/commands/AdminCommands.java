@@ -1,6 +1,7 @@
 package com.dori.SpringStory.client.commands;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.logger.Logger;
@@ -17,6 +18,9 @@ import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
 import com.dori.SpringStory.wzHandlers.wzEntities.StringData;
 
 import java.util.*;
+
+import static com.dori.SpringStory.enums.InventoryOperation.Add;
+import static com.dori.SpringStory.enums.InventoryOperation.Move;
 
 public class AdminCommands {
     // Logger -
@@ -246,6 +250,7 @@ public class AdminCommands {
             Equip equip = ItemDataHandler.getEquipByID(Integer.valueOf(args.get(0)));
             if (equip != null) {
                 chr.getEquipInventory().addItem(equip);
+                chr.write(CWvsContext.inventoryOperation(true, Add, (short) equip.getBagIndex(), (short) -1, equip));
             } else {
                 //TODO: need to handle normal items (use,etc,setup...)
             }

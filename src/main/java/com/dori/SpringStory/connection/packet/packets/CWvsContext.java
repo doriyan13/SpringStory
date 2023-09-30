@@ -2,9 +2,9 @@ package com.dori.SpringStory.connection.packet.packets;
 
 import com.dori.SpringStory.client.character.ExtendSP;
 import com.dori.SpringStory.client.character.Skill;
+import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.packet.OutPacket;
-import com.dori.SpringStory.connection.packet.handlers.StageHandler;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import com.dori.SpringStory.enums.InventoryOperation;
 import com.dori.SpringStory.enums.InventoryType;
@@ -189,6 +189,25 @@ public interface CWvsContext {
         outPacket.encodeShort(skills.size());
         skills.forEach(skill -> skill.encode(outPacket));
         outPacket.encodeBool(bSN);
+
+        return outPacket;
+    }
+
+    static OutPacket temporaryStatSet(TemporaryStatManager tsm) {
+        OutPacket outPacket = new OutPacket(OutHeader.TemporaryStatSet);
+        tsm.encodeForLocal(outPacket);
+        outPacket.encodeShort(0); //tDelay
+        outPacket.encodeBool(false); // IsMovementAffectingStat
+
+        return outPacket;
+    }
+
+    static OutPacket temporaryStatReset(TemporaryStatManager tsm) {
+        OutPacket outPacket = new OutPacket(OutHeader.TemporaryStatReset);
+        tsm.encodeMask(outPacket, true);
+        if(tsm.hasMovementEffectingStat()) {
+            outPacket.encodeByte(0); // tSwallowBuffTime
+        }
 
         return outPacket;
     }

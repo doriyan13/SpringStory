@@ -58,6 +58,8 @@ public interface ServerConstants {
     String SKILL_JSON_DIR = JSON_DIR + "/Skill/";
     // Mob Data -
     String MOB_JSON_DIR = JSON_DIR + "/Mob/";
+    // Buffs Data -
+    String BUFF_JSON_DIR = JSON_DIR + "/Buff/";
     // Life stuff -
     int MAX_RETRIES = 10_000;
     int MAX_OBJ_ID = 9_999_999;

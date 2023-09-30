@@ -45,9 +45,9 @@ public class ServerConfig {
             accountService.addNewEntity(adminAccount);
             logger.notice("Added admin account :D");
             // Adding admin char for test -
-            MapleChar adminChar = new MapleChar(adminAccount.getId(),"Dori", CharacterGender.Boy.getValue());
-            charService.addNewEntity(adminChar);
-            logger.notice("Added admin character :D");
+//            MapleChar adminChar = new MapleChar(adminAccount.getId(),"Dori", CharacterGender.Boy.getValue());
+//            charService.addNewEntity(adminChar);
+//            logger.notice("Added admin character :D");
         };
     }
 }

@@ -11,7 +11,7 @@ import java.util.concurrent.*;
 @Component
 public class EventManager {
     // Scheduler for the events -
-    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(50);
     private static final HashSet<ScheduledFuture<?>> events = new HashSet<>();
     // Logger -
     private static final Logger logger = new Logger(EventManager.class);

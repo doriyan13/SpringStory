@@ -9,9 +9,7 @@ import com.dori.SpringStory.connection.packet.headers.InHeader;
 import com.dori.SpringStory.connection.packet.packets.CUserRemote;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
-import com.dori.SpringStory.enums.AttackType;
-import com.dori.SpringStory.enums.DamageType;
-import com.dori.SpringStory.enums.Stat;
+import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
@@ -130,6 +128,8 @@ public class UserHandler {
         inPacket.decodeInt(); // update_time
         int skillID = inPacket.decodeInt(); // update_time
         chr.lvlUpSkill(skillID);
+        //TODO: need to remove!!
+        chr.message("SkillID: " + skillID, ChatType.SpeakerWorld);
         chr.write(CWvsContext.changeSkillRecordResult(chr.getSkills(), true, true));
     }
 
@@ -169,14 +169,14 @@ public class UserHandler {
         inPacket.decodeInt(); // update_time
         int skillID = inPacket.decodeInt();
         byte slv = inPacket.decodeByte();
-        if(SkillUtils.isAntiRepeatBuffSkill(skillID)){
+        if (SkillUtils.isAntiRepeatBuffSkill(skillID)) {
             // Anti-repeat buff skill -
             Position chrPos = inPacket.decodePosition();
             if (skillID == NIGHTLORD_SPIRIT_JAVELIN.getId()) {
                 int nSpiritJavelinItemID = inPacket.decodeInt();
             }
             // TODO: can be mapped by each skill in the WZ files!
-            if(false) { // dwAffectedMemberBitmap
+            if (false) { // dwAffectedMemberBitmap
                 byte dwAffectedMemberBitmap = inPacket.decodeByte(); // it's a byte map of the effected members from the party that will receive the buff
                 if (skillID == PRIEST_DISPEL.getId()) {
                     short tDelay = inPacket.decodeShort();
@@ -190,6 +190,8 @@ public class UserHandler {
             }
             int tDelay = inPacket.decodeShort();
         }
+        // Handle the skill cts -
+        c.getChr().handleSkill(skillID, slv);
 
         /**
          * OKay so i've finally finished thinking how to handle cts -

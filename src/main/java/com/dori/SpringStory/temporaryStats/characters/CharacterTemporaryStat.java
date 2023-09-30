@@ -1,4 +1,6 @@
-package com.dori.SpringStory.client.character;
+package com.dori.SpringStory.temporaryStats.characters;
+
+import com.dori.SpringStory.enums.SkillStat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -125,7 +127,15 @@ public enum CharacterTemporaryStat {
     DamR(118),
     TeleportMasteryOn(119),
     CombatOrders(120),
-    Beholder(121);
+    Beholder(121),
+    EnergyCharged(122),
+    DashSpeed(123),
+    DashJump(124),
+    RideVehicle(125),
+    PartyBooster(126),
+    GuidedBullet(127),
+    UnDead(128),
+    SummonBomb(129);
 
     private final int bitPos;
 
@@ -144,10 +154,43 @@ public enum CharacterTemporaryStat {
         };
     }
 
-    public boolean isSwallowStat(){
+    public boolean isSwallowStat() {
         return switch (this) {
             case SwallowAttackDamage, SwallowCritical, SwallowDefence, SwallowMaxMP, SwallowEvasion -> true;
             default -> false;
         };
+    }
+
+    public static List<CharacterTemporaryStat> getEncodingTwoStateOrderRemote() {
+        return Arrays.asList(
+                EnergyCharged,
+                DashSpeed,
+                DashJump,
+                RideVehicle,
+                PartyBooster,
+                GuidedBullet,
+                UnDead);
+    }
+
+    public static CharacterTemporaryStat getCtsFromSkillStat(SkillStat skillStat){
+        CharacterTemporaryStat cts = null;
+        switch (skillStat){
+            case morph -> cts = Morph;
+            case pad -> cts = Pad;
+            case pdd -> cts = Pdd;
+            case mad -> cts = Mad;
+            case mdd -> cts = Mdd;
+            case damR -> cts = DamR;
+            case jump -> cts =Jump;
+            case acc -> cts = Acc;
+            case eva -> cts = Evasion;
+            case speed -> cts = Speed;
+            case emhp -> cts = ExtraMaxHp;
+            case emmp -> cts = ExtraMaxMp;
+            case epad -> cts = ExtraPad;
+            case epdd -> cts = ExtraPdd;
+            case emdd -> cts = ExtraMdd;
+        }
+        return cts;
     }
 }

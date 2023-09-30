@@ -1,7 +1,9 @@
-package com.dori.SpringStory.world.fieldEntities.mob;
+package com.dori.SpringStory.temporaryStats.mobs;
 
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.MobTemporaryStatType;
+import com.dori.SpringStory.temporaryStats.TempStatValue;
+import com.dori.SpringStory.world.fieldEntities.mob.BurnedInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -51,13 +53,13 @@ public class MobTemporaryStat {
                 }
                 default -> {
                     if (statType == PCounter) {
-                        pCounter = statData.getN();
+                        pCounter = statData.getValue();
                     } else if (statType == MCounter) {
-                        mCounter = statData.getN();
+                        mCounter = statData.getValue();
                     }
-                    outPacket.encodeShort(statData.getN());
-                    outPacket.encodeInt(statData.getR());
-                    outPacket.encodeShort(statData.getT() / 500);
+                    outPacket.encodeShort(statData.getValue());
+                    outPacket.encodeInt(statData.getReason());
+                    outPacket.encodeShort(statData.getDuration() / 500);
                 }
             }
         }
