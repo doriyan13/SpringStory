@@ -118,7 +118,7 @@ public enum InHeader {
     UserPartyRequest(108),
     UserCharacterInfoRequest(109),
     UserActivatePetRequest(110),
-    UserTemporaryStatUpdateRequest(111),
+    UserTemporaryStatUpdateRequest(111), //TODO: Send a ping from the client to verify chr stat duration, maybe i can use it!!!
     UserPortalScriptRequest(112),
     UserPortalTeleportRequest(113),
     UserMapTransferRequest(114),

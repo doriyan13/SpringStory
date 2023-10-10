@@ -7,7 +7,7 @@ import javax.script.ScriptEngineManager;
 
 public interface FormulaCalcUtils {
     Logger logger = new Logger(FormulaCalcUtils.class);
-    // For calculation of expressions in the wz (mpCon, etc..)
+    // For calculation of expressions in the wz (mpCon, etc.)
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
 
     static int calcValueFromFormula(String Formula, int x) {

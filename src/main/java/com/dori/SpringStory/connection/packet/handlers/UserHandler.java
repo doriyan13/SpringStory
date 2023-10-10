@@ -27,9 +27,6 @@ import static com.dori.SpringStory.enums.Skills.NIGHTLORD_SPIRIT_JAVELIN;
 import static com.dori.SpringStory.enums.Skills.PRIEST_DISPEL;
 
 public class UserHandler {
-    // Logger -
-    private static final Logger logger = new Logger(UserHandler.class);
-
     @Handler(op = UserMove)
     public static void handleUserMove(MapleClient c, InPacket inPacket) {
         // CVecCtrlUser::EndUpdateActive
@@ -38,7 +35,7 @@ public class UserHandler {
 
         inPacket.decodeInt(); // dr0
         inPacket.decodeInt(); // dr1
-        byte fieldKey = inPacket.decodeByte(); // Field Key
+        inPacket.decodeByte(); // Field Key
         inPacket.decodeInt(); // dr2
         inPacket.decodeInt(); // dr3
         inPacket.decodeInt(); // CRC
@@ -88,9 +85,9 @@ public class UserHandler {
     public static void handleUserHit(MapleClient c, InPacket inPacket) {
         MapleChar chr = c.getChr();
         // CUserLocal::SetDamaged - Line 637
-        int timeStamp = inPacket.decodeInt();
+        inPacket.decodeInt(); // timeStamp
         DamageType type = DamageType.getTypeByVal(inPacket.decodeByte());
-        byte magicElemAttr = inPacket.decodeByte(); // Element - 0x00 = element-less, 0x01 = ice, 0x02 = fire, 0x03 = lightning
+        inPacket.decodeByte(); // magicElemAttr | Element - 0x00 = element-less, 0x01 = ice, 0x02 = fire, 0x03 = lightning
         int dmg = inPacket.decodeInt();
         int mobID = 0;
         boolean isLeft = false;
@@ -131,29 +128,28 @@ public class UserHandler {
         //TODO: need to remove!!
         chr.message("SkillID: " + skillID, ChatType.SpeakerWorld);
         chr.write(CWvsContext.changeSkillRecordResult(chr.getSkills(), true, true));
+        //TODO: need to handle certain passive skills -> stat boost / hp|mp boost! | recovery? for example 1110000 (suppose to give more mp recovry but i gues it's totally server sided?)
     }
 
-    @Handler(op = UserChangeStatRequest)
-    public static void handleUserChangeStatRequest(MapleClient c, InPacket inPacket) {
+    @Handler(ops = {UserChangeStatRequest, UserChangeStatRequestByItemOption})
+    public static void handleUserChangeStatRequest(MapleClient c, InPacket inPacket, InHeader header) {
         MapleChar chr = c.getChr();
-        int mask = inPacket.decodeInt();
-        short hp;
-        short mp;
-        HashMap<Stat, Object> stats = new HashMap<>();
-
-        inPacket.decodeInt(); // time_stamp
-        if ((mask & Stat.Hp.getVal()) == Stat.Hp.getVal()) {
-            hp = inPacket.decodeShort();
-            if (hp > 0) stats.put(Stat.Hp, hp);
-        }
-        if ((mask & Stat.Mp.getVal()) == Stat.Mp.getVal()) {
-            mp = inPacket.decodeShort();
-            if (mp > 0) stats.put(Stat.Mp, mp);
-        }
-        //TODO: look into it?
-        // It doesn't feel like it works as intended so i canceled it !
-        if (!stats.isEmpty()) {
-            //chr.changeStats(stats);
+        inPacket.decodeInt(); // update time
+        inPacket.decodeInt(); // mask seems always to be 1400 -> 1000 + 400 | honestly idk why you need it cause you only encode hp & mp always?
+        short hp = inPacket.decodeShort();
+        short mp = inPacket.decodeShort();
+        inPacket.decodeByte(); // nOption | Maybe related if you sit or not?, seems that if you sit it's 2? (default is 0)
+        if (hp > 0 || mp > 0) {
+            HashMap<Stat, Object> stats = new HashMap<>();
+            if (hp > 0) {
+                chr.setHp(Math.min(chr.getMaxHp(), chr.getHp() + hp));
+                stats.put(Stat.Hp, chr.getHp());
+            }
+            if (mp > 0) {
+                chr.setMp(Math.min(chr.getMaxMp(), chr.getMp() + mp));
+                stats.put(Stat.Mp, chr.getMp());
+            }
+            chr.changeStats(stats);
         }
     }
 

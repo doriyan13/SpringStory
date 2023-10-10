@@ -37,7 +37,7 @@ public enum OutHeader {
     ForcedStatSet(33),
     ForcedStatReset(34),
     ChangeSkillRecordResult(35),
-    SkillUseResult(36),
+    SkillUseResult(36), //CwvsApp::SendBackupPacket? && UserTemporaryStatUpdateRequest
     GivePopularityResult(37),
     Message(38),
     OpenFullClientDownloadLink(39),

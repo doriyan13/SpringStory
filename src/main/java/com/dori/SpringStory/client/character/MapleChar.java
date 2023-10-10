@@ -30,6 +30,7 @@ import java.util.*;
 
 import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.enums.InventoryType.*;
+import static com.dori.SpringStory.utils.FormulaCalcUtils.calcValueFromFormula;
 
 @Data
 @AllArgsConstructor
@@ -732,9 +733,11 @@ public class MapleChar {
                 resetTemporaryStats();
                 write(CWvsContext.temporaryStatSet(getTsm()));
                 getTsm().applyModifiedStats();
-                // after setting the chr stats the chr get locked and need to be released -
+                // After setting the chr stats the chr get locked and need to be released -
                 enableAction();
             }
+            int skillConsumption = calcValueFromFormula(skillData.getSkillStatInfo().get(SkillStat.mpCon),slv);
+            modifyMp(-skillConsumption);
             //TODO: future event to remove the stat!
         }
     }
