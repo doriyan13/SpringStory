@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import static com.dori.SpringStory.constants.ServerConstants.*;
 import static com.dori.SpringStory.enums.Skills.NONE;
+import static com.dori.SpringStory.temporaryStats.characters.BuffsDataLoader.loadCustomBuffsData;
 
 @Component
 public class BuffDataHandler {
@@ -22,18 +23,25 @@ public class BuffDataHandler {
 
     private static final HashMap<Job, JobBuffData> buffsDataByJob = new HashMap<>();
 
-    public static void addBuff(Job job, int skillID, TempStatValue tempStatValue) {
-        if(!buffsDataByJob.containsKey(job)){
+    public static void addBuff(Job job, int skillID, BuffData buffData) {
+        if (!buffsDataByJob.containsKey(job)) {
             buffsDataByJob.put(job, new JobBuffData(job));
         }
         Skills skill = Skills.getSkillById(skillID);
-        if(skill != NONE) {
-            buffsDataByJob.get(job).getBuffs().put(Skills.getSkillById(skillID), tempStatValue);
+        if (skill != NONE) {
+            buffsDataByJob.get(job).getBuffs().put(Skills.getSkillById(skillID), buffData);
         }
     }
 
-    private static void loadBuffsData(){
+    public static BuffData getBuffByJobAndSkillID(Job job, int skillID) {
+        JobBuffData jobBuffData = buffsDataByJob.get(job);
+        return jobBuffData != null ?
+                jobBuffData.getBuffs().get(Skills.getSkillById(skillID))
+                : null;
+    }
 
+    public static void loadBuffsData() {
+        loadCustomBuffsData();
     }
 
     private static void exportBuffsToJson() {

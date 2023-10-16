@@ -1,6 +1,8 @@
 package com.dori.SpringStory.temporaryStats.characters;
 
+import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.temporaryStats.TempStatValue;
 import com.dori.SpringStory.utils.FormulaCalcUtils;
@@ -55,6 +57,11 @@ public class TemporaryStatManager {
         return System.currentTimeMillis() + (duration * 1000L);
     }
 
+    private long getExpirationTime(String durationInSecFormula, int slv) {
+        int duration = FormulaCalcUtils.calcValueFromFormula(durationInSecFormula, slv);
+        return System.currentTimeMillis() + (duration * 1000L);
+    }
+
     private boolean isSkillExpired(int skillID) {
         return System.currentTimeMillis() - skillsExpiration.getOrDefault(skillID, 0L) >= 0;
     }
@@ -82,6 +89,25 @@ public class TemporaryStatManager {
 
     public void applyModifiedStats() {
         additionalStats.values().forEach(statData -> statData.setModified(false));
+    }
+
+    public boolean handleCustomSkillsByID(int jobID, int skillID, int slv){
+        Job job = Job.getJobById(jobID);
+        if(job != null){
+            BuffData buffData = BuffDataHandler.getBuffByJobAndSkillID(job, skillID);
+            if(buffData != null) {
+                int value = FormulaCalcUtils.calcValueFromFormula(buffData.getCalcFormula(), slv);
+                if(buffData.isAdditionalValue()){
+                    // TODO: need to redo the handling of chr stats! to be able to do generic handling
+                }
+                if(value != 0) {
+                    addStat(buffData.getTempStat(), skillID, value);
+                    skillsExpiration.put(skillID, getExpirationTime(buffData.getDurationInSecFormula(), slv));
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public boolean attemptToAutoHandleSkillByID(SkillData skillData, int slv) {

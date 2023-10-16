@@ -1,10 +1,9 @@
 package com.dori.SpringStory.temporaryStats.characters;
 
+import com.dori.SpringStory.enums.SkillConsumeStatType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -13,6 +12,11 @@ import java.util.List;
  * For manual handled buffs :D
  */
 public class BuffData {
+    private CharacterTemporaryStat tempStat;
     private String calcFormula;
-    private List<CharacterTemporaryStat> tempStats;
+    private boolean additionalValue; // is it being added to the base value? for example base speed + the value here
+    private String durationInSecFormula;
+    private int cooldownInSec;
+    private int intervalInSec;
+    private SkillConsumeStatType consumeStatType;
 }

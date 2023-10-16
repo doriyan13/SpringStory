@@ -99,10 +99,10 @@ public class AttackInfo {
         int finalAttackLastSkillID = inPacket.decodeInt(); // Battle mage thing? | TODO: verify if it acting diff in other atk types?
 
         if (type == AttackType.Shoot) {
-            short properBulletPosition =inPacket.decodeShort();
+            short properBulletPosition = inPacket.decodeShort();
             short pnCashItemPos = inPacket.decodeShort();
             byte nShootRange0a = inPacket.decodeByte();
-            if (false){
+            if (false) {
                 //TODO: need to hook all the skills and handle this -
                 // is_shoot_skill_not_consuming_bullit -> Line 2331 | 0x006EEAF0
                 int pnItemID = inPacket.decodeInt();
@@ -115,28 +115,10 @@ public class AttackInfo {
         }
     }
 
-    private int getMpToConsume(MapleChar chr, int skillID) {
-        int result = 0;
-        SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
-        Skill skill = chr.getSkill(skillID);
-        if (skillData != null) {
-            String mpConsumptionFormula = skillData.getSkillStatInfo().getOrDefault(SkillStat.mpCon, "");
-
-            if (skillData.getMpCostByLevel().isEmpty() && !mpConsumptionFormula.isEmpty()) {
-                result = FormulaCalcUtils.calcValueFromFormula(mpConsumptionFormula, skill.getCurrentLevel());
-            } else if (!skillData.getMpCostByLevel().isEmpty()) {
-                result = skillData.getMpCostByLevel().getOrDefault(skill.getCurrentLevel(), 0);
-            } else {
-                logger.error("Cannot clac mpConsume for this skill -" + skillID);
-            }
-        }
-        return result;
-    }
-
     public void apply(MapleChar chr) {
         if (skillId != 0) {
-            int mpToConsume = getMpToConsume(chr, skillId);
-            chr.modifyMp(-mpToConsume);
+            // TODO: In the future i need to also handle other kind of consumption - hp / and maybe more?
+            SkillUtils.applySkillToChar(skillId, chr.getSkill(skillId).getCurrentLevel(), chr);
         }
         this.mobAttackInfo.forEach(mai -> mai.apply(chr));
     }

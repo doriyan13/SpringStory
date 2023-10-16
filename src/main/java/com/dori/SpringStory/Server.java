@@ -11,6 +11,8 @@ import com.dori.SpringStory.connection.packet.handlers.ChatHandler;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.services.*;
+import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
+import com.dori.SpringStory.temporaryStats.characters.BuffsDataLoader;
 import com.dori.SpringStory.world.MapleChannel;
 import com.dori.SpringStory.world.MapleWorld;
 import com.dori.SpringStory.logger.Logger;
@@ -77,6 +79,8 @@ public class Server {
         executorService.submit(SkillDataHandler::load);
         executorService.submit(StringDataHandler::load);
         executorService.submit(MobDataHandler::load);
+        // Custom buffs load data -
+        executorService.submit(BuffDataHandler::loadBuffsData);
         //TODO: next is  QUESTS
     }
 

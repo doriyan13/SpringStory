@@ -1,12 +1,23 @@
 package com.dori.SpringStory.utils;
 
+import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.client.character.attack.AttackInfo;
 import com.dori.SpringStory.enums.Job;
+import com.dori.SpringStory.enums.SkillConsumeStatType;
+import com.dori.SpringStory.enums.SkillStat;
+import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.temporaryStats.characters.BuffData;
+import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
+import com.dori.SpringStory.wzHandlers.SkillDataHandler;
+import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import org.springframework.stereotype.Component;
 
+import static com.dori.SpringStory.enums.SkillConsumeStatType.MP;
 import static com.dori.SpringStory.enums.Skills.*;
 
 @Component
 public interface SkillUtils {
+    static Logger logger = new Logger(SkillUtils.class);
 
     private static boolean isIgnoreMasterLevelForCommon(int nSkillID) {
         return nSkillID == CROSSBOWMASTER_MARKMAN_SHIP.getId()
@@ -82,5 +93,26 @@ public interface SkillUtils {
                 skillID == 4101004 || skillID == 4111001 || skillID == 4121000 || skillID == 4201003 || skillID == 4221000 ||
                 skillID == 4311001 || skillID == 4341000 || skillID == 4341007 || skillID == 5111007 || skillID == 5121009 ||
                 skillID == 5121000 || skillID == 5211007 || skillID == 5221000;
+    }
+
+    static void applySkillToChar(int skillID, int slv, MapleChar chr){
+        int amountToConsume = 0;
+        SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
+        if (skillData != null) {
+            // wz base handling for the skill -
+            String mpConsumptionFormula = skillData.getSkillStatInfo().getOrDefault(SkillStat.mpCon, "");
+
+            if (skillData.getMpCostByLevel().isEmpty() && !mpConsumptionFormula.isEmpty()) {
+                amountToConsume = FormulaCalcUtils.calcValueFromFormula(mpConsumptionFormula, slv);
+            } else if (!skillData.getMpCostByLevel().isEmpty()) {
+                amountToConsume = skillData.getMpCostByLevel().getOrDefault(slv, 0);
+            } else {
+                // TODO: here i will need to manage other type of consume - HP / Meso and such! | or maybe customSkill handling?
+                logger.error("Cannot clac mpConsume / mpCostByLvl for this skill -" + skillID);
+            }
+        }
+        if(amountToConsume != 0){
+            chr.modifyMp(-amountToConsume);
+        }
     }
 }

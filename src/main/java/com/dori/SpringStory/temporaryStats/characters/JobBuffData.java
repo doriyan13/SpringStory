@@ -15,7 +15,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class JobBuffData {
     private Job job;
-    private Map<Skills, TempStatValue> buffs;
+    private Map<Skills, BuffData> buffs;
 
     public JobBuffData(Job job){
         this.job = job;

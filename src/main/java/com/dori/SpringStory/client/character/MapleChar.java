@@ -14,6 +14,7 @@ import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.MapleUtils;
+import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
@@ -716,7 +717,7 @@ public class MapleChar {
         }
     }
 
-    public void resetTemporaryStats(){
+    public void resetTemporaryStats() {
         write(CWvsContext.temporaryStatReset(getTsm()));
         getTsm().cleanDeletedStats();
     }
@@ -724,20 +725,21 @@ public class MapleChar {
     public void handleSkill(int skillID, int slv) {
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData != null) {
-            boolean success = tsm.attemptToAutoHandleSkillByID(skillData, slv);
-            if (!success) {
-                //TODO: custom handling required!
-                message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
-            } else {
+            boolean success = tsm.handleCustomSkillsByID(getJob(), skillID, slv) || tsm.attemptToAutoHandleSkillByID(skillData, slv);
+            if (success) {
                 getTsm().validateStats();
                 resetTemporaryStats();
                 write(CWvsContext.temporaryStatSet(getTsm()));
                 getTsm().applyModifiedStats();
                 // After setting the chr stats the chr get locked and need to be released -
                 enableAction();
+            } else {
+                message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
             }
-            int skillConsumption = calcValueFromFormula(skillData.getSkillStatInfo().get(SkillStat.mpCon),slv);
-            modifyMp(-skillConsumption);
+            // todo need to handle for beginner skills & also the duration need to be calced seperatly -
+            SkillUtils.applySkillToChar(skillID, slv, this);
+//            int skillConsumption = calcValueFromFormula(skillData.getSkillStatInfo().get(SkillStat.mpCon), slv);
+//            modifyMp(-skillConsumption);
             //TODO: future event to remove the stat!
         }
     }

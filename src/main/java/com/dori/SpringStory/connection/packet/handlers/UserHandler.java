@@ -16,6 +16,8 @@ import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
+import com.dori.SpringStory.wzHandlers.SkillDataHandler;
+import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -127,6 +129,8 @@ public class UserHandler {
         chr.lvlUpSkill(skillID);
         //TODO: need to remove!!
         chr.message("SkillID: " + skillID, ChatType.SpeakerWorld);
+        SkillData sd = SkillDataHandler.getSkillDataByID(skillID);
+        sd.getSkillStatInfo().forEach((stat, val) -> chr.message(stat + ": " + val, ChatType.SpeakerWorld));
         chr.write(CWvsContext.changeSkillRecordResult(chr.getSkills(), true, true));
         //TODO: need to handle certain passive skills -> stat boost / hp|mp boost! | recovery? for example 1110000 (suppose to give more mp recovry but i gues it's totally server sided?)
     }
