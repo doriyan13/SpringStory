@@ -34,9 +34,16 @@ public class BuffDataHandler {
     }
 
     public static BuffData getBuffByJobAndSkillID(Job job, int skillID) {
+        Skills skill = Skills.getSkillById(skillID);
+        // always need to check beginner if it's a common skill
+        BuffData buffData = buffsDataByJob.get(Job.Beginner).getBuffs().get(skill);
+        if (buffData != null) {
+            return buffData;
+        }
+        // Skill of your current job -
         JobBuffData jobBuffData = buffsDataByJob.get(job);
         return jobBuffData != null ?
-                jobBuffData.getBuffs().get(Skills.getSkillById(skillID))
+                jobBuffData.getBuffs().get(skill)
                 : null;
     }
 

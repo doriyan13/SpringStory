@@ -1,6 +1,8 @@
 package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.client.MapleClient;
+import com.dori.SpringStory.events.EventManager;
+import com.dori.SpringStory.events.eventsHandlers.ValidateChrTempStatsEvent;
 import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
@@ -31,7 +33,6 @@ import java.util.*;
 
 import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.enums.InventoryType.*;
-import static com.dori.SpringStory.utils.FormulaCalcUtils.calcValueFromFormula;
 
 @Data
 @AllArgsConstructor
@@ -718,6 +719,7 @@ public class MapleChar {
     }
 
     public void resetTemporaryStats() {
+        getTsm().validateStats();
         write(CWvsContext.temporaryStatReset(getTsm()));
         getTsm().cleanDeletedStats();
     }
@@ -727,7 +729,6 @@ public class MapleChar {
         if (skillData != null) {
             boolean success = tsm.handleCustomSkillsByID(getJob(), skillID, slv) || tsm.attemptToAutoHandleSkillByID(skillData, slv);
             if (success) {
-                getTsm().validateStats();
                 resetTemporaryStats();
                 write(CWvsContext.temporaryStatSet(getTsm()));
                 getTsm().applyModifiedStats();
@@ -736,11 +737,8 @@ public class MapleChar {
             } else {
                 message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
             }
-            // todo need to handle for beginner skills & also the duration need to be calced seperatly -
-            SkillUtils.applySkillToChar(skillID, slv, this);
-//            int skillConsumption = calcValueFromFormula(skillData.getSkillStatInfo().get(SkillStat.mpCon), slv);
-//            modifyMp(-skillConsumption);
-            //TODO: future event to remove the stat!
+            SkillUtils.applySkillConsumptionToChar(skillID, slv, this);
+            EventManager.addEvent(new ValidateChrTempStatsEvent(this),getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
         }
     }
 }

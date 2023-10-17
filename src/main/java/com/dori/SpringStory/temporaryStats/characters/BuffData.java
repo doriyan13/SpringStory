@@ -1,6 +1,5 @@
 package com.dori.SpringStory.temporaryStats.characters;
 
-import com.dori.SpringStory.enums.SkillConsumeStatType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,5 +17,4 @@ public class BuffData {
     private String durationInSecFormula;
     private int cooldownInSec;
     private int intervalInSec;
-    private SkillConsumeStatType consumeStatType;
 }

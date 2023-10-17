@@ -6,6 +6,7 @@ import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.temporaryStats.TempStatValue;
 import com.dori.SpringStory.utils.FormulaCalcUtils;
+import com.dori.SpringStory.utils.utilEntities.UnsignedInt128BitBlock;
 import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -62,18 +63,23 @@ public class TemporaryStatManager {
         return System.currentTimeMillis() + (duration * 1000L);
     }
 
-    private boolean isSkillExpired(int skillID) {
+    public boolean isSkillExpired(int skillID) {
         return System.currentTimeMillis() - skillsExpiration.getOrDefault(skillID, 0L) >= 0;
     }
 
+    public Long getSkillExpirationTimeInSec(int skillID) {
+        return (skillsExpiration.getOrDefault(skillID, 0L) - System.currentTimeMillis()) / 1000;
+    }
+
     public void validateStats() {
-        skillsExpiration.forEach((skillID,expirationTime)->{
-            boolean expired = System.currentTimeMillis() - expirationTime >= 0;
-            if (expired) {
-                markExpiredStat(skillID);
-            }
-        });
-        //skillsExpiration.keySet().forEach(this::markExpiredStat);
+        if(!skillsExpiration.isEmpty()) {
+            skillsExpiration.forEach((skillID, expirationTime) -> {
+                boolean expired = System.currentTimeMillis() - expirationTime >= 0;
+                if (expired) {
+                    markExpiredStat(skillID);
+                }
+            });
+        }
     }
 
     public void cleanDeletedStats() {
@@ -145,22 +151,16 @@ public class TemporaryStatManager {
     }
 
     public void encodeMask(OutPacket outPacket, boolean reset) {
-        BitSet bits = new BitSet(128);
+        UnsignedInt128BitBlock bits = new UnsignedInt128BitBlock();
         // Turn on the used stats bits -
         additionalStats.forEach((cts, statData) -> {
             if ((reset && statData.isDeleted()) || statData.isModified()) {
-                bits.set(cts.getBitPos(), true);
+                bits.setBit(cts.getBitPos());
             }
         });
-        //additionalStats.keySet().forEach(key -> bits.set(key.getBitPos(), true));
-        byte[] bytes = bits.toByteArray();
-
-        for (int i = 3; i >= 0; i--) {
-            try {
-                outPacket.encodeInt(Math.abs(bytes[i]));
-            } catch (Exception e) {
-                outPacket.encodeInt(0);
-            }
+        int[] intBlocks = bits.getArrayLE();
+        for (int intBlock : intBlocks) {
+            outPacket.encodeInt(intBlock);
         }
     }
 

@@ -1,18 +1,13 @@
 package com.dori.SpringStory.utils;
 
 import com.dori.SpringStory.client.character.MapleChar;
-import com.dori.SpringStory.client.character.attack.AttackInfo;
 import com.dori.SpringStory.enums.Job;
-import com.dori.SpringStory.enums.SkillConsumeStatType;
 import com.dori.SpringStory.enums.SkillStat;
 import com.dori.SpringStory.logger.Logger;
-import com.dori.SpringStory.temporaryStats.characters.BuffData;
-import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.wzHandlers.SkillDataHandler;
 import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import org.springframework.stereotype.Component;
 
-import static com.dori.SpringStory.enums.SkillConsumeStatType.MP;
 import static com.dori.SpringStory.enums.Skills.*;
 
 @Component
@@ -95,7 +90,7 @@ public interface SkillUtils {
                 skillID == 5121000 || skillID == 5211007 || skillID == 5221000;
     }
 
-    static void applySkillToChar(int skillID, int slv, MapleChar chr){
+    static void applySkillConsumptionToChar(int skillID, int slv, MapleChar chr){
         int amountToConsume = 0;
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData != null) {

@@ -14,7 +14,7 @@ public record ReviveMobEvent(Mob mob, MapleChar lastController)
         // Field -
         Field field = mob.getField();
         // Verify if you need to spawn the mob or just add back to the list of mobs?
-        if (field.getPlayers().size() > 0) {
+        if (!field.getPlayers().isEmpty()) {
             mob.setAppearType(Regen);
             field.spawnMob(mob, lastController);
             mob.setAppearType(Normal);

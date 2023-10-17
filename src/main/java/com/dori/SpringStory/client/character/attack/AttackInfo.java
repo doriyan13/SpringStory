@@ -1,15 +1,10 @@
 package com.dori.SpringStory.client.character.attack;
 
 import com.dori.SpringStory.client.character.MapleChar;
-import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.enums.AttackType;
-import com.dori.SpringStory.enums.SkillStat;
 import com.dori.SpringStory.logger.Logger;
-import com.dori.SpringStory.utils.FormulaCalcUtils;
 import com.dori.SpringStory.utils.SkillUtils;
-import com.dori.SpringStory.wzHandlers.SkillDataHandler;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -118,7 +113,7 @@ public class AttackInfo {
     public void apply(MapleChar chr) {
         if (skillId != 0) {
             // TODO: In the future i need to also handle other kind of consumption - hp / and maybe more?
-            SkillUtils.applySkillToChar(skillId, chr.getSkill(skillId).getCurrentLevel(), chr);
+            SkillUtils.applySkillConsumptionToChar(skillId, chr.getSkill(skillId).getCurrentLevel(), chr);
         }
         this.mobAttackInfo.forEach(mai -> mai.apply(chr));
     }

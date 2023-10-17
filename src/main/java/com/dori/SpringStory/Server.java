@@ -55,6 +55,14 @@ public class Server {
         return getWorldsMap().getOrDefault(worldID,null);
     }
 
+    public static boolean isChrOnline(int chrID){
+        return connectedClients
+                .stream()
+                .filter(client -> client.getChr().getId() == chrID)
+                .findFirst()
+                .orElse(null) != null;
+    }
+
     private static void initMapleWorlds() {
         worldList.put((int) DEFAULT_WORLD_ID, new MapleWorld(DEFAULT_WORLD_ID, WORLD_NAME, EVENT_MSG, CHANNELS_PER_WORLD));
         for (MapleWorld world : getWorlds()) {
