@@ -1,10 +1,12 @@
 package com.dori.SpringStory.temporaryStats.characters;
 
 import com.dori.SpringStory.enums.SkillStat;
+import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
 
+@Getter
 public enum CharacterTemporaryStat {
     Pad(0),
     Pdd(1),
@@ -141,10 +143,6 @@ public enum CharacterTemporaryStat {
 
     CharacterTemporaryStat(int bitPos) {
         this.bitPos = bitPos;
-    }
-
-    public int getBitPos() {
-        return bitPos;
     }
 
     public boolean isMovingEffectingStat() {

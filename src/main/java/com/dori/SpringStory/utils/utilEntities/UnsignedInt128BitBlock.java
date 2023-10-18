@@ -1,7 +1,6 @@
 package com.dori.SpringStory.utils.utilEntities;
 
 import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

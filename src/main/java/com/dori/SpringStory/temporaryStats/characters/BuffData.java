@@ -17,4 +17,5 @@ public class BuffData {
     private String durationInSecFormula;
     private int cooldownInSec;
     private int intervalInSec;
+    private boolean healthRegen;
 }

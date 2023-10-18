@@ -6,8 +6,7 @@ import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 
 import static com.dori.SpringStory.enums.MobSummonType.*;
 
-public record ReviveMobEvent(Mob mob, MapleChar lastController)
-        implements Runnable {
+public record ReviveMobEvent(Mob mob, MapleChar lastController) implements Runnable {
 
     @Override
     public void run() {

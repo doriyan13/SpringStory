@@ -12,7 +12,6 @@ import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.services.*;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
-import com.dori.SpringStory.temporaryStats.characters.BuffsDataLoader;
 import com.dori.SpringStory.world.MapleChannel;
 import com.dori.SpringStory.world.MapleWorld;
 import com.dori.SpringStory.logger.Logger;

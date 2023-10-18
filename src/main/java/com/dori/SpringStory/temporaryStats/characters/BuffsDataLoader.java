@@ -18,9 +18,10 @@ public interface BuffsDataLoader {
                     String calcFormula,
                     boolean additionalValue,
                     String durationInSecFormula,
-                    int cooldownInSec,
-                    int intervalInSec) {
-        addBuff(job, skill.getId(), new BuffData(stat, calcFormula, additionalValue, durationInSecFormula, cooldownInSec, intervalInSec));
+                    int coolDownInSec,
+                    int intervalInSec,
+                    boolean healthRegen) {
+        addBuff(job, skill.getId(), new BuffData(stat, calcFormula, additionalValue, durationInSecFormula, coolDownInSec, intervalInSec, healthRegen));
     }
 
     static void add(Job job,
@@ -29,12 +30,12 @@ public interface BuffsDataLoader {
                     String calcFormula,
                     boolean additionalValue,
                     String durationInSecFormula) {
-        add(job, skill, stat, calcFormula, additionalValue, durationInSecFormula, 0, 0);
+        add(job, skill, stat, calcFormula, additionalValue, durationInSecFormula, 0, 0, false);
     }
 
     static void loadCustomBuffsData() {
         // Beginner -
-        add(Job.Beginner, BEGINNER_RECOVERY, Regen, "4 * x", false, "30", 10 * 60, 10);
+        add(Job.Beginner, BEGINNER_RECOVERY, Regen, "4 * x", false, "30", 10 * 60, 10, true);
         add(Job.Beginner, BEGINNER_NIMBLE_FEET, Speed, "5 + 5 * x", false, "4 * x");
 
     }

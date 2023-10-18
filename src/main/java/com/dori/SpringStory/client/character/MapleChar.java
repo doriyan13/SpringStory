@@ -30,8 +30,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dori.SpringStory.constants.GameConstants.*;
+import static com.dori.SpringStory.enums.EventType.VALIDATE_CHARACTER_TEMP_STATS;
 import static com.dori.SpringStory.enums.InventoryType.*;
 
 @Data
@@ -130,6 +132,8 @@ public class MapleChar {
     private byte moveAction;
     @Transient
     private TemporaryStatManager tsm = new TemporaryStatManager();
+    @Transient
+    private AtomicInteger hpIntervalCountLeft = new AtomicInteger(0);
 
     public MapleChar(int accountID, String name, int gender) {
         // Set char base data -
@@ -727,7 +731,7 @@ public class MapleChar {
     public void handleSkill(int skillID, int slv) {
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData != null) {
-            boolean success = tsm.handleCustomSkillsByID(getJob(), skillID, slv) || tsm.attemptToAutoHandleSkillByID(skillData, slv);
+            boolean success = tsm.handleCustomSkillsByID(this, skillID, slv) || tsm.attemptToAutoHandleSkillByID(skillData, slv);
             if (success) {
                 resetTemporaryStats();
                 write(CWvsContext.temporaryStatSet(getTsm()));
@@ -738,7 +742,7 @@ public class MapleChar {
                 message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
             }
             SkillUtils.applySkillConsumptionToChar(skillID, slv, this);
-            EventManager.addEvent(new ValidateChrTempStatsEvent(this),getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
+            EventManager.addEvent(getId() + skillID, VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this),getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
         }
     }
 }

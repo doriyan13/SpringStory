@@ -6,6 +6,7 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
+import com.dori.SpringStory.enums.EventType;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.enums.MobSummonType;
 import com.dori.SpringStory.events.EventManager;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_MOB_RESPAWN_DELAY;
+import static com.dori.SpringStory.enums.EventType.REVIVE_MOB;
 
 @Data
 @NoArgsConstructor
@@ -193,7 +195,7 @@ public class Mob extends Life {
         this.setController(null);
         getDamageDone().clear();
         long delay = getStatsData().getRespawnDelay() > 0 ? getStatsData().getRespawnDelay() : DEFAULT_MOB_RESPAWN_DELAY;
-        EventManager.addEvent(new ReviveMobEvent(this, chr), delay);
+        EventManager.addEvent(getObjectId(), REVIVE_MOB, new ReviveMobEvent(this, chr), delay);
     }
 
     // need to synchronize this method to avoid double damage/kill a mob in the same time
