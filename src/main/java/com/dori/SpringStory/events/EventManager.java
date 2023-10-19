@@ -3,7 +3,6 @@ package com.dori.SpringStory.events;
 import com.dori.SpringStory.enums.EventType;
 import com.dori.SpringStory.logger.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -19,11 +18,6 @@ public class EventManager {
     private static final HashMap<Integer, HashMap<EventType, ScheduledFuture<?>>> events = new HashMap<>();
     // Logger -
     private static final Logger logger = new Logger(EventManager.class);
-
-//    public static <V> void addEvent(Callable<V> task, long delay) {
-//        ScheduledFuture<V> event = scheduler.schedule(() ->worker.submit(task), delay, TimeUnit.SECONDS);
-//        events.add(event);
-//    }
 
     public static void addEvent(int eventID, EventType eventType, Runnable task, long delay) {
         events.putIfAbsent(eventID, new HashMap<>());
@@ -49,7 +43,6 @@ public class EventManager {
                 mapOfEvents.values().removeIf(Future::isDone);
                 return mapOfEvents.isEmpty();
             });
-//            events.removeIf(Future::isDone);
         }
         logger.serverNotice("~ Finished cleanup! there still " + events.size() + " events ~");
     }

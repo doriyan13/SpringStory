@@ -14,6 +14,7 @@ import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Inventory;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.utils.FormulaCalcUtils;
 import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.SkillUtils;
@@ -35,6 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.enums.EventType.VALIDATE_CHARACTER_TEMP_STATS;
 import static com.dori.SpringStory.enums.InventoryType.*;
+import static com.dori.SpringStory.enums.Stat.MaxHp;
+import static com.dori.SpringStory.enums.Stat.MaxMp;
 
 @Data
 @AllArgsConstructor
@@ -210,6 +213,14 @@ public class MapleChar {
         // Skills -
         this.skills = new HashSet<>();
         this.skillCoolTimes = new HashMap<>();
+    }
+
+    public int getStat(Stat stat){
+        return switch (stat){
+            case MaxHp -> getMaxHp() + (getMaxHp() * getTsm().getPassiveStat(MaxHp) / 100);
+            case MaxMp -> getMaxMp() + (getMaxMp() * getTsm().getPassiveStat(MaxMp) / 100);
+            default -> 0;
+        };
     }
 
     /**
@@ -573,7 +584,7 @@ public class MapleChar {
     public void modifyHp(int amount) {
         int newHp;
         if (amount > 0) {
-            newHp = Math.min(amount + getHp(), getMaxHp());
+            newHp = Math.min(amount + getHp(), getStat(MaxHp));
             setHp(newHp);
             updateStat(Stat.Hp, newHp);
         } else if (amount < 0) {
@@ -586,7 +597,7 @@ public class MapleChar {
     public void modifyMp(int amount) {
         int newMp;
         if (amount > 0) {
-            newMp = Math.min(Math.abs(amount + getMp()), getMaxMp());
+            newMp = Math.min(Math.abs(amount + getMp()), getStat(MaxMp));
             setMp(newMp);
             updateStat(Stat.Mp, newMp);
         } else if (amount < 0) {
@@ -597,8 +608,8 @@ public class MapleChar {
     }
 
     public void fullHeal() {
-        int amountOfHpToHeal = getMaxHp() - getHp();
-        int amountOfMpToHeal = getMaxMp() - getMp();
+        int amountOfHpToHeal = getStat(MaxHp) - getHp();
+        int amountOfMpToHeal = getStat(MaxMp) - getMp();
 
         if (amountOfHpToHeal > 0) {
             modifyHp(amountOfHpToHeal);
@@ -628,11 +639,11 @@ public class MapleChar {
             setSp(getSp() + spToAdd);
             stats.put(Stat.SkillPoint, getSp());
             setMaxHp(getMaxHp() + hpToAdd);
-            stats.put(Stat.MaxHp, getMaxHp());
+            stats.put(MaxHp, getMaxHp());
             setHp(getMaxHp());
             stats.put(Stat.Hp, getHp());
             setMaxMp(getMaxMp() + mpToAdd);
-            stats.put(Stat.MaxMp, getMaxMp());
+            stats.put(MaxMp, getMaxMp());
             setMp(getMaxMp());
             stats.put(Stat.Mp, getMp());
             if (getLevel() == MAX_LVL) {
@@ -680,6 +691,15 @@ public class MapleChar {
         return getSkills().stream().filter(skill -> skill.getSkillId() == skillID).findFirst().orElse(null);
     }
 
+    private void applyPassiveSkillDataStats(SkillData skillData, int slv) {
+        for (Map.Entry<SkillStat, String> entry : skillData.getSkillStatInfo().entrySet()) {
+            Stat stat = Stat.getStatBySkillStat(entry.getKey());
+            if (stat != null) {
+                getTsm().addPassiveStat(stat, skillData.getSkillId(), FormulaCalcUtils.calcValueFromFormula(entry.getValue(), slv));
+            }
+        }
+    }
+
     public void lvlUpSkill(int skillID) {
         Skill currSkill = getSkill(skillID);
         if (currSkill == null) {
@@ -694,7 +714,7 @@ public class MapleChar {
         currSkill.setCurrentLevel(currSkill.getCurrentLevel() + 1);
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData != null && skillData.isPassive()) {
-            //TODO: need to handle passive skills and manage it (for example add maxHP / maxMP) and such!!
+            applyPassiveSkillDataStats(skillData, currSkill.getCurrentLevel());
         }
         setSp(getSp() - 1);
         updateStat(Stat.SkillPoint, getSp());
@@ -742,7 +762,16 @@ public class MapleChar {
                 message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
             }
             SkillUtils.applySkillConsumptionToChar(skillID, slv, this);
-            EventManager.addEvent(getId() + skillID, VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this),getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
+            EventManager.addEvent(getId() + skillID, VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
         }
+    }
+
+    public void initPassiveStats() {
+        getSkills().forEach(skill -> {
+            SkillData skillData = SkillDataHandler.getSkillDataByID(skill.getSkillId());
+            if (skillData.isPassive()) {
+                applyPassiveSkillDataStats(skillData, skill.getCurrentLevel());
+            }
+        });
     }
 }

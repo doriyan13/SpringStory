@@ -55,4 +55,12 @@ public enum Stat {
         }
         return stats;
     }
+
+    public static Stat getStatBySkillStat(SkillStat skillStat){
+        return switch (skillStat) {
+            case mhpR -> Stat.MaxHp;
+            case mmpR -> Stat.MaxMp;
+            default -> null;
+        };
+    }
 }

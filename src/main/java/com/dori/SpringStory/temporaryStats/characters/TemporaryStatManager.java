@@ -4,6 +4,7 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.EventType;
 import com.dori.SpringStory.enums.Job;
+import com.dori.SpringStory.enums.Stat;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.RegenChrEvent;
 import com.dori.SpringStory.logger.Logger;
@@ -29,6 +30,7 @@ public class TemporaryStatManager {
     // Fields -
     private Map<Integer, Long> skillsExpiration = new ConcurrentHashMap<>();
     private Map<CharacterTemporaryStat, TempStatData> additionalStats = new ConcurrentHashMap<>();
+    private Map<Stat, TempStatData>passiveStats = new ConcurrentHashMap<>();
     private boolean defenseState;
     private boolean defenseAtt;
     private int[] diceInfo = new int[22];
@@ -43,6 +45,17 @@ public class TemporaryStatManager {
         additionalStats.get(cts).addSkillStats(skillID, value);
     }
 
+    public void addPassiveStat(Stat stat, int skillID, int value) {
+        if (!passiveStats.containsKey(stat)) {
+            passiveStats.put(stat, new TempStatData());
+        }
+        passiveStats.get(stat).addSkillStats(skillID, value);
+    }
+
+    public int getPassiveStat(Stat stat){
+        return passiveStats.get(stat) != null ? passiveStats.get(stat).getTotal() : 0;
+    }
+
     public void markExpiredStat(int skillID) {
         // first remove from all the cts the skill temp stats values -
         additionalStats.values().forEach(statData -> {
@@ -51,11 +64,6 @@ public class TemporaryStatManager {
                 statData.setDeleted(true);
             }
         });
-    }
-
-    public void removeSkillStats(int skillID) {
-        // clean the empty stats from the map -
-        additionalStats.values().removeIf(statData -> statData.getSkillsDataDistribution().isEmpty());
     }
 
     private long getExpirationTime(SkillData skillData, int slv) {
@@ -91,7 +99,8 @@ public class TemporaryStatManager {
         skillsExpiration.entrySet().removeIf(entry -> {
             boolean expired = System.currentTimeMillis() - entry.getValue() >= 0;
             if (expired) {
-                removeSkillStats(entry.getKey());
+                // clean the empty stats from the map -
+                additionalStats.values().removeIf(statData -> statData.getSkillsDataDistribution().isEmpty());
                 return true;
             }
             return false;
