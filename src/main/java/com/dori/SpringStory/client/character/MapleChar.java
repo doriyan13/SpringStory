@@ -223,6 +223,15 @@ public class MapleChar {
         };
     }
 
+    public void initPassiveStats() {
+        getSkills().forEach(skill -> {
+            SkillData skillData = SkillDataHandler.getSkillDataByID(skill.getSkillId());
+            if (skillData.isPassive()) {
+                applyPassiveSkillDataStats(skillData, skill.getCurrentLevel());
+            }
+        });
+    }
+
     /**
      * Writes a packet to this Char's client.
      *
@@ -764,14 +773,5 @@ public class MapleChar {
             SkillUtils.applySkillConsumptionToChar(skillID, slv, this);
             EventManager.addEvent(getId() + skillID, VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
         }
-    }
-
-    public void initPassiveStats() {
-        getSkills().forEach(skill -> {
-            SkillData skillData = SkillDataHandler.getSkillDataByID(skill.getSkillId());
-            if (skillData.isPassive()) {
-                applyPassiveSkillDataStats(skillData, skill.getCurrentLevel());
-            }
-        });
     }
 }

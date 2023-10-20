@@ -9,7 +9,6 @@ public record ValidateChrTempStatsEvent(MapleChar chr)
     @Override
     public void run() {
         if(Server.isChrOnline(chr.getId())){
-            chr.message("Try to verify stats!", ChatType.SpeakerWorld);
             chr.resetTemporaryStats();
         }
     }

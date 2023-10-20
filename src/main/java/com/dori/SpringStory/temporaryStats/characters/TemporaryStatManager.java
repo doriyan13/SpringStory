@@ -2,7 +2,6 @@ package com.dori.SpringStory.temporaryStats.characters;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
-import com.dori.SpringStory.enums.EventType;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.enums.Stat;
 import com.dori.SpringStory.events.EventManager;
@@ -11,6 +10,7 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.temporaryStats.TempStatValue;
 import com.dori.SpringStory.utils.FormulaCalcUtils;
 import com.dori.SpringStory.utils.utilEntities.UnsignedInt128BitBlock;
+import com.dori.SpringStory.wzHandlers.SkillDataHandler;
 import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -112,24 +112,27 @@ public class TemporaryStatManager {
     }
 
     public boolean handleCustomSkillsByID(MapleChar chr, int skillID, int slv) {
-        Job job = Job.getJobById(chr.getJob());
+        SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
+        Job job = Job.getJobById(/*chr.getJob()*/ skillData.getRootId());
         if (job != null) {
-            BuffData buffData = BuffDataHandler.getBuffByJobAndSkillID(job, skillID);
-            if (buffData != null) {
-                int value = FormulaCalcUtils.calcValueFromFormula(buffData.getCalcFormula(), slv);
-                if (buffData.isAdditionalValue()) {
-                    // TODO: need to redo the handling of chr stats! to be able to do generic handling
-                }
-                if (value != 0) {
-                    addStat(buffData.getTempStat(), skillID, value);
-                    skillsExpiration.put(skillID, getExpirationTime(buffData.getDurationInSecFormula(), slv));
-                    if (buffData.getTempStat() == Regen) {
-                        int duration = FormulaCalcUtils.calcValueFromFormula(buffData.getDurationInSecFormula(), slv);
-                        EventManager.addEvent(chr.getId(), REGEN_CHARACTER, new RegenChrEvent(chr, value, buffData.isHealthRegen(), buffData.getIntervalInSec()), buffData.getIntervalInSec());
-                        chr.getHpIntervalCountLeft().set(duration / buffData.getIntervalInSec());
+            Set<BuffData> buffs = BuffDataHandler.getBuffsByJobAndSkillID(job, skillID);
+            if (buffs != null) {
+                buffs.forEach(buffData -> {
+                    int value = FormulaCalcUtils.calcValueFromFormula(buffData.getCalcFormula(), slv);
+                    if (buffData.isAdditionalValue()) {
+                        // TODO: need to redo the handling of chr stats! to be able to do generic handling
                     }
-                    return true;
-                }
+                    if (value != 0) {
+                        addStat(buffData.getTempStat(), skillID, value);
+                        skillsExpiration.put(skillID, getExpirationTime(buffData.getDurationInSecFormula(), slv));
+                        if (buffData.getTempStat() == Regen) {
+                            int duration = FormulaCalcUtils.calcValueFromFormula(buffData.getDurationInSecFormula(), slv);
+                            EventManager.addEvent(chr.getId(), REGEN_CHARACTER, new RegenChrEvent(chr, value, buffData.isHealthRegen(), buffData.getIntervalInSec()), buffData.getIntervalInSec());
+                            chr.getHpIntervalCountLeft().set(duration / buffData.getIntervalInSec());
+                        }
+                    }
+                });
+                return true;
             }
         }
         return false;
@@ -195,7 +198,6 @@ public class TemporaryStatManager {
 
             int skillID = firstSkillData.get().getKey(); // need the SkillID
             tempStatValue.setReason(skillID); // SkillID | itemID
-            //TODO: need to manage the removal and avoid abs very long old time!!
             int timeForBuff = (int) ((skillsExpiration.get(skillID) - System.currentTimeMillis()));
             tempStatValue.setDuration(timeForBuff); // Duration
         }

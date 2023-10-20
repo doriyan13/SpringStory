@@ -1,17 +1,15 @@
 package com.dori.SpringStory.temporaryStats.characters;
 
-import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.enums.Skills;
 import com.dori.SpringStory.logger.Logger;
-import com.dori.SpringStory.temporaryStats.TempStatValue;
 import com.dori.SpringStory.utils.JsonUtils;
 import com.dori.SpringStory.utils.MapleUtils;
-import com.dori.SpringStory.wzHandlers.SkillDataHandler;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.dori.SpringStory.constants.ServerConstants.*;
 import static com.dori.SpringStory.enums.Skills.NONE;
@@ -29,14 +27,16 @@ public class BuffDataHandler {
         }
         Skills skill = Skills.getSkillById(skillID);
         if (skill != NONE) {
-            buffsDataByJob.get(job).getBuffs().put(Skills.getSkillById(skillID), buffData);
+            Skills skills = Skills.getSkillById(skillID);
+            buffsDataByJob.get(job).getBuffs().computeIfAbsent(skills, k -> new HashSet<>());
+            buffsDataByJob.get(job).getBuffs().get(skills).add(buffData);
         }
     }
 
-    public static BuffData getBuffByJobAndSkillID(Job job, int skillID) {
+    public static Set<BuffData> getBuffsByJobAndSkillID(Job job, int skillID) {
         Skills skill = Skills.getSkillById(skillID);
         // always need to check beginner if it's a common skill
-        BuffData buffData = buffsDataByJob.get(Job.Beginner).getBuffs().get(skill);
+        Set<BuffData> buffData = buffsDataByJob.get(Job.Beginner).getBuffs().get(skill);
         if (buffData != null) {
             return buffData;
         }

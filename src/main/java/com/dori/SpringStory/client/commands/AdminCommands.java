@@ -136,7 +136,7 @@ public class AdminCommands {
 
     @Command(names = {"spawn"}, requiredPermission = AccountType.GameMaster)
     public static void spawn(MapleChar chr, List<String> args) {
-        if (args.size() >= 1) {
+        if (!args.isEmpty()) {
             int id = Integer.parseInt(args.get(0));
             int count = 1;
             if (args.size() >= 2) {

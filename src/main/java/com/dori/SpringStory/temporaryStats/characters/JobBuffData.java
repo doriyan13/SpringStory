@@ -9,13 +9,14 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class JobBuffData {
     private Job job;
-    private Map<Skills, BuffData> buffs;
+    private Map<Skills, Set<BuffData>> buffs;
 
     public JobBuffData(Job job){
         this.job = job;
