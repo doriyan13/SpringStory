@@ -45,6 +45,10 @@ public class TemporaryStatManager {
         additionalStats.get(cts).addSkillStats(skillID, value);
     }
 
+    public int getCTS(CharacterTemporaryStat stat){
+        return additionalStats.get(stat) != null ? additionalStats.get(stat).getTotal() : 0;
+    }
+
     public void addPassiveStat(Stat stat, int skillID, int value) {
         if (!passiveStats.containsKey(stat)) {
             passiveStats.put(stat, new TempStatData());

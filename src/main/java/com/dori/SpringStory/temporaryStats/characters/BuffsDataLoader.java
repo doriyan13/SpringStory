@@ -41,10 +41,11 @@ public interface BuffsDataLoader {
         add(Job.Fighter, FIGHTER_WEAPON_BOOSTER, Booster, "-2", false, "10 * x");
         add(Job.Fighter, FIGHTER_POWER_GUARD, PowerGuard, "10 + 2 * x", false, "10 * u(x / 2)");
         // Crusader
-        //TODO: need to make it a list of stats cuz it have two parts?
         add(Job.Crusader, CRUSADER_COMBO_ATTACK, ComboCounter, "1", false, "100 + 10 * d(x / 2)"); // TODO: need server side handle combo attack counter and if have advance one and such.. also consuming the stacks is server sided!
-        add(Job.Crusader, CRUSADER_COMBO_ATTACK, DamR, "u(x/4)", false, "100 + 10 * d(x / 2)");
+        //not sure it's suppose to be sent - add(Job.Crusader, CRUSADER_COMBO_ATTACK, DamR, "u(x/4)", false, "100 + 10 * d(x / 2)");
         //TODO: magic crash is a mts, need to handle it there i think?
+
+        // Hero
         add(Job.Hero, HERO_STANCE, Stance, "30 + 2 * x", false, "10 * x");
     }
 }

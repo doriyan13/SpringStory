@@ -19,8 +19,10 @@ public class TempStatData {
     public void addSkillStats(int skillID, int statValue) {
         int skillStatValue = skillsDataDistribution.getOrDefault(skillID, 0);
         skillsDataDistribution.put(skillID, statValue);
-        skillStatValue -= statValue;
-        total += Math.abs(skillStatValue);
+        if(skillStatValue != 0) {
+            total -= skillStatValue;
+        }
+        total += statValue;
         modified = true;
     }
 

@@ -4,6 +4,7 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.enums.AttackType;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.utils.JobUtils;
 import com.dori.SpringStory.utils.SkillUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -116,5 +117,8 @@ public class AttackInfo {
             SkillUtils.applySkillConsumptionToChar(skillId, chr.getSkill(skillId).getCurrentLevel(), chr);
         }
         this.mobAttackInfo.forEach(mai -> mai.apply(chr));
+        if(!mobAttackInfo.isEmpty() && JobUtils.isHero(chr.getJob())) {
+            chr.raiseAttackCombo();
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.dori.SpringStory.client.character;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ValidateChrTempStatsEvent;
+import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
 import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
@@ -38,6 +39,7 @@ import static com.dori.SpringStory.enums.EventType.VALIDATE_CHARACTER_TEMP_STATS
 import static com.dori.SpringStory.enums.InventoryType.*;
 import static com.dori.SpringStory.enums.Stat.MaxHp;
 import static com.dori.SpringStory.enums.Stat.MaxMp;
+import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.ComboCounter;
 
 @Data
 @AllArgsConstructor
@@ -215,8 +217,8 @@ public class MapleChar {
         this.skillCoolTimes = new HashMap<>();
     }
 
-    public int getStat(Stat stat){
-        return switch (stat){
+    public int getStat(Stat stat) {
+        return switch (stat) {
             case MaxHp -> getMaxHp() + (getMaxHp() * getTsm().getPassiveStat(MaxHp) / 100);
             case MaxMp -> getMaxMp() + (getMaxMp() * getTsm().getPassiveStat(MaxMp) / 100);
             default -> 0;
@@ -757,21 +759,33 @@ public class MapleChar {
         getTsm().cleanDeletedStats();
     }
 
+    public void applyTemporaryStats() {
+        resetTemporaryStats();
+        write(CWvsContext.temporaryStatSet(getTsm()));
+        getTsm().applyModifiedStats();
+        // After setting the chr stats the chr get locked and need to be released -
+        enableAction();
+    }
+
     public void handleSkill(int skillID, int slv) {
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData != null) {
             boolean success = tsm.handleCustomSkillsByID(this, skillID, slv) || tsm.attemptToAutoHandleSkillByID(skillData, slv);
             if (success) {
-                resetTemporaryStats();
-                write(CWvsContext.temporaryStatSet(getTsm()));
-                getTsm().applyModifiedStats();
-                // After setting the chr stats the chr get locked and need to be released -
-                enableAction();
+                applyTemporaryStats();
             } else {
                 message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
             }
             SkillUtils.applySkillConsumptionToChar(skillID, slv, this);
             EventManager.addEvent(getId() + skillID, VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
+        }
+    }
+
+    public void raiseAttackCombo() {
+        int amountOfStacks = getTsm().getCTS(ComboCounter);
+        if (amountOfStacks != 0 && amountOfStacks + 1 <= SkillUtils.getMaxComboAttackForChr(this)) {
+            getTsm().addStat(ComboCounter, Skills.CRUSADER_COMBO_ATTACK.getId(), amountOfStacks + 1);
+            applyTemporaryStats();
         }
     }
 }

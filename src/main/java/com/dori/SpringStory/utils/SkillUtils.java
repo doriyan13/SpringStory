@@ -1,13 +1,16 @@
 package com.dori.SpringStory.utils;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.enums.SkillStat;
+import com.dori.SpringStory.enums.Skills;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.wzHandlers.SkillDataHandler;
 import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import org.springframework.stereotype.Component;
 
+import static com.dori.SpringStory.enums.SkillStat.x;
 import static com.dori.SpringStory.enums.Skills.*;
 
 @Component
@@ -90,7 +93,7 @@ public interface SkillUtils {
                 skillID == 5121000 || skillID == 5211007 || skillID == 5221000;
     }
 
-    static void applySkillConsumptionToChar(int skillID, int slv, MapleChar chr){
+    static void applySkillConsumptionToChar(int skillID, int slv, MapleChar chr) {
         int amountToConsume = 0;
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData != null) {
@@ -106,8 +109,24 @@ public interface SkillUtils {
                 logger.error("Cannot clac mpConsume / mpCostByLvl for this skill -" + skillID);
             }
         }
-        if(amountToConsume != 0){
+        if (amountToConsume != 0) {
             chr.modifyMp(-amountToConsume);
         }
+    }
+
+    static int getMaxComboAttackForChr(MapleChar chr) {
+        Skill skill = chr.getSkill(HERO_ADVANCED_COMBO.getId());
+        String formula = "";
+        if (skill != null) {
+            SkillData skillData = SkillDataHandler.getSkillDataByID(HERO_ADVANCED_COMBO.getId());
+            formula = skillData.getSkillStatInfo().get(x);
+        } else {
+            skill = chr.getSkill(CRUSADER_COMBO_ATTACK.getId());
+            if (skill != null) {
+                SkillData skillData = SkillDataHandler.getSkillDataByID(CRUSADER_COMBO_ATTACK.getId());
+                formula = skillData.getSkillStatInfo().get(x);
+            }
+        }
+        return skill != null ? FormulaCalcUtils.calcValueFromFormula(formula, skill.getCurrentLevel()) + 1 : 0; // the calc is the count + 1 | example: 10 + 1 = 11
     }
 }
