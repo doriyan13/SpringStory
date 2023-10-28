@@ -51,6 +51,11 @@ public class BuffDataHandler {
         loadCustomBuffsData();
     }
 
+    public static void reloadBuffData() {
+        buffsDataByJob.clear();
+        loadCustomBuffsData();
+    }
+
     private static void exportBuffsToJson() {
         logger.serverNotice("Start creating the JSONs for items..");
         MapleUtils.makeDirIfAbsent(JSON_DIR);

@@ -10,6 +10,7 @@ import com.dori.SpringStory.connection.packet.packets.CUserRemote;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.*;
+import com.dori.SpringStory.jobs.JobHandler;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
@@ -140,8 +141,8 @@ public class UserHandler {
         MapleChar chr = c.getChr();
         inPacket.decodeInt(); // update time
         inPacket.decodeInt(); // mask seems always to be 1400 -> 1000 + 400 | honestly idk why you need it cause you only encode hp & mp always?
-        short hp = inPacket.decodeShort();
-        short mp = inPacket.decodeShort();
+        int hp = inPacket.decodeShort() + chr.getTsm().getPassiveStat(PassiveBuffStat.HP_REGEN);
+        int mp = inPacket.decodeShort() + chr.getTsm().getPassiveStat(PassiveBuffStat.MP_REGEN);
         inPacket.decodeByte(); // nOption | Maybe related if you sit or not?, seems that if you sit it's 2? (default is 0)
         if (hp > 0 || mp > 0) {
             HashMap<Stat, Object> stats = new HashMap<>();
@@ -169,6 +170,7 @@ public class UserHandler {
         inPacket.decodeInt(); // update_time
         int skillID = inPacket.decodeInt();
         byte slv = inPacket.decodeByte();
+        MapleChar chr = c.getChr();
         if (SkillUtils.isAntiRepeatBuffSkill(skillID)) {
             // Anti-repeat buff skill -
             Position chrPos = inPacket.decodePosition();
@@ -191,15 +193,6 @@ public class UserHandler {
             int tDelay = inPacket.decodeShort();
         }
         // Handle the skill cts -
-        c.getChr().handleSkill(skillID, slv);
-
-        /**
-         * OKay so i've finally finished thinking how to handle cts -
-         * each char will have a concurrent <Skill,Indie> ID (Tuple but i will join both values to 1 num to have better performance) and a timestamp for expiring
-         * when a skill occur i will add into list/queue an event for checking the chr temp stats for updating state. this way even if the player re-buff i can manage the updates without
-         * concurrency issues!
-         *
-         * need to add for hp/mp custom handling to make note of base stat + passive bonuses!
-         */
+        chr.handleSkill(skillID, slv);
     }
 }

@@ -3,7 +3,7 @@ package com.dori.SpringStory.client.character;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ValidateChrTempStatsEvent;
-import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
+import com.dori.SpringStory.jobs.JobHandler;
 import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
@@ -36,9 +36,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.enums.EventType.VALIDATE_CHARACTER_TEMP_STATS;
+import static com.dori.SpringStory.enums.InventoryOperation.Add;
 import static com.dori.SpringStory.enums.InventoryType.*;
 import static com.dori.SpringStory.enums.Stat.MaxHp;
 import static com.dori.SpringStory.enums.Stat.MaxMp;
+import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.CombatOrders;
 import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.ComboCounter;
 
 @Data
@@ -219,8 +221,8 @@ public class MapleChar {
 
     public int getStat(Stat stat) {
         return switch (stat) {
-            case MaxHp -> getMaxHp() + (getMaxHp() * getTsm().getPassiveStat(MaxHp) / 100);
-            case MaxMp -> getMaxMp() + (getMaxMp() * getTsm().getPassiveStat(MaxMp) / 100);
+            case MaxHp -> getMaxHp() + (getMaxHp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_HP) / 100);
+            case MaxMp -> getMaxMp() + (getMaxMp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_MP) / 100);
             default -> 0;
         };
     }
@@ -369,7 +371,7 @@ public class MapleChar {
 
     private void encodeAdminShopCount(OutPacket outPacket) {
         outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME)); // extra pendant slot ?
-        outPacket.encodeInt(0); // aEquipExtExpire[0].dwHighDateTime
+        //outPacket.encodeInt(0); // aEquipExtExpire[0].dwHighDateTime
     }
 
     private void encodeEquipments(OutPacket outPacket) {
@@ -402,8 +404,8 @@ public class MapleChar {
 
     public void encodeInfo(OutPacket outPacket, DBChar mask) {
         outPacket.encodeLong(mask.getFlag());
-        outPacket.encodeByte(0); // CombatOrders ?
-        outPacket.encodeByte(0); // idk?
+        outPacket.encodeByte(getTsm().getCTS(CombatOrders)); // CombatOrders
+        outPacket.encodeByte(0); // idk? | Some Loop?
         if (mask.isInMask(DBChar.Character)) {
             encodeCharacter(outPacket);
         }
@@ -474,6 +476,14 @@ public class MapleChar {
         }
         if (mask.isInMask(DBChar.MapTransfer)) {
             //TODO!
+            for (int i = 0; i < 5; i++) {
+                outPacket.encodeInt(0);
+            }
+            for (int i = 0; i < 10; i++) {
+                outPacket.encodeInt(0);
+            }
+            // adwMapTransfer.ForEach(p.Encode4);
+            // adwMapTransferEx.ForEach(p.Encode4);
         }
         if (mask.isInMask(DBChar.MonsterBookCover)) {
             //TODO!
@@ -486,8 +496,8 @@ public class MapleChar {
             // for (card : cards)
             // encode card -
             // {
-            outPacket.encodeInt(0); // usCardID
-            outPacket.encodeByte(9); // nCardCount
+            //outPacket.encodeInt(0); // usCardID
+            //outPacket.encodeByte(9); // nCardCount
             // }
         }
         if (mask.isInMask(DBChar.NewYearCard)) {
@@ -503,7 +513,7 @@ public class MapleChar {
             outPacket.encodeByte(0x28); // not sure?
             // for (int i = 0; i < adwTempMobID.Length; i++)
             // {
-            outPacket.encodeInt(0); // adwTempMobID[i]
+            //outPacket.encodeInt(0); // adwTempMobID[i] -> jaguar ID!
             // }
         }
         if (mask.isInMask(DBChar.QuestCompleteOld)) {
@@ -704,7 +714,7 @@ public class MapleChar {
 
     private void applyPassiveSkillDataStats(SkillData skillData, int slv) {
         for (Map.Entry<SkillStat, String> entry : skillData.getSkillStatInfo().entrySet()) {
-            Stat stat = Stat.getStatBySkillStat(entry.getKey());
+            PassiveBuffStat stat = Stat.getStatBySkillStat(entry.getKey());
             if (stat != null) {
                 getTsm().addPassiveStat(stat, skillData.getSkillId(), FormulaCalcUtils.calcValueFromFormula(entry.getValue(), slv));
             }
@@ -733,6 +743,12 @@ public class MapleChar {
 
     private void addSkill(Skill skill) {
         if (skill.getMasterLevel() > 0 && getSkill(skill.getSkillId()) == null) {
+            getSkills().add(skill);
+        }
+        // TODO: need to remove, just for TESTING!!!! (NOT GMS LIKE)
+        else if (skill.getMasterLevel() == 0) {
+            skill.setMasterLevel(30);
+            skill.setMaxLevel(30);
             getSkills().add(skill);
         }
     }
@@ -767,25 +783,56 @@ public class MapleChar {
         enableAction();
     }
 
+    private boolean attemptHandleActiveSkill(SkillData skillData, int slv) {
+        JobHandler handler = JobHandler.getHandlerByJobID(getJob());
+        if (handler != null) {
+            return handler.handleSkill(this, skillData, slv);
+        }
+        return false;
+    }
+
     public void handleSkill(int skillID, int slv) {
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData != null) {
-            boolean success = tsm.handleCustomSkillsByID(this, skillID, slv) || tsm.attemptToAutoHandleSkillByID(skillData, slv);
-            if (success) {
-                applyTemporaryStats();
-            } else {
-                message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
+            if(!attemptHandleActiveSkill(skillData, slv)) {
+                if (tsm.attemptHandleCustomSkillsByID(this, skillData, slv)
+                        || tsm.attemptToAutoHandleSkillByID(skillData, slv)) {
+                    applyTemporaryStats();
+                } else {
+                    message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
+                }
+                EventManager.addEvent(getId() + skillID, VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
             }
             SkillUtils.applySkillConsumptionToChar(skillID, slv, this);
-            EventManager.addEvent(getId() + skillID, VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
         }
     }
 
     public void raiseAttackCombo() {
         int amountOfStacks = getTsm().getCTS(ComboCounter);
-        if (amountOfStacks != 0 && amountOfStacks + 1 <= SkillUtils.getMaxComboAttackForChr(this)) {
-            getTsm().addStat(ComboCounter, Skills.CRUSADER_COMBO_ATTACK.getId(), amountOfStacks + 1);
+        int maxCombo = SkillUtils.getMaxComboAttackForChr(this);
+        int amountToRaise = 1;
+        if (amountOfStacks != 0 && amountOfStacks + amountToRaise <= maxCombo) {
+            Skill advanceCombo = getSkill(Skills.HERO_ADVANCED_COMBO.getId());
+            if (advanceCombo != null && advanceCombo.getCurrentLevel() > 0) {
+                SkillData skillData = SkillDataHandler.getSkillDataByID(advanceCombo.getSkillId());
+                if (MapleUtils.succeedProp(FormulaCalcUtils.calcValueFromFormula(skillData.getSkillStatInfo().get(SkillStat.prop), advanceCombo.getCurrentLevel()))) {
+                    amountToRaise = amountOfStacks + 2 <= maxCombo ? 2 : 1; // If it doesn't overflow then double stack, if it overflows keep at 1.
+                }
+            }
+            getTsm().addStat(ComboCounter, Skills.CRUSADER_COMBO_ATTACK.getId(), amountOfStacks + amountToRaise);
             applyTemporaryStats();
         }
+    }
+
+    public void resetAttackCombo() {
+        if (getTsm().getCTS(ComboCounter) != 0) {
+            getTsm().addStat(ComboCounter, Skills.CRUSADER_COMBO_ATTACK.getId(), 1);
+            applyTemporaryStats();
+        }
+    }
+
+    public void addEquip(Equip equip) {
+        getEquipInventory().addItem(equip);
+        write(CWvsContext.inventoryOperation(true, Add, (short) equip.getBagIndex(), (short) -1, equip));
     }
 }

@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 public class BuffData {
     private CharacterTemporaryStat tempStat;
     private String calcFormula;
-    private boolean additionalValue; // is it being added to the base value? for example base speed + the value here
     private String durationInSecFormula;
     private int cooldownInSec;
     private int intervalInSec;

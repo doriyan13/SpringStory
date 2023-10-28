@@ -39,7 +39,7 @@ public class InventoryHandler {
                 //TODO: need to add handling for drops!
             } else {
                 // Change item position operation -
-                Item swappedItem = chr.getInventoryByType(invTypeFrom).getItemByIndex(newPos);
+                Item swappedItem = chr.getInventoryByType(invTypeTo).getItemByIndex(newPos);
                 item.setBagIndex(newPos);
                 // Handle equip operation -
                 if (invType == EQUIP && invTypeFrom != invTypeTo) {

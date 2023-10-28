@@ -12,6 +12,8 @@ public interface GameConstants {
     int BASE_START_STAT = 4;
     int BASE_START_HP = 50;
     int BASE_START_MP = 50;
+    int MAX_HP = 999_999_999;
+    int MAX_MP = 999_999_999;
     int DEFAULT_MAP_ID = 100_000_000;
     int DEFAULT_SKIN = 1;
     int DEFAULT_FACE = 20_000;

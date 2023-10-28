@@ -2,10 +2,12 @@ package com.dori.SpringStory.client.commands;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
+import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.StringDataService;
+import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
@@ -170,6 +172,7 @@ public class AdminCommands {
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = desiredAmount > Short.MAX_VALUE ? Short.MAX_VALUE : desiredAmount;
+                chr.setNStr(finalAmount);
                 chr.updateStat(Stat.Str, finalAmount);
                 chr.message("Update Str to: " + finalAmount, ChatType.GameDesc);
             }
@@ -183,6 +186,7 @@ public class AdminCommands {
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = desiredAmount > Short.MAX_VALUE ? Short.MAX_VALUE : desiredAmount;
+                chr.setNDex(finalAmount);
                 chr.updateStat(Stat.Dex, finalAmount);
                 chr.message("Update Dex to: " + finalAmount, ChatType.GameDesc);
             }
@@ -196,6 +200,7 @@ public class AdminCommands {
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = desiredAmount > Short.MAX_VALUE ? Short.MAX_VALUE : desiredAmount;
+                chr.setNInt(finalAmount);
                 chr.updateStat(Stat.Inte, finalAmount);
                 chr.message("Update int to: " + finalAmount, ChatType.GameDesc);
             }
@@ -209,8 +214,37 @@ public class AdminCommands {
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = desiredAmount > Short.MAX_VALUE ? Short.MAX_VALUE : desiredAmount;
+                chr.setNLuk(finalAmount);
                 chr.updateStat(Stat.Luk, finalAmount);
                 chr.message("Update luk to: " + finalAmount, ChatType.GameDesc);
+            }
+        }
+    }
+
+    @Command(names = {"sethp", "setHp", "hp"}, requiredPermission = AccountType.GameMaster)
+    public static void setHp(MapleChar chr, List<String> args) {
+        if (!args.isEmpty()) {
+            String amountToSet = args.get(0);
+            if (MapleUtils.isNumber(amountToSet)) {
+                int desiredAmount = Integer.parseInt(amountToSet);
+                int finalAmount = Math.min(desiredAmount, GameConstants.MAX_HP);
+                chr.setMaxHp(finalAmount);
+                chr.updateStat(Stat.Hp, finalAmount);
+                chr.message("Update Max HP to: " + finalAmount, ChatType.GameDesc);
+            }
+        }
+    }
+
+    @Command(names = {"setmp", "setMp", "mp"}, requiredPermission = AccountType.GameMaster)
+    public static void setMp(MapleChar chr, List<String> args) {
+        if (!args.isEmpty()) {
+            String amountToSet = args.get(0);
+            if (MapleUtils.isNumber(amountToSet)) {
+                int desiredAmount = Integer.parseInt(amountToSet);
+                int finalAmount = Math.min(desiredAmount, GameConstants.MAX_MP);
+                chr.setMaxHp(finalAmount);
+                chr.updateStat(Stat.Mp, finalAmount);
+                chr.message("Update Max MP to: " + finalAmount, ChatType.GameDesc);
             }
         }
     }
@@ -239,21 +273,55 @@ public class AdminCommands {
         field.getMobs().values().forEach(mob -> chr.message(mob.toString(), ChatType.SpeakerWorld));
     }
 
-    @Command(names = {"heal","fullheal"}, requiredPermission = AccountType.GameMaster)
+    @Command(names = {"heal", "fullheal"}, requiredPermission = AccountType.GameMaster)
     public static void heal(MapleChar chr, List<String> args) {
         chr.fullHeal();
     }
 
-    @Command(names = {"item","getitem"}, requiredPermission = AccountType.GameMaster)
+    @Command(names = {"item", "getitem"}, requiredPermission = AccountType.GameMaster)
     public static void item(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
             Equip equip = ItemDataHandler.getEquipByID(Integer.valueOf(args.get(0)));
             if (equip != null) {
-                chr.getEquipInventory().addItem(equip);
-                chr.write(CWvsContext.inventoryOperation(true, Add, (short) equip.getBagIndex(), (short) -1, equip));
+                chr.addEquip(equip);
             } else {
                 //TODO: need to handle normal items (use,etc,setup...)
             }
         }
+    }
+
+    @Command(names = {"reloadbuffdata", "reloadBuffsData"}, requiredPermission = AccountType.GameMaster)
+    public static void reloadBuffsData(MapleChar chr, List<String> args) {
+        BuffDataHandler.reloadBuffData();
+        chr.message("Reloaded Buffs!", ChatType.GameDesc);
+    }
+
+    @Command(names = {"weapon", "armiger"}, requiredPermission = AccountType.GameMaster)
+    public static void Armiger(MapleChar chr, List<String> args) {
+        // One-Handed Sword | Maple Sword - 1302020
+        // Two-Handed Sword | Wooden Baseball Bat - 1402009
+        // One-Handed Axe | Double Axe - 1312000
+        // Two-Handed Axe | Maple Dragon Axe - 1412011
+        // One-Handed Blunt | Wizet Secret Agent Suitcase - 1322013
+        // Two-Handed Blunt | Wooden Mallet - 1422000
+        // Bow | Maple Bow - 1452016
+        // Crossbow | Maple Crow - 1462014
+        // Claw | Maple Claw - 1472030
+        // Dagger | Dragon's Tail - 1332023
+        // Spear | Maple Impaler - 1432012
+        // Polearm | Yellow Valentine Rose - 1442047
+        // Wand | Wooden Wand - 1372005
+        // Staff | Wooden Staff - 1382000
+        // Knuckle | Steel Knuckler - 1482000
+        // Gun | Pistol - 1492000
+        // Katara | Snowy Earth Katara - 1342023
+        int[] weaponListToAdd = {1302020, 1402009, 1312000, 1412011, 1322013, 1422000, 1452016, 1462014, 1472030, 1332023, 1432012, 1442047, 1372005, 1382000, 1482000, 1492000, 1342023};
+        for (int weaponID : weaponListToAdd) {
+            Equip equip = ItemDataHandler.getEquipByID(weaponID);
+            if (equip != null) {
+                chr.addEquip(equip);
+            }
+        }
+        chr.message("~Armiger unleashed~", ChatType.SpeakerWorld);
     }
 }

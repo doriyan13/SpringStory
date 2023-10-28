@@ -77,8 +77,8 @@ public enum CharacterTemporaryStat {
     WindWalk(66),
     EventRate(67),
     ComboAbilityBuff(68),
-    ComboDrain(69),
-    ComboBarrier(70),
+    ComboDrain(69), // Aran combo!
+    ComboBarrier(70), // Aran combo!
     BodyPressure(71),
     SmartKnockback(72),
     RepeatEffect(73),

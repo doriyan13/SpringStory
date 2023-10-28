@@ -2,15 +2,14 @@ package com.dori.SpringStory.temporaryStats.characters;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.enums.PassiveBuffStat;
 import com.dori.SpringStory.enums.Job;
-import com.dori.SpringStory.enums.Stat;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.RegenChrEvent;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.temporaryStats.TempStatValue;
 import com.dori.SpringStory.utils.FormulaCalcUtils;
 import com.dori.SpringStory.utils.utilEntities.UnsignedInt128BitBlock;
-import com.dori.SpringStory.wzHandlers.SkillDataHandler;
 import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,7 +29,7 @@ public class TemporaryStatManager {
     // Fields -
     private Map<Integer, Long> skillsExpiration = new ConcurrentHashMap<>();
     private Map<CharacterTemporaryStat, TempStatData> additionalStats = new ConcurrentHashMap<>();
-    private Map<Stat, TempStatData>passiveStats = new ConcurrentHashMap<>();
+    private Map<PassiveBuffStat, TempStatData> passiveStats = new ConcurrentHashMap<>();
     private boolean defenseState;
     private boolean defenseAtt;
     private int[] diceInfo = new int[22];
@@ -45,18 +44,22 @@ public class TemporaryStatManager {
         additionalStats.get(cts).addSkillStats(skillID, value);
     }
 
-    public int getCTS(CharacterTemporaryStat stat){
+    public int getCTS(CharacterTemporaryStat stat) {
         return additionalStats.get(stat) != null ? additionalStats.get(stat).getTotal() : 0;
     }
 
-    public void addPassiveStat(Stat stat, int skillID, int value) {
+    public boolean hasCTS(CharacterTemporaryStat stat) {
+        return additionalStats.get(stat) != null;
+    }
+
+    public void addPassiveStat(PassiveBuffStat stat, int skillID, int value) {
         if (!passiveStats.containsKey(stat)) {
             passiveStats.put(stat, new TempStatData());
         }
         passiveStats.get(stat).addSkillStats(skillID, value);
     }
 
-    public int getPassiveStat(Stat stat){
+    public int getPassiveStat(PassiveBuffStat stat) {
         return passiveStats.get(stat) != null ? passiveStats.get(stat).getTotal() : 0;
     }
 
@@ -115,27 +118,31 @@ public class TemporaryStatManager {
         additionalStats.values().forEach(statData -> statData.setModified(false));
     }
 
-    public boolean handleCustomSkillsByID(MapleChar chr, int skillID, int slv) {
-        SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
-        Job job = Job.getJobById(/*chr.getJob()*/ skillData.getRootId());
+    private void handleSpecialBuffEffect(MapleChar chr, BuffData buffData, int value, int slv) {
+        switch (buffData.getTempStat()) {
+            case Regen -> {
+                int duration = FormulaCalcUtils.calcValueFromFormula(buffData.getDurationInSecFormula(), slv);
+                EventManager.addEvent(chr.getId(), REGEN_CHARACTER, new RegenChrEvent(chr, value, buffData.isHealthRegen(), buffData.getIntervalInSec()), buffData.getIntervalInSec());
+                chr.getHpIntervalCountLeft().set(duration / buffData.getIntervalInSec());
+            }
+        }
+    }
+
+    private void handleCustomBuff(MapleChar chr, SkillData skillData, BuffData buffData, int slv) {
+        int value = FormulaCalcUtils.calcValueFromFormula(buffData.getCalcFormula(), slv);
+        if (value != 0) {
+            addStat(buffData.getTempStat(), skillData.getSkillId(), value);
+            skillsExpiration.put(skillData.getSkillId(), getExpirationTime(buffData.getDurationInSecFormula(), slv));
+            handleSpecialBuffEffect(chr, buffData, value, slv);
+        }
+    }
+
+    public boolean attemptHandleCustomSkillsByID(MapleChar chr, SkillData skillData, int slv) {
+        Job job = Job.getJobById(skillData.getRootId());
         if (job != null) {
-            Set<BuffData> buffs = BuffDataHandler.getBuffsByJobAndSkillID(job, skillID);
+            Set<BuffData> buffs = BuffDataHandler.getBuffsByJobAndSkillID(job, skillData.getSkillId());
             if (buffs != null) {
-                buffs.forEach(buffData -> {
-                    int value = FormulaCalcUtils.calcValueFromFormula(buffData.getCalcFormula(), slv);
-                    if (buffData.isAdditionalValue()) {
-                        // TODO: need to redo the handling of chr stats! to be able to do generic handling
-                    }
-                    if (value != 0) {
-                        addStat(buffData.getTempStat(), skillID, value);
-                        skillsExpiration.put(skillID, getExpirationTime(buffData.getDurationInSecFormula(), slv));
-                        if (buffData.getTempStat() == Regen) {
-                            int duration = FormulaCalcUtils.calcValueFromFormula(buffData.getDurationInSecFormula(), slv);
-                            EventManager.addEvent(chr.getId(), REGEN_CHARACTER, new RegenChrEvent(chr, value, buffData.isHealthRegen(), buffData.getIntervalInSec()), buffData.getIntervalInSec());
-                            chr.getHpIntervalCountLeft().set(duration / buffData.getIntervalInSec());
-                        }
-                    }
-                });
+                buffs.forEach(buffData -> handleCustomBuff(chr, skillData, buffData, slv));
                 return true;
             }
         }

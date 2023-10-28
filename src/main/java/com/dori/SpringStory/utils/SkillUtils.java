@@ -112,14 +112,16 @@ public interface SkillUtils {
         if (amountToConsume != 0) {
             chr.modifyMp(-amountToConsume);
         }
+        if(SkillUtils.isComboAttackDrainingSkill(skillID)) {
+            chr.resetAttackCombo();
+        }
     }
 
     static int getMaxComboAttackForChr(MapleChar chr) {
         Skill skill = chr.getSkill(HERO_ADVANCED_COMBO.getId());
         String formula = "";
-        if (skill != null) {
-            SkillData skillData = SkillDataHandler.getSkillDataByID(HERO_ADVANCED_COMBO.getId());
-            formula = skillData.getSkillStatInfo().get(x);
+        if (skill != null && skill.getCurrentLevel() > 0) {
+            return 11; // it's just max of 10 from lvl 1 of the advance skill
         } else {
             skill = chr.getSkill(CRUSADER_COMBO_ATTACK.getId());
             if (skill != null) {
@@ -128,5 +130,9 @@ public interface SkillUtils {
             }
         }
         return skill != null ? FormulaCalcUtils.calcValueFromFormula(formula, skill.getCurrentLevel()) + 1 : 0; // the calc is the count + 1 | example: 10 + 1 = 11
+    }
+
+    static boolean isComboAttackDrainingSkill(int skillID) {
+        return skillID == CRUSADER_PANIC.getId() || skillID == CRUSADER_COMA.getId() || skillID == HERO_ENRAGE.getId();
     }
 }

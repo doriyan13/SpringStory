@@ -56,10 +56,12 @@ public enum Stat {
         return stats;
     }
 
-    public static Stat getStatBySkillStat(SkillStat skillStat){
+    public static PassiveBuffStat getStatBySkillStat(SkillStat skillStat){
         return switch (skillStat) {
-            case mhpR -> Stat.MaxHp;
-            case mmpR -> Stat.MaxMp;
+            case mhpR -> PassiveBuffStat.MAX_HP;
+            case mmpR -> PassiveBuffStat.MAX_MP;
+            case hp -> PassiveBuffStat.HP_REGEN;
+            case mp -> PassiveBuffStat.MP_REGEN;
             default -> null;
         };
     }

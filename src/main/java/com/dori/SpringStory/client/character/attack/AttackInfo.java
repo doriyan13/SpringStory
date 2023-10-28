@@ -117,7 +117,8 @@ public class AttackInfo {
             SkillUtils.applySkillConsumptionToChar(skillId, chr.getSkill(skillId).getCurrentLevel(), chr);
         }
         this.mobAttackInfo.forEach(mai -> mai.apply(chr));
-        if(!mobAttackInfo.isEmpty() && JobUtils.isHero(chr.getJob())) {
+        // Hero combo attack stacks handling -
+        if (JobUtils.isHero(chr.getJob()) && !mobAttackInfo.isEmpty()) {
             chr.raiseAttackCombo();
         }
     }
