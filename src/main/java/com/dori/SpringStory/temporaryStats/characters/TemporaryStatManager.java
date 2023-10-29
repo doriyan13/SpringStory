@@ -44,6 +44,11 @@ public class TemporaryStatManager {
         additionalStats.get(cts).addSkillStats(skillID, value);
     }
 
+    public void addTempStat(CharacterTemporaryStat cts, int skillID, int value, int durationInSec) {
+        addStat(cts, skillID, value);
+        skillsExpiration.put(skillID, getExpirationTime(durationInSec));
+    }
+
     public int getCTS(CharacterTemporaryStat stat) {
         return additionalStats.get(stat) != null ? additionalStats.get(stat).getTotal() : 0;
     }
@@ -81,6 +86,10 @@ public class TemporaryStatManager {
     private long getExpirationTime(String durationInSecFormula, int slv) {
         int duration = FormulaCalcUtils.calcValueFromFormula(durationInSecFormula, slv);
         return System.currentTimeMillis() + (duration * 1000L);
+    }
+
+    private long getExpirationTime(int durationInSec) {
+        return System.currentTimeMillis() + (durationInSec * 1000L);
     }
 
     public boolean isSkillExpired(int skillID) {

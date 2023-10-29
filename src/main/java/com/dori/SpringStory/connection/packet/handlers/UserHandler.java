@@ -2,6 +2,7 @@ package com.dori.SpringStory.connection.packet.handlers;
 
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.client.character.attack.AttackInfo;
 import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
@@ -11,7 +12,9 @@ import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.jobs.JobHandler;
+import com.dori.SpringStory.jobs.handlers.WarriorHandler;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.utils.JobUtils;
 import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
@@ -26,8 +29,7 @@ import java.util.List;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
 import static com.dori.SpringStory.enums.AttackType.*;
-import static com.dori.SpringStory.enums.Skills.NIGHTLORD_SPIRIT_JAVELIN;
-import static com.dori.SpringStory.enums.Skills.PRIEST_DISPEL;
+import static com.dori.SpringStory.enums.Skills.*;
 
 public class UserHandler {
     @Handler(op = UserMove)
@@ -107,6 +109,13 @@ public class UserHandler {
             }
         }
         chr.getField().broadcastPacket(CUserRemote.hit(chr, type, dmg, mobID, isLeft));
+        if (JobUtils.isPaladin(chr.getJob())) {
+            Skill divineShield = chr.getSkill(PALADIN_DIVINE_SHIELD.getId());
+            if (divineShield != null && divineShield.getCurrentLevel() > 0) {
+                SkillData skillData = SkillDataHandler.getSkillDataByID(PALADIN_DIVINE_SHIELD.getId());
+                WarriorHandler.getInstance().handleSkill(chr, skillData, divineShield.getCurrentLevel());
+            }
+        }
         chr.modifyHp(-dmg);
     }
 

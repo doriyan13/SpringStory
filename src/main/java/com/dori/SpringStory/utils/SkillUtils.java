@@ -4,7 +4,6 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.enums.SkillStat;
-import com.dori.SpringStory.enums.Skills;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.wzHandlers.SkillDataHandler;
 import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
@@ -25,7 +24,7 @@ public interface SkillUtils {
                 || nSkillID == CAPTAIN_COUNTER_ATTACK.getId()
                 || nSkillID == ARCHMAGE1_MASTER_MAGIC.getId()
                 || nSkillID == HERO_COMBAT_MASTERY.getId()
-                || nSkillID == PALADIN_BLESSING_ARMOR.getId()
+                || nSkillID == PALADIN_DIVINE_SHIELD.getId()
                 || nSkillID == DARKKNIGHT_BEHOLDERS_REVENGE.getId()
                 || nSkillID == ARCHMAGE2_MASTER_MAGIC.getId()
                 || nSkillID == BISHOP_MASTER_MAGIC.getId()
