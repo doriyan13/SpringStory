@@ -25,6 +25,7 @@ import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.wzHandlers.ItemDataHandler;
 import com.dori.SpringStory.wzHandlers.SkillDataHandler;
+import com.dori.SpringStory.wzHandlers.wzEntities.ItemData;
 import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,9 +38,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.enums.EventType.VALIDATE_CHARACTER_TEMP_STATS;
 import static com.dori.SpringStory.enums.InventoryOperation.Add;
+import static com.dori.SpringStory.enums.InventoryOperation.UpdateQuantity;
 import static com.dori.SpringStory.enums.InventoryType.*;
-import static com.dori.SpringStory.enums.Stat.MaxHp;
-import static com.dori.SpringStory.enums.Stat.MaxMp;
+import static com.dori.SpringStory.enums.Stat.*;
 import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.CombatOrders;
 import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.ComboCounter;
 
@@ -114,14 +115,14 @@ public class MapleChar {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Inventory cashInventory = new Inventory(CASH, DEFAULT_CASH_INVENTORY_SIZE);
     // Skill fields -
-    @JoinColumn(name = "charId")
+    @MapKey(name = "skillId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<Skill> skills;
+    private Map<Integer, Skill> skills;
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "skillCoolTimes", joinColumns = @JoinColumn(name = "charID"))
     @MapKeyColumn(name = "skillId")
     @Column(name = "nextUsableTime")
-    private Map<Integer, Long> skillCoolTimes;
+    private Map<Integer, Long> skillCoolTimes; //TODO: i will move into trasient field, don't see a reason to save into DB...
     @Convert(converter = InlinedIntArrayConverter.class)
     private List<Integer> quickSlotKeys;
     // Non-DB fields -
@@ -172,7 +173,7 @@ public class MapleChar {
         this.linkedCharacterLvl = 0;
         this.linkedCharacterName = "";
         // Skills -
-        this.skills = new HashSet<>();
+        this.skills = new HashMap<>();
         this.skillCoolTimes = new HashMap<>();
     }
 
@@ -215,7 +216,7 @@ public class MapleChar {
         this.linkedCharacterLvl = 0;
         this.linkedCharacterName = "";
         // Skills -
-        this.skills = new HashSet<>();
+        this.skills = new HashMap<>();
         this.skillCoolTimes = new HashMap<>();
     }
 
@@ -228,8 +229,8 @@ public class MapleChar {
     }
 
     public void initPassiveStats() {
-        getSkills().forEach(skill -> {
-            SkillData skillData = SkillDataHandler.getSkillDataByID(skill.getSkillId());
+        getSkills().forEach((skillId, skill) -> {
+            SkillData skillData = SkillDataHandler.getSkillDataByID(skillId);
             if (skillData.isPassive()) {
                 applyPassiveSkillDataStats(skillData, skill.getCurrentLevel());
             }
@@ -436,7 +437,7 @@ public class MapleChar {
         if (mask.isInMask(DBChar.SkillRecord)) {
             outPacket.encodeShort(getSkills().size());
             // For each skill encode the skill data -
-            getSkills().forEach(skill -> skill.encodeRecord(outPacket));
+            getSkills().values().forEach(skill -> skill.encodeRecord(outPacket));
         }
         if (mask.isInMask(DBChar.SkillCooltime)) {
             encodeSkillCoolTime(outPacket);
@@ -700,6 +701,22 @@ public class MapleChar {
         }
     }
 
+    public void gainAP(int amountOfAp) {
+        if (amountOfAp > 0) {
+            int newAP = ap + amountOfAp;
+            setAp(newAP);
+            updateStat(AbilityPoint, newAP);
+        }
+    }
+
+    public void gainSP(int amountOfSp) {
+        if (amountOfSp > 0) {
+            int newSP = sp + amountOfSp;
+            setSp(newSP);
+            updateStat(SkillPoint, newSP);
+        }
+    }
+
     public void message(String msg, ChatType type) {
         write(CUserLocal.chatMsg(msg, type));
     }
@@ -709,7 +726,7 @@ public class MapleChar {
     }
 
     public Skill getSkill(int skillID) {
-        return getSkills().stream().filter(skill -> skill.getSkillId() == skillID).findFirst().orElse(null);
+        return getSkills().get(skillID);
     }
 
     private void applyPassiveSkillDataStats(SkillData skillData, int slv) {
@@ -729,7 +746,7 @@ public class MapleChar {
                 logger.error("Trying to lvl up a non existing skill- " + skillID);
                 return;
             } else {
-                getSkills().add(currSkill);
+                getSkills().put(skillID, currSkill);
             }
         }
         currSkill.setCurrentLevel(currSkill.getCurrentLevel() + 1);
@@ -741,15 +758,15 @@ public class MapleChar {
         updateStat(Stat.SkillPoint, getSp());
     }
 
-    private void addSkill(Skill skill) {
+    public void addSkill(Skill skill) {
         if (skill.getMasterLevel() > 0 && getSkill(skill.getSkillId()) == null) {
-            getSkills().add(skill);
+            getSkills().put(skill.getSkillId(), skill);
         }
         // TODO: need to remove, just for TESTING!!!! (NOT GMS LIKE)
         else if (skill.getMasterLevel() == 0) {
             skill.setMasterLevel(30);
             skill.setMaxLevel(30);
-            getSkills().add(skill);
+            getSkills().put(skill.getSkillId(), skill);
         }
     }
 
@@ -794,7 +811,7 @@ public class MapleChar {
     public void handleSkill(int skillID, int slv) {
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData != null) {
-            if(!attemptHandleActiveSkill(skillData, slv)) {
+            if (!attemptHandleActiveSkill(skillData, slv)) {
                 if (tsm.attemptHandleCustomSkillsByID(this, skillData, slv)
                         || tsm.attemptToAutoHandleSkillByID(skillData, slv)) {
                     applyTemporaryStats();
@@ -834,5 +851,33 @@ public class MapleChar {
     public void addEquip(Equip equip) {
         getEquipInventory().addItem(equip);
         write(CWvsContext.inventoryOperation(true, Add, (short) equip.getBagIndex(), (short) -1, equip));
+    }
+
+    public void addItem(Item item) {
+        Inventory inventory = getInventoryByType(item.getInvType());
+        ItemData itemData = ItemDataHandler.getItemDataByID(item.getItemId());
+        boolean newItem = false;
+        if (inventory != null && itemData != null && item.getQuantity() > 0) {
+            Item itemInInv = inventory.getItemByItemID(item.getItemId());
+            if (itemInInv != null && inventory.getType().isStackable()) {
+                int updatedQuantity = item.getQuantity() + itemInInv.getQuantity();
+                int amountToNewStack = updatedQuantity - itemData.getSlotMax();
+                if (amountToNewStack > 0) {
+                    item.setQuantity(amountToNewStack);
+                    updatedQuantity = itemData.getSlotMax();
+                    newItem = true;
+                }
+                itemInInv.setQuantity(updatedQuantity);
+                write(CWvsContext.inventoryOperation(true, UpdateQuantity, (short) itemInInv.getBagIndex(), (short) -1, itemInInv));
+            } else {
+                newItem = true;
+            }
+        } else {
+            logger.error("Got illegal item: " + item);
+        }
+        if (newItem) {
+            inventory.addItem(item);
+            write(CWvsContext.inventoryOperation(true, Add, (short) item.getBagIndex(), (short) -1, item));
+        }
     }
 }

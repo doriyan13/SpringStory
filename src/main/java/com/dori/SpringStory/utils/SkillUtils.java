@@ -105,7 +105,7 @@ public interface SkillUtils {
                 amountToConsume = skillData.getMpCostByLevel().getOrDefault(slv, 0);
             } else {
                 // TODO: here i will need to manage other type of consume - HP / Meso and such! | or maybe customSkill handling?
-                logger.error("Cannot clac mpConsume / mpCostByLvl for this skill -" + skillID);
+                logger.error("Cannot clac mpConsume / mpCostByLvl for this skill - " + skillID);
             }
         }
         if (amountToConsume != 0) {

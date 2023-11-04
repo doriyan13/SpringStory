@@ -42,4 +42,10 @@ public class ErrorPacketsHandler {
             );
         }
     }
+
+    @Handler(op = Log)
+    public static void handleLogPacket(MapleClient c, InPacket inPacket){
+        String log = inPacket.decodeString();
+        logger.notice("Log was sent: " + log);
+    }
 }

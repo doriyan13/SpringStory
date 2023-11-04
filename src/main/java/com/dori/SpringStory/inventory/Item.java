@@ -5,6 +5,7 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.InventoryType;
 import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
+import com.dori.SpringStory.wzHandlers.wzEntities.ItemData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,19 +36,28 @@ public class Item {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "type")
     protected ItemType type;
-    protected boolean isCash;
+    protected boolean cash;
     protected int quantity;
     protected String owner = "";
 
     public Item(int itemId, int bagIndex, long cashItemSerialNumber, FileTime dateExpire, InventoryType invType,
-                boolean isCash, ItemType type) {
+                boolean cash, ItemType type) {
         this.itemId = itemId;
         this.bagIndex = bagIndex;
         this.cashItemSerialNumber = cashItemSerialNumber;
         this.dateExpire = dateExpire;
         this.invType = invType;
-        this.isCash = isCash;
+        this.cash = cash;
         this.type = type;
+    }
+
+    public Item(ItemData itemData) {
+        this.itemId = itemData.getItemId();
+        this.invType = itemData.getInvType();
+        this.cash = itemData.isCash();
+        this.quantity = 1;
+        this.bagIndex = 0;
+        this.type = ItemType.BUNDLE; // ITEM
     }
 
     public void encodeItemSlotBase(OutPacket outPacket){
@@ -63,7 +73,6 @@ public class Item {
         outPacket.encodeByte(getType().getVal());
         // GW_ItemSlotBase
         encodeItemSlotBase(outPacket);
-        outPacket.encodeInt(getBagIndex());
         outPacket.encodeShort(getQuantity()); // nQuantity
         outPacket.encodeString(getOwner()); // sOwner
         outPacket.encodeShort(0); // attribute | flag?

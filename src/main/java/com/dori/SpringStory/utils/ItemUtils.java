@@ -205,7 +205,6 @@ public interface ItemUtils {
                 isCape(itemId);
     }
 
-
     static boolean shouldEncodeEquipByType(EquipType type, Equip equip){
         boolean result = true;
         switch (type){
@@ -215,5 +214,9 @@ public interface ItemUtils {
             case Mechanic -> result = equip.getBagIndex() >= BodyPart.MechBase.getVal() && equip.getBagIndex() < BodyPart.MechEnd.getVal();
         }
         return result;
+    }
+
+    static boolean isPet(int itemId) {
+        return getItemPrefix(itemId) == 500;
     }
 }

@@ -182,12 +182,12 @@ public interface CWvsContext {
         return outPacket;
     }
 
-    static OutPacket changeSkillRecordResult(Set<Skill> skills, boolean exclRequestSent, boolean bSN) {
+    static OutPacket changeSkillRecordResult(Map<Integer,Skill> skills, boolean exclRequestSent, boolean bSN) {
         OutPacket outPacket = new OutPacket(OutHeader.ChangeSkillRecordResult);
 
         outPacket.encodeBool(exclRequestSent);
         outPacket.encodeShort(skills.size());
-        skills.forEach(skill -> skill.encode(outPacket));
+        skills.forEach((skillID,skill) -> skill.encode(outPacket));
         outPacket.encodeBool(bSN);
 
         return outPacket;

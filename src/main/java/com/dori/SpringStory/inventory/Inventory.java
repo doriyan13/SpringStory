@@ -58,8 +58,17 @@ public class Inventory {
         outPacket.encodeShort(0);
     }
 
+    public void sortItemsByIndex() {
+        // workaround for sort not being available for CopyOnWriteArrayList
+        List<Item> temp = new ArrayList<>(getItems());
+        temp.sort(Comparator.comparingInt(Item::getBagIndex));
+        getItems().clear();
+        getItems().addAll(temp);
+    }
+
     public int getFirstOpenSlot() {
         int oldIndex = 0;
+        sortItemsByIndex();
         for (Item item : getItems()) {
             // items are always sorted by bag index
             if (item.getBagIndex() - oldIndex > 1) {
@@ -83,6 +92,7 @@ public class Inventory {
             item.setInvType(getType());
             getItems().sort(Comparator.comparingInt(Item::getBagIndex));
         }
+        System.out.println("Added To spot: " + item.bagIndex);
     }
 
     public void removeItem(Item item) {
@@ -98,7 +108,9 @@ public class Inventory {
     }
 
     public Item getItemByItemID(int itemId) {
-        return getItems().stream().filter(item -> (item.getItemId() == itemId) && item.getQuantity() != 0)
+        return getItems()
+                .stream()
+                .filter(item -> (item.getItemId() == itemId) && item.getQuantity() != 0)
                 .findFirst()
                 .orElse(null);
     }

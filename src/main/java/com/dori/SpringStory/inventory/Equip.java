@@ -142,7 +142,7 @@ public class Equip extends Item{
         this.equipItemID = equipData.getItemID();
         this.price = equipData.getPrice();
         this.attackSpeed = equipData.getAttackSpeed();
-        this.isCash = equipData.isCash();
+        this.cash = equipData.isCash();
         this.expireOnLogout = equipData.isExpireOnLogout();
         this.exItem = equipData.isExItem();
         this.notSale = equipData.isNotSale();

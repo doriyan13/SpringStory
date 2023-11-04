@@ -4,6 +4,7 @@ import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.enums.InventoryType;
 import com.dori.SpringStory.enums.SpecStat;
 import com.dori.SpringStory.inventory.Equip;
+import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.inventory.ItemRewardInfo;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.JsonUtils;
@@ -35,11 +36,16 @@ public class ItemDataHandler {
     private static final Map<Integer, EquipData> equips = new LinkedHashMap<>();
 
 
-    public static ItemData getItemByID(Integer itemID) {
+    public static ItemData getItemDataByID(int itemID) {
         return items.getOrDefault(itemID, null);
     }
 
-    public static Equip getEquipByID(Integer equipID) {
+    public static Item getItemByID(int itemID) {
+        ItemData itemData = items.getOrDefault(itemID, null);
+        return itemData != null ? new Item(itemData) : null;
+    }
+
+    public static Equip getEquipByID(int equipID) {
         EquipData equipData = equips.getOrDefault(equipID, null);
         return equipData != null ? new Equip(equipData) : null;
     }

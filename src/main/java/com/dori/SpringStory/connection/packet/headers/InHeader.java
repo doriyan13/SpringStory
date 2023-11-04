@@ -49,7 +49,7 @@ public enum InHeader {
     EndSocket(39),
     BeginUser(40),
     UserTransferFieldRequest(41),
-    UserTransferChannelRequest(42),
+    UserTransferChannelRequest(42), // CField::SendTransferChannelRequest
     UserMigrateToCashShopRequest(43),
     UserMove(44), // CHANGE_MAP
     UserSitRequest(45), // Enter cash shop?
@@ -140,22 +140,22 @@ public enum InHeader {
 
     UserRepairDurabilityAll(130),
     UserRepairDurability(131),
-    UserQuestRecordSetState(132),
+    UserQuestRecordSetState(132), //CDamageMeter::SaveDamageInfo
     UserClientTimerEndRequest(133),
     UserFollowCharacterRequest(134),
     UserFollowCharacterWithdraw(135),
     UserSelectPQReward(136),
     UserRequestPQReward(137),
     SetPassengerResult(138),
-    BroadcastMsg(139),
+    BroadcastMsg(139), // have a admin command that called it: /alertch <String> | byte(1) byte(1) string(msg)
     GroupMessage(140),
     Whisper(141),
     CoupleMessage(142),
-    Messenger(143),
+    Messenger(143), // CFadeWnd::SendCloseMessage
     MiniRoom(144),     // PLAYER_INTERACTION in odin
     PartyRequest(145),
     PartyResult(146),
-    ExpeditionRequest(147),
+    ExpeditionRequest(147), // ExpeditionIntermediary::SendExpChangeMasterPacket | ExpeditionIntermediary::SendExpChangeBossPacket
     PartyAdverRequest(148),
     GuildRequest(149),
     GuildResult(150),
@@ -166,7 +166,7 @@ public enum InHeader {
     MemoFlagRequest(155),
     EnterTownPortalRequest(156),
     EnterOpenGateRequest(157),
-    SlideRequest(158),
+    SlideRequest(158), // admin command - /slideax or /slidea ? (empty packet i think?)
     FuncKeyMappedModified(159),
     RPSGame(160),
     MarriageRequest(161),
@@ -259,14 +259,14 @@ public enum InHeader {
 //CP_BEGIN_REACTORPOOL = 0xF8,
     ReactorHit(249),
     ReactorTouch(250),
-    RequireFieldObstacleStatus(251),
+    RequireFieldObstacleStatus(251), // CUserLocal::ResetNLCPQ
 //CP_END_REACTORPOOL = 0xFC,
 //CP_BEGIN_EVENT_FIELD = 0xFD,
     EventStart(254),
     SnowBallHit(255),
     SnowBallTouch(256),
     CoconutHit(257),
-    TournamentMatchTable(258),
+    TournamentMatchTable(258), // CFIELD::MSGSLASH
     PulleyHit(259),
 //CP_END_EVENT_FIELD = 0x104,
 //CP_BEGIN_MONSTER_CARNIVAL_FIELD = 0x105,
@@ -278,7 +278,7 @@ public enum InHeader {
     CancelInvitePartyMatch(267),
 //CP_END_PARTY_MATCH = 0x10C,
     RequestFootHoldInfo(269),
-    FootHoldInfo(270),
+    FootHoldInfo(270), //CField::OnRequestFootHoldInfo
 //CP_END_FIELD = 0x10F,
 //CP_BEGIN_CASHSHOP = 0x110,
     CashShopChargeParamRequest(273),

@@ -258,6 +258,9 @@ public enum OutHeader {
     CUserRemoteGuildNameChanged(228),
     CUserRemoteGuildMarkChanged(229),
     CUserRemoteThrowGrenade(230),
+    // CField::OnPacket -
+    //TODO: need to fill all of them!
+    AdminResult(160),
 
     /*CHANGE_CHANNEL(16),
     ALIVE_REQ(17),

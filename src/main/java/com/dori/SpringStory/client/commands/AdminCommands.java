@@ -1,10 +1,12 @@
 package com.dori.SpringStory.client.commands;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.connection.packet.packets.CField;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
+import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
@@ -281,11 +283,15 @@ public class AdminCommands {
     @Command(names = {"item", "getitem"}, requiredPermission = AccountType.GameMaster)
     public static void item(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            Equip equip = ItemDataHandler.getEquipByID(Integer.valueOf(args.get(0)));
+            int itemID = Integer.parseInt(args.get(0));
+            Equip equip = ItemDataHandler.getEquipByID(itemID);
             if (equip != null) {
                 chr.addEquip(equip);
             } else {
-                //TODO: need to handle normal items (use,etc,setup...)
+                Item item = ItemDataHandler.getItemByID(itemID);
+                if (item != null) {
+                    chr.addItem(item);
+                }
             }
         }
     }
@@ -297,7 +303,7 @@ public class AdminCommands {
     }
 
     @Command(names = {"weapon", "armiger"}, requiredPermission = AccountType.GameMaster)
-    public static void Armiger(MapleChar chr, List<String> args) {
+    public static void armiger(MapleChar chr, List<String> args) {
         // One-Handed Sword | Maple Sword - 1302020
         // Two-Handed Sword | Wooden Baseball Bat - 1402009
         // One-Handed Axe | Double Axe - 1312000
@@ -323,5 +329,23 @@ public class AdminCommands {
             }
         }
         chr.message("~Armiger unleashed~", ChatType.SpeakerWorld);
+    }
+
+    @Command(names = {"test"}, requiredPermission = AccountType.GameMaster)
+    public static void test(MapleChar chr, List<String> args) {
+        if (!args.isEmpty()) {
+            String cmdType = args.get(0);
+            if (MapleUtils.isNumber(cmdType)) {
+                int cmdTypeFlag = Integer.parseInt(cmdType);
+                chr.write(CField.adminResult(cmdTypeFlag, false));
+            }
+        }
+    }
+
+    @Command(names = {"invdata"}, requiredPermission = AccountType.GameMaster)
+    public static void inventoryData(MapleChar chr, List<String> args) {
+        chr.getInventoryByType(InventoryType.ETC)
+                .getItems()
+                .forEach(item -> chr.message(item.getItemId() + " : bagIndex - " + item.getBagIndex() + " | quantity: " + item.getQuantity(), ChatType.SpeakerWorld));
     }
 }

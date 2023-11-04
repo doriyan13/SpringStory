@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dori.SpringStory.enums.EventType.REGEN_CHARACTER;
 import static com.dori.SpringStory.enums.SkillStat.time;
+import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.Pad;
 import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.Regen;
 
 @Data
@@ -260,7 +261,7 @@ public class TemporaryStatManager {
             }
         }
         if (additionalStats.containsKey(CharacterTemporaryStat.BlessingArmor)) {
-            outPacket.encodeInt(0); // nBlessingArmorIncPAD
+            outPacket.encodeInt(getCTS(Pad)); // nBlessingArmorIncPAD
         }
         CharacterTemporaryStat.getEncodingTwoStateOrderRemote().forEach(stat -> encodeAdditionalStat(stat, outPacket, true));
     }
