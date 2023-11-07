@@ -21,6 +21,7 @@ import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
 import com.dori.SpringStory.utils.utilEntities.Position;
+import com.dori.SpringStory.world.fieldEntities.Drop;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.wzHandlers.ItemDataHandler;
@@ -315,7 +316,7 @@ public class MapleChar {
         // Fill Equips and possibly the CashWeapon -
         ItemUtils.fillEquipsMaps(this, charEquips, charMaskedEquips, cWeapon);
         Integer cWeaponID = cWeapon.isEmpty() ? null : cWeapon.get(0);
-
+        // TODO: this is wrong and need to be fixed!
         //for -> myEquips (visible items)
         charEquips.forEach((BodyPart, itemID) -> {
             outPacket.encodeByte(BodyPart.getVal());
@@ -879,5 +880,15 @@ public class MapleChar {
             inventory.addItem(item);
             write(CWvsContext.inventoryOperation(true, Add, (short) item.getBagIndex(), (short) -1, item));
         }
+    }
+
+    public Drop dropItem(Item item) {
+        // Reset position for when it's picked up -
+        item.setBagIndex(0);
+        // Remove from inventory -
+        Inventory inventory = getInventoryByType(item.getInvType());
+        inventory.removeItem(item);
+        // Return a Drop instance -
+        return new Drop(item);
     }
 }

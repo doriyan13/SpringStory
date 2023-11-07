@@ -66,4 +66,6 @@ public interface ServerConstants {
     int MIN_OBJ_ID = 1_000_000;
     // Commands stuff -
     String COMMANDS_DIR = DIR + "/src/main/java/com/dori/SpringStory/client/commands";
+    // Field -
+    int MAX_OBJECT_ID_ALLOCATED_TO_FIELD = 30_000;
 }

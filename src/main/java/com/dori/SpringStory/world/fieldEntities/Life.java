@@ -1,6 +1,7 @@
 package com.dori.SpringStory.world.fieldEntities;
 
 import com.dori.SpringStory.utils.utilEntities.Position;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Life {
+    @JsonIgnore
     private int objectId = -1;
     private Position position;
     protected int cy, templateId, mobTime, rx0, rx1, type;
@@ -34,6 +36,7 @@ public class Life {
     private boolean mobTimeOnDie;
     private boolean respawnable;
     private byte moveAction;
+    @JsonIgnore
     private Field field;
     private Position homePosition;
     private Position vPosition;

@@ -82,8 +82,9 @@ public class Inventory {
 
     public void addItem(Item item) {
         if (getItems().size() < getSlots()) {
-            if(getType() == InventoryType.EQUIPPED){
-                item.setBagIndex(ItemUtils.getBodyPartFromItem(item.getItemId()).getVal());
+            item.setBagIndex(Math.abs(item.getBagIndex()));
+            if(getType() == InventoryType.EQUIPPED && item.getBagIndex() < 100){
+                item.setBagIndex(Math.abs(ItemUtils.getBodyPartFromItem(item.getItemId()).getVal()));
             }
             if (item.getBagIndex() == 0) {
                 item.setBagIndex(getFirstOpenSlot());
@@ -92,7 +93,6 @@ public class Inventory {
             item.setInvType(getType());
             getItems().sort(Comparator.comparingInt(Item::getBagIndex));
         }
-        System.out.println("Added To spot: " + item.bagIndex);
     }
 
     public void removeItem(Item item) {

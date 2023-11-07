@@ -34,7 +34,7 @@ public class MapData {
     protected FieldType fieldType;
     protected Set<Portal> portals = new HashSet<>();
     protected Set<Foothold> footholds = new HashSet<>();
-    protected Map<Integer, Life> lifes = new HashMap<>();
+    protected Set<Life> lifes = new HashSet<>();
     protected String onFirstUserEnter = "", onUserEnter = "";
     protected int fixedMobCapacity;
     protected long fieldLimit;
@@ -57,7 +57,7 @@ public class MapData {
         this.id = fieldID;
         this.portals = new HashSet<>();
         this.footholds = new HashSet<>();
-        this.lifes = new ConcurrentHashMap<>();
+        this.lifes = new HashSet<>();
         this.fixedMobCapacity = GameConstants.DEFAULT_FIELD_MOB_CAPACITY; // default
     }
 
@@ -89,42 +89,8 @@ public class MapData {
         getPortals().add(portal);
     }
 
-    private boolean isObjIdUsed(int objID){
-        return lifes.get(objID) != null;
-    }
-
-    protected Integer generateObjID(){
-        boolean notFoundID = true;
-        Integer newOid = -1;
-        int safeIndexCounter = MAX_RETRIES;
-        SecureRandom random = new SecureRandom();
-
-        while (notFoundID) {
-            newOid = random.nextInt(MAX_OBJ_ID) + MIN_OBJ_ID;
-            safeIndexCounter--;
-            if (!isObjIdUsed(newOid)) {
-                notFoundID = false;
-            }
-            // Adding safe counter to avoid infinite loop -
-            if (safeIndexCounter <= 0) {
-                newOid = null;
-                notFoundID = false;
-            }
-        }
-        return newOid;
-    }
-
     public void addLife(Life life){
-        if(life.getObjectId() < 0){
-            Integer newObjID = generateObjID();
-            if (newObjID != null){
-                life.setObjectId(newObjID);
-            }
-        }
-        // Only if the object ID is valid add life to list -
-        if(life.getObjectId() != -1){
-            lifes.putIfAbsent(life.getObjectId(), life);
-        }
+        getLifes().add(life);
     }
 
     public void addDirectionInfo(int node, List<String> scripts) {

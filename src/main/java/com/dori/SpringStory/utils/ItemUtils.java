@@ -59,6 +59,7 @@ public interface ItemUtils {
                 case EvanWing -> bodyPart = BodyPart.EvanWing;
                 case EvanShoes -> bodyPart = BodyPart.EvanShoes;
                 case OneHandedAxe,OneHandedSword,OneHandedBluntWeapon,TwoHandedBluntWeapon,TwoHandedAxe,TwoHandedSword -> bodyPart =BodyPart.Weapon;
+                case CashWeapon -> bodyPart = BodyPart.CashWeapon;
                 default -> System.out.println("idk? " + prefix);
             }
         }
@@ -73,9 +74,20 @@ public interface ItemUtils {
             BodyPart bodyPart = getBodyPartFromItem(item.getItemId());
             if(bodyPart != BodyPart.BPBase){
                 if(bodyPart.getVal() < BodyPart.BPEnd.getVal()){
+                    if (!charEquips.containsKey(bodyPart)) {
+                        charEquips.put(bodyPart,item.getItemId());
+                    } else if (item.isCash()){
+                        int nonCashItem = charEquips.remove(bodyPart);
+                        charEquips.put(bodyPart,item.getItemId());
+                        charMaskedEquips.put(bodyPart, nonCashItem);
+                    } else {
+                        charMaskedEquips.put(bodyPart, item.getItemId());
+                    }
+                }
+                if(bodyPart.getVal() < BodyPart.BPEnd.getVal() && !item.isCash()){
                     charEquips.put(bodyPart,item.getItemId());
                 }
-                else if (bodyPart.getVal() > BodyPart.BPEnd.getVal() && bodyPart.getVal() != BodyPart.CashWeapon.getVal()){
+                else if (bodyPart.getVal() < BodyPart.BPEnd.getVal() && bodyPart.getVal() != BodyPart.CashWeapon.getVal()){
                     charMaskedEquips.put(bodyPart,item.getItemId());
                 }
                 else if(bodyPart.getVal() == BodyPart.CashWeapon.getVal()){

@@ -80,4 +80,10 @@ public class Item {
             outPacket.encodeLong(getId());
         }
     }
+
+    public void removeQuantity(int amount) {
+        if (amount > 0) {
+            setQuantity(Math.max(0, getQuantity() - amount));
+        }
+    }
 }

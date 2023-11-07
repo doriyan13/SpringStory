@@ -5,6 +5,7 @@ import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.EnchantStat;
+import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
 import com.dori.SpringStory.wzHandlers.wzEntities.EquipData;
 import jakarta.persistence.*;
@@ -197,8 +198,8 @@ public class Equip extends Item{
         }
         outPacket.encodeShort(0); // Socket 1
         outPacket.encodeShort(0); // Socket 2
-        if (serialNumber == 0) { // literally the code in the client O.o
-            outPacket.encodeLong(serialNumber); // liCashItemSN
+        if (!isCash()) { // if serialNumber == 0 | literally the code in the client O.o
+            outPacket.encodeLong(getId()/*serialNumber*/); // liCashItemSN
         }
         outPacket.encodeLong(0); // ftEquipped
         outPacket.encodeInt(0); // nPrevBonusExpRate

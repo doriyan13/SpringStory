@@ -59,6 +59,7 @@ public enum EquipPrefix {
     Katana(154),
 
     SkillEffect(160),
+    CashWeapon(170),
 
     PetWear(180),
     TamingMob(190),

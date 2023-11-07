@@ -89,7 +89,7 @@ public class StageHandler {
                 byte chase = inPacket.decodeByte();
                 // Update the field and chr instances & warp -
                 Portal targetPortal = field.getPortalByName(currentPortal.getTargetPortalName());
-                chr.warp(field, targetPortal);
+                chr.warp(field, targetPortal != null ? targetPortal : chr.getField().findDefaultPortal());
             } else {
                 logger.error("Got an invalid field ID while trying to transfer between maps - " + currentPortal.getTargetMapId());
                 c.close();

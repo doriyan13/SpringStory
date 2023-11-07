@@ -12,14 +12,15 @@ import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
 import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
 import lombok.*;
 
-import java.util.HashMap;
-import java.util.List;
+import java.security.SecureRandom;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_CAPACITY;
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_RATE_BY_MOB_GEN_COUNT;
+import static com.dori.SpringStory.constants.ServerConstants.*;
 
 @Data
 @AllArgsConstructor
@@ -30,6 +31,8 @@ public class Field extends MapData {
     private Map<Integer, MapleChar> players = new ConcurrentHashMap<>();
     private Map<Integer, Npc> npcs = new ConcurrentHashMap<>();
     private Map<Integer, Mob> mobs = new ConcurrentHashMap<>();
+    private Map<Integer, Drop> drops = new ConcurrentHashMap<>();
+    private Queue<Integer> objIdAllocator = new ArrayBlockingQueue<>(MAX_OBJECT_ID_ALLOCATED_TO_FIELD);
     private long creationTime;
 
     public Field(int id) {
@@ -71,7 +74,9 @@ public class Field extends MapData {
         for (Portal portal : mapData.getPortals()) {
             this.addPortal(portal.deepCopy());
         }
-        for (Life life : mapData.getLifes().values()) {
+        // init the Object allocator -
+        initObjIdAllocated();
+        for (Life life : mapData.getLifes()) {
             if (life.getLifeType().equalsIgnoreCase("n")) {
                 this.addNPC(new Npc(life));
             } else if (life.getLifeType().equalsIgnoreCase("m")) {
@@ -83,11 +88,22 @@ public class Field extends MapData {
                     this.addMob(mob);
                 }
             } else {
-                this.addLife(life.deepCopy());
+                //TODO: see what lifes i've missed
+                //this.addLife(life.deepCopy());
             }
         }
         this.dropsDisabled = mapData.isDropsDisabled();
         this.creationTime = System.currentTimeMillis();
+    }
+
+    public void initObjIdAllocated() {
+        for (int i = 1; i <= MAX_OBJECT_ID_ALLOCATED_TO_FIELD; i++) {
+            objIdAllocator.add(i);
+        }
+    }
+
+    protected Integer generateObjID(){
+        return objIdAllocator.poll();
     }
 
     public Portal getPortalByName(String name) {
@@ -112,7 +128,7 @@ public class Field extends MapData {
     }
 
     public void addNPC(Npc npc) {
-        if (npc.getObjectId() < 0) {
+        if (npc.getObjectId() <= 0) {
             Integer newObjID = generateObjID();
             if (newObjID != null) {
                 npc.setObjectId(newObjID);
@@ -125,7 +141,7 @@ public class Field extends MapData {
     }
 
     public void addMob(Mob mob) {
-        if (mob.getObjectId() < 0) {
+        if (mob.getObjectId() <= 0) {
             Integer newObjID = generateObjID();
             if (newObjID != null) {
                 mob.setObjectId(newObjID);
@@ -167,6 +183,8 @@ public class Field extends MapData {
         Mob mob = getMobs().get(objId);
         if (mob != null) {
             getMobs().remove(mob.getObjectId());
+            // return the allocated objectId -
+            objIdAllocator.add(mob.getObjectId());
         }
     }
 
