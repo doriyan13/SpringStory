@@ -23,6 +23,8 @@ public enum OutHeader {
     CheckDuplicatedIDResult(13),
     CreateNewCharacterResult(14),
     DeleteCharacterResult(15),
+    // CClientSocket::OnPacket -
+    MigrateCommand(16),
     EnableSPWResult(21),
     LatestConnectedWorld(24),
     RecommendWorldMessage(25),

@@ -183,9 +183,9 @@ public interface CLogin {
         return outPacket;
     }
 
-    static OutPacket onSelectCharacterResult(byte[] machineID, int port, int characterID) {
+    static OutPacket onSelectCharacterResult(LoginType loginType, byte[] machineID, int port, int characterID) {
         OutPacket outPacket = new OutPacket(SelectCharacterResult);
-        outPacket.encodeByte(0); // World
+        outPacket.encodeByte(loginType.getValue()); // Login Type
         outPacket.encodeByte(0); // dwCharacterID | Selected Char
         outPacket.encodeArr(machineID);
         outPacket.encodeShort(port);

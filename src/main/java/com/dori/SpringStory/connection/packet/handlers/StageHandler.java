@@ -6,7 +6,6 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.headers.InHeader;
-import com.dori.SpringStory.connection.packet.packets.CStage;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.ServiceManager;
@@ -25,7 +24,7 @@ public class StageHandler {
     @Handler(op = MigrateIn)
     public static void handleMigrateIn(MapleClient c, InPacket inPacket) {
         int playerID = inPacket.decodeInt();
-        byte adminClient = inPacket.decodeByte();
+        inPacket.decodeByte(); // adminClient
         Optional<?> entity = ServiceManager.getService(ServiceType.Character).getEntityById((long) playerID);
         if (entity.isPresent() && entity.get() instanceof MapleChar chr) { // init the chr instance cast inline
             chr.setMapleClient(c);
@@ -34,22 +33,13 @@ public class StageHandler {
             // Handle adding a new user online -
             Server.addNewOnlineUser(chr, c);
             // Set the field for the character to spawn in -
-            c.write(CStage.onSetField(c.getChr(), (Field) null, (short) 0, (int) c.getChannel(),
-                    0, true, (byte) 1, (short) 0,
-                    "", new String[]{""}));
             Field field = c.getMapleChannelInstance().getField(chr.getMapId());
             if (field != null) {
                 Portal currPortal = field.getPortalByName("sp");
                 // Set char position in field -
                 c.getChr().setPosition(new Position(currPortal.getPosition().getX(), currPortal.getPosition().getY()));
                 // Add player to the field -
-                field.addPlayer(chr);
-                // Ref the field straight to the player (easier management)
-                chr.setField(field);
-                // Spawn lifes for the client -
-                field.spawnLifesForCharacter(chr);
-                // Assign Controllers For life -
-                field.assignControllerToMobs(chr);
+                field.addPlayer(chr, true);
                 //TODO: need to handle controller for npcs!!
             } else {
                 logger.error("got un-valid mapID for a char that cause a null field!, closing session for: " + chr.getName());
@@ -67,8 +57,8 @@ public class StageHandler {
             logger.warning("currently not handled!");
             c.close();
         }
-        byte fieldKey = inPacket.decodeByte(); // 1 = from dying 0 = regular portals
-        int targetField = inPacket.decodeInt();
+        inPacket.decodeByte(); // fieldKey | 1 = from dying 0 = regular portals
+        inPacket.decodeInt(); // targetField
         String portalName = inPacket.decodeString();
         MapleChar chr = c.getChr();
         Portal currentPortal = chr.getField().getPortalByName(portalName);
@@ -83,10 +73,10 @@ public class StageHandler {
             if (currentPortal.getTargetMapId() == 999999999) {
                 chr.warp(chr.getField(), currentPortal);
             } else if (field != null) {
-                Position position = inPacket.decodePosition(); // short, short
-                byte townPortal = inPacket.decodeByte();
-                boolean premium = inPacket.decodeBool();
-                byte chase = inPacket.decodeByte();
+                inPacket.decodePosition(); // position | short, short
+                inPacket.decodeByte(); // townPortal
+                inPacket.decodeBool(); // premium
+                inPacket.decodeByte(); // chase
                 // Update the field and chr instances & warp -
                 Portal targetPortal = field.getPortalByName(currentPortal.getTargetPortalName());
                 chr.warp(field, targetPortal != null ? targetPortal : chr.getField().findDefaultPortal());

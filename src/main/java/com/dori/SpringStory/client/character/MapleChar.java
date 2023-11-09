@@ -4,10 +4,10 @@ import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ValidateChrTempStatsEvent;
 import com.dori.SpringStory.jobs.JobHandler;
+import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
 import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
-import com.dori.SpringStory.connection.packet.packets.CStage;
 import com.dori.SpringStory.connection.packet.packets.CUserLocal;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.enums.*;
@@ -223,8 +223,8 @@ public class MapleChar {
 
     public int getStat(Stat stat) {
         return switch (stat) {
-            case MaxHp -> getMaxHp() + (getMaxHp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_HP) / 100);
-            case MaxMp -> getMaxMp() + (getMaxMp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_MP) / 100);
+            case MaxHp -> getMaxHp() + (getMaxHp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_HP) / 100) + (getMaxHp() * getTsm().getCTS(CharacterTemporaryStat.MaxHp) / 100);
+            case MaxMp -> getMaxMp() + (getMaxMp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_MP) / 100) + (getMaxMp() * getTsm().getCTS(CharacterTemporaryStat.MaxMp) / 100);
             default -> 0;
         };
     }
@@ -373,7 +373,7 @@ public class MapleChar {
 
     private void encodeAdminShopCount(OutPacket outPacket) {
         outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME)); // extra pendant slot ?
-        //outPacket.encodeInt(0); // aEquipExtExpire[0].dwHighDateTime
+        //outPacket.encodeInt(0); // aEquipExtExpire[0].dwHighDateTime -> not exist?
     }
 
     private void encodeEquipments(OutPacket outPacket) {
@@ -535,22 +535,12 @@ public class MapleChar {
     public void warp(Field to, Portal targetPortal) {
         // Update the char instance in both the old and new map -
         getField().removePlayer(this);
-        to.addPlayer(this);
-        // Update for the char instance the field data -
-        this.setField(to);
-        this.setMapId(to.getId());
         // Update the position -
         this.setPosition(targetPortal.getPosition());
         // Update the portal ID of the instance -
         this.setPortalId(targetPortal.getId());
-        // Set the field for the character to spawn in -
-        write(CStage.onSetField(this, field, (short) 0, (int) getMapleClient().getChannel(),
-                0, false, (byte) 1, (short) 0,
-                "", new String[]{""}));
-        // Spawn lifes for the client -
-        field.spawnLifesForCharacter(this);
-        // Assign Controllers For life -
-        field.assignControllerToMobs(this);
+        // Add to the new Field -
+        to.addPlayer(this, false);
     }
 
     public Inventory getInventoryByType(InventoryType invType) {

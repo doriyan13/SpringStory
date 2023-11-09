@@ -231,7 +231,7 @@ public class AdminCommands {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = Math.min(desiredAmount, GameConstants.MAX_HP);
                 chr.setMaxHp(finalAmount);
-                chr.updateStat(Stat.Hp, finalAmount);
+                chr.updateStat(Stat.MaxHp, finalAmount);
                 chr.message("Update Max HP to: " + finalAmount, ChatType.GameDesc);
             }
         }
@@ -245,7 +245,7 @@ public class AdminCommands {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = Math.min(desiredAmount, GameConstants.MAX_MP);
                 chr.setMaxHp(finalAmount);
-                chr.updateStat(Stat.Mp, finalAmount);
+                chr.updateStat(Stat.MaxMp, finalAmount);
                 chr.message("Update Max MP to: " + finalAmount, ChatType.GameDesc);
             }
         }

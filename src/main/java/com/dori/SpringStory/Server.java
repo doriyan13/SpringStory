@@ -153,8 +153,9 @@ public class Server {
         }
     }
 
-    public static void migrateInNewUser(int accountID, MigrateInUser migrateInUser) {
-        migrateUsers.put(accountID, migrateInUser);
+    public static void migrateInNewUser(MapleClient client) {
+        MigrateInUser migrateInUser = new MigrateInUser(client.getAccount(), client.getMapleChannelInstance(), client.getWorldId(), client.getMachineID());
+        migrateUsers.put(client.getAccount().getId(), migrateInUser);
     }
 
     public static void addNewOnlineUser(MapleChar chr, MapleClient client) {
@@ -171,6 +172,8 @@ public class Server {
             client.getMapleChannelInstance().addChar(chr);
             // Set the char to be the client character instance -
             client.setChr(chr);
+            // Verify the chr have the link to the updated client -
+            chr.setMapleClient(client);
             // Remove from the list of users that need to migrate -
             migrateUsers.remove(chr.getId());
             // Add to the list of connected clients -

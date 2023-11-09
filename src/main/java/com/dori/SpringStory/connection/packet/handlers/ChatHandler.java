@@ -87,7 +87,7 @@ public class ChatHandler {
     @Handler(op = UserChat)
     public static void handleUserChat(MapleClient c, InPacket inPacket) {
         // CField::SendChatMsg
-        int updateTime = inPacket.decodeInt();
+        inPacket.decodeInt(); // updateTime
         String msg = inPacket.decodeString();
         boolean isOnlyBalloon = !inPacket.decodeBool();
 

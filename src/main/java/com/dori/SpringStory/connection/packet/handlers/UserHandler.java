@@ -1,5 +1,6 @@
 package com.dori.SpringStory.connection.packet.handlers;
 
+import com.dori.SpringStory.Server;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.client.character.Skill;
@@ -7,6 +8,7 @@ import com.dori.SpringStory.client.character.attack.AttackInfo;
 import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.headers.InHeader;
+import com.dori.SpringStory.connection.packet.packets.CStage;
 import com.dori.SpringStory.connection.packet.packets.CUserRemote;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
@@ -17,6 +19,8 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.JobUtils;
 import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
+import com.dori.SpringStory.world.MapleChannel;
+import com.dori.SpringStory.world.MigrateInUser;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
@@ -203,5 +207,14 @@ public class UserHandler {
         }
         // Handle the skill cts -
         chr.handleSkill(skillID, slv);
+    }
+
+    @Handler(op = UserTransferChannelRequest)
+    public static void handleUserTransferChannelRequest(MapleClient c, InPacket inPacket) {
+        byte channelID = (byte) (inPacket.decodeByte() + 1); // the channel number here is always -1 then the intended number
+        MapleChannel targetChannel = Server.getWorldById(c.getWorldId()).getChannelById(channelID);
+        if (targetChannel != null) {
+            c.changeChannel(targetChannel);
+        }
     }
 }

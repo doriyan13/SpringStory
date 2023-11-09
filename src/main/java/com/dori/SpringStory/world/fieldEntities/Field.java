@@ -1,9 +1,12 @@
 package com.dori.SpringStory.world.fieldEntities;
 
+import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.connection.packet.packets.CClientSocket;
 import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.connection.packet.packets.CNpcPool;
+import com.dori.SpringStory.connection.packet.packets.CStage;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
@@ -82,7 +85,7 @@ public class Field extends MapData {
             } else if (life.getLifeType().equalsIgnoreCase("m")) {
                 Mob mob = new Mob(life);
                 MobData mobData = MobDataHandler.getMobDataByID(life.getTemplateId());
-                if(mobData != null){
+                if (mobData != null) {
                     mob.applyMobData(mobData);
                     mob.setRespawnable(true);
                     this.addMob(mob);
@@ -102,7 +105,7 @@ public class Field extends MapData {
         }
     }
 
-    protected Integer generateObjID(){
+    protected Integer generateObjID() {
         return objIdAllocator.poll();
     }
 
@@ -119,8 +122,25 @@ public class Field extends MapData {
         return portal != null ? portal : getPortalByID(0);
     }
 
-    public void addPlayer(MapleChar chr) {
+    public void addPlayer(MapleChar chr, boolean characterData) {
+        boolean firstPlayerInField = players.isEmpty();
+        MapleClient c = chr.getMapleClient();
+        // Add player to the field -
         players.putIfAbsent(chr.getId(), chr);
+        // Update for the char instance the field data -
+        chr.setField(this);
+        chr.setMapId(getId());
+        c.write(CStage.onSetField(c.getChr(), c.getChr().getField(), (short) 0, c.getChannel(),
+                0, characterData, (byte) 1, (short) 0,
+                "", new String[]{""}));
+        if (firstPlayerInField) {
+            // Spawn lifes for the client -
+            this.spawnLifesForCharacter(chr);
+            // Assign Controllers For life -
+            this.assignControllerToMobs(chr);
+        }
+        // Apply the chr temporary stats -
+        chr.applyTemporaryStats();
     }
 
     public void removePlayer(MapleChar chr) {
@@ -172,7 +192,7 @@ public class Field extends MapData {
         });
     }
 
-    public void spawnMob(Mob mob, MapleChar chr){
+    public void spawnMob(Mob mob, MapleChar chr) {
         addMob(mob);
         chr.write(CMobPool.mobEnterField(mob));
         mob.setController(chr);

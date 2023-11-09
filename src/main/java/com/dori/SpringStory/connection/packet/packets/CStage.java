@@ -12,7 +12,7 @@ import java.security.SecureRandom;
 public interface CStage {
     static OutPacket onSetField(MapleChar chr, Field field, short optNum,
                                 int channelId, int oldDriverID, boolean characterData,
-                                byte sNotifierMessage, short nNotifierCheck, String pChatBlockReason, String[] sMsg2){
+                                byte sNotifierMessage, short nNotifierCheck, String pChatBlockReason, String[] sMsg2) {
         OutPacket outPacket = new OutPacket(OutHeader.SetField);
 
         outPacket.encodeShort(optNum);
@@ -25,13 +25,13 @@ public interface CStage {
         outPacket.encodeByte(sNotifierMessage);
         outPacket.encodeByte(characterData);
         outPacket.encodeShort(nNotifierCheck);
-        if(nNotifierCheck > 0){
+        if (nNotifierCheck > 0) {
             outPacket.encodeString(pChatBlockReason);
             for (int j = 0; j < nNotifierCheck; j++) {
                 outPacket.encodeString(sMsg2[j]);
             }
         }
-        if(characterData){
+        if (characterData) {
             // Calc dmg - (need to generate 3 random ints) , TODO: need to redo this or just keep it at zero and have the same dmg calc for server and client :D
             SecureRandom rand = new SecureRandom();
             for (int z = 0; z < 3; z++) {
@@ -45,14 +45,13 @@ public interface CStage {
             outPacket.encodeInt(0);
             outPacket.encodeInt(0);
             outPacket.encodeInt(0);
-        }
-        else {
+        } else {
             outPacket.encodeByte(0); // usingBuffProtector
             outPacket.encodeInt(field.getId());
             outPacket.encodeByte(chr.getPortalId()); // portal
             outPacket.encodeInt(chr.getHp()); // char hp
             outPacket.encodeBool(false); // Chasing?
-            if(false){
+            if (false) {
                 outPacket.encodeInt(0);
                 outPacket.encodeInt(0);
             }

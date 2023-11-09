@@ -74,12 +74,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
         logger.debug("Channel inactive.");
         MapleClient c = (MapleClient) ctx.channel().attr(CLIENT_KEY).get();
         if (c != null && c.getChr() != null) {
-            MapleChar chr = c.getChr();
-            // Remove the character from the list of online characters -
-            chr.getMapleClient().getMapleChannelInstance().removeChar(chr);
-            ((MapleCharService)ServiceManager.getService(ServiceType.Character)).update((long) chr.getId(), chr);
-            // Remove client from list of connected clients -
-            Server.removeClient(c);
+            c.logout();
         }
         else {
             logger.warning("Was not able to save character, data inconsistency may have occurred.");

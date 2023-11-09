@@ -174,16 +174,17 @@ public class LoginHandler {
         int characterID = inPacket.decodeInt();
         String hwID = inPacket.decodeString(); // hardware id
         String macID = inPacket.decodeString(); // machine id
+        byte[] clientMachineID = new byte[0];
         try {
-            byte[] clientMachineID = InetAddress.getByName(ServerConstants.HOST_IP).getAddress(); // for normal maple (not local host i need to give the original maple IP: 63.251.217.1)
+            clientMachineID = InetAddress.getByName(ServerConstants.HOST_IP).getAddress(); // for normal maple (not local host i need to give the original maple IP: 63.251.217.1)
             c.setMachineID(clientMachineID);
             // Add Migrate in user for the server instance - (preparing for MigrateIn of a chosen character)
-            MigrateInUser migrateInUser = new MigrateInUser(c.getAccount(), c.getMapleChannelInstance(), c.getWorldId(), c.getMachineID());
-            Server.migrateInNewUser(c.getAccount().getId(), migrateInUser);
+            Server.migrateInNewUser(c);
             // Send character select result -
-            c.write(CLogin.onSelectCharacterResult(clientMachineID, c.getMapleChannelInstance().getPort(), characterID));
+            c.write(CLogin.onSelectCharacterResult(LoginType.Success, clientMachineID, c.getMapleChannelInstance().getPort(), characterID));
         } catch (Exception e) {
             logger.error("The server host IP is unknown?");
+            c.write(CLogin.onSelectCharacterResult(LoginType.AlreadyConnected, clientMachineID, c.getMapleChannelInstance().getPort(), characterID));
             e.printStackTrace();
             c.close();
         }

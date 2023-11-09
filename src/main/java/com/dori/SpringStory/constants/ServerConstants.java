@@ -16,7 +16,7 @@ public interface ServerConstants {
     byte LOCALE = 8;
     // Maple World stuff -
     byte DEFAULT_WORLD_ID = 0; //1- Bera | 0 - Scania
-    int CHANNELS_PER_WORLD = 1;
+    int CHANNELS_PER_WORLD = 2;
     int WORLD_EVENT_EXP_WSE = 100;
     int WORLD_EVENT_DROP_WSE = 100;
     String WORLD_NAME = "Dori";
