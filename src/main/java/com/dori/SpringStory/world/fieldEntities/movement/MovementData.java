@@ -55,6 +55,7 @@ public class MovementData implements Encodable {
         outPacket.encodePosition(oldVPos);
         outPacket.encodeByte(movements.size());
         for(Movement m : movements) {
+            outPacket.encodeByte(m.getAttr().getVal());
             m.encode(outPacket);
         }
     }
@@ -63,6 +64,7 @@ public class MovementData implements Encodable {
         List<Movement> movements = new ArrayList<>();
         byte size = inPacket.decodeByte();
         for (int i = 0; i < size; i++) {
+            // TODO: change implementation to static final bytes, cuz it's very performance heavy rn!!!
             MovementPathAttr attr = MovementPathAttr.getElementByNum(inPacket.decodeByte());
             //  CMovePath::Decode -
             switch (attr) {

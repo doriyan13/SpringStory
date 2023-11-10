@@ -2,6 +2,7 @@ package com.dori.SpringStory.world.fieldEntities.movement;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.enums.MovementPathAttr;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Life;
 
@@ -30,4 +31,6 @@ public interface Movement {
     void applyTo(MapleChar chr);
 
     void applyTo(Life life);
+
+    MovementPathAttr getAttr();
 }

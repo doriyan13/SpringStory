@@ -24,7 +24,7 @@ public interface ServerConstants {
     String RECOMMEND_MSG = "I recommend this world to you";
     String[] WORLD_SELECT_BACKGROUND_IMAGES = {"effect","ghostShip","dragonRider","adventure","golden","signboard","dualBlade","201007","dual","visitors"};
     // Auto Login stuff - (security handle)
-    boolean AUTO_LOGIN = true;
+    boolean AUTO_LOGIN = false;
     String AUTO_LOGIN_USERNAME = "admin";
     String AUTO_LOGIN_PASSWORD = "admin";
     // Dir reading / reflection stuff -

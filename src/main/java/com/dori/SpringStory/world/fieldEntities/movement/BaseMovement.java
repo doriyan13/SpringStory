@@ -6,10 +6,6 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.MovementPathAttr;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import lombok.Data;
-
-/**
- * These classes + children/parents are basically the same as Mushy, credits to @MaxCloud.
- */
 @Data
 public abstract class BaseMovement implements Movement {
     protected byte command;
@@ -122,6 +118,11 @@ public abstract class BaseMovement implements Movement {
 
     public void setDuration(short duration) {
         this.elapse = duration;
+    }
+
+    @Override
+    public MovementPathAttr getAttr(){
+        return attr;
     }
 
     public void decode(InPacket inPacket){

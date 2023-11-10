@@ -133,9 +133,9 @@ public class Field extends MapData {
         c.write(CStage.onSetField(c.getChr(), c.getChr().getField(), (short) 0, c.getChannel(),
                 0, characterData, (byte) 1, (short) 0,
                 "", new String[]{""}));
+        // Spawn lifes for the client -
+        this.spawnLifesForCharacter(chr);
         if (firstPlayerInField) {
-            // Spawn lifes for the client -
-            this.spawnLifesForCharacter(chr);
             // Assign Controllers For life -
             this.assignControllerToMobs(chr);
         }
@@ -194,7 +194,7 @@ public class Field extends MapData {
 
     public void spawnMob(Mob mob, MapleChar chr) {
         addMob(mob);
-        chr.write(CMobPool.mobEnterField(mob));
+        getPlayers().values().forEach(player -> player.write(CMobPool.mobEnterField(mob)));
         mob.setController(chr);
         chr.write(CMobPool.mobChangeController(mob, MobControllerType.ActiveInit));
     }

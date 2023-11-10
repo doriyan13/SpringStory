@@ -541,7 +541,8 @@ public enum OutHeader {
 
 
     private static final List<OutHeader> spam = Arrays.asList(
-            MobCtrlAck
+            MobCtrlAck,
+            MobMove
     );
 
     private final short value;

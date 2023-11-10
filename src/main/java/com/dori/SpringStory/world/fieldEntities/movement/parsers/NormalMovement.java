@@ -10,9 +10,6 @@ import com.dori.SpringStory.world.fieldEntities.movement.BaseMovement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/**
- * These classes + children/parents are basically the same as Mushy, credits to @MaxCloud.
- */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class NormalMovement extends BaseMovement {

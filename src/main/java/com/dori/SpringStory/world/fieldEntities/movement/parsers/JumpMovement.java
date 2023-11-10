@@ -16,7 +16,7 @@ public class JumpMovement extends BaseMovement {
     public JumpMovement(InPacket inPacket, MovementPathAttr attr) {
         super();
         this.attr = attr;
-        position = inPacket.decodePosition();
+        vPosition = inPacket.decodePosition();
 
         super.decode(inPacket);
     }
@@ -30,13 +30,13 @@ public class JumpMovement extends BaseMovement {
 
     @Override
     public void applyTo(MapleChar chr) {
-        chr.setPosition(getPosition());
+        //TODO: chr.setPosition(getVPosition());
         chr.setMoveAction(getMoveAction());
     }
 
     @Override
     public void applyTo(Life life) {
-        life.setPosition(getPosition());
+        life.setVPosition(getVPosition());
         life.setMoveAction(getMoveAction());
     }
 }

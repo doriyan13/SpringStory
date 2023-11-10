@@ -43,6 +43,8 @@ public class MapleClient extends NettyClient {
         ((MapleCharService) ServiceManager.getService(ServiceType.Character)).update((long) chr.getId(), chr);
         // Remove client from list of connected clients -
         Server.removeClient(this);
+        // Remove player from field -
+        chr.getField().removePlayer(chr);
     }
 
     public void changeChannel(MapleChannel targetChannel) {
