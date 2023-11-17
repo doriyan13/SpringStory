@@ -491,4 +491,28 @@ public class MapleUtils {
             return null;
         }
     }
+
+    public static long concat(long a, long b) {
+        // Convert both the longs to string
+        String s1 = Long.toString(a);
+        String s2 = Long.toString(b);
+
+        // Concatenate both strings
+        String s = s1 + s2;
+
+        // Convert the concatenated string to long and return -
+        return Long.parseLong(s);
+    }
+
+    public static int concat(int a, int b) {
+        // Convert both the longs to string
+        String s1 = Integer.toString(a);
+        String s2 = Integer.toString(b);
+
+        // Concatenate both strings
+        String s = s1 + s2;
+
+        // Convert the concatenated string to long and return -
+        return Integer.parseInt(s);
+    }
 }

@@ -5,8 +5,8 @@ import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.enums.SkillStat;
 import com.dori.SpringStory.logger.Logger;
-import com.dori.SpringStory.wzHandlers.SkillDataHandler;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
+import com.dori.SpringStory.dataHandlers.SkillDataHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 import org.springframework.stereotype.Component;
 
 import static com.dori.SpringStory.enums.SkillStat.x;

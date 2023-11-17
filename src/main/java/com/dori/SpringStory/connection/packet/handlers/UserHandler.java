@@ -8,24 +8,21 @@ import com.dori.SpringStory.client.character.attack.AttackInfo;
 import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.headers.InHeader;
-import com.dori.SpringStory.connection.packet.packets.CStage;
 import com.dori.SpringStory.connection.packet.packets.CUserRemote;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.*;
-import com.dori.SpringStory.jobs.JobHandler;
 import com.dori.SpringStory.jobs.handlers.WarriorHandler;
-import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.JobUtils;
 import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.MapleChannel;
-import com.dori.SpringStory.world.MigrateInUser;
+import com.dori.SpringStory.world.fieldEntities.Drop;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
-import com.dori.SpringStory.wzHandlers.SkillDataHandler;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
+import com.dori.SpringStory.dataHandlers.SkillDataHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -216,5 +213,17 @@ public class UserHandler {
         if (targetChannel != null) {
             c.changeChannel(targetChannel);
         }
+    }
+
+    @Handler(op = UserDropMoneyRequest)
+    public static void handleUserDropMoneyRequest(MapleClient c, InPacket inPacket) {
+        MapleChar chr = c.getChr();
+        inPacket.decodeInt(); // timestamp
+        int mesoAmountToDrop = inPacket.decodeInt();
+        // Modify the meso quantity -
+        chr.modifyMeso(-mesoAmountToDrop);
+        // Drop the meso -
+        Drop drop = new Drop(mesoAmountToDrop);
+        chr.getField().spawnDrop(drop, chr.getPosition());
     }
 }

@@ -1,4 +1,4 @@
-package com.dori.SpringStory.wzHandlers.wzEntities;
+package com.dori.SpringStory.dataHandlers.dataEntities;
 
 import com.dori.SpringStory.enums.StringDataType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor

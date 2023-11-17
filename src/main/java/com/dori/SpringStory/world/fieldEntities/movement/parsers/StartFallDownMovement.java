@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class StartFallDownMovement extends BaseMovement {
-    public StartFallDownMovement(InPacket inPacket, MovementPathAttr attr) {
+    public StartFallDownMovement(InPacket inPacket, byte attr) {
         super();
         this.attr = attr;
         this.position = new Position(0, 0);

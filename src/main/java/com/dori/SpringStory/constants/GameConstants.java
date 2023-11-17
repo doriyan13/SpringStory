@@ -45,7 +45,10 @@ public interface GameConstants {
     int QUICK_SLOT_LENGTH = 7;
     // World -
     int EXP_RATE = 2;
+    float DROP_RATE = 1.0f;
+    float MESO_RATE = 1.0f;
     int DEFAULT_MOB_RESPAWN_DELAY = 10;
     // Drop -
     int DROP_HEIGHT = 100;
+    int DROP_DIFF = 25;
 }

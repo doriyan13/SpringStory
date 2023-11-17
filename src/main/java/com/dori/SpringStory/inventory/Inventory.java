@@ -101,7 +101,7 @@ public class Inventory {
     }
 
     public Item getItemByIndex(int bagIndex) {
-        int bagIndexAbsVal = Math.abs(bagIndex);
+        int bagIndexAbsVal = Math.abs(bagIndex) /*bagIndex < 0 ? (Math.abs(bagIndex) % 100) : Math.abs(bagIndex)*/;
         return getItems().stream().filter(item -> item.getBagIndex() == bagIndexAbsVal)
                 .findAny()
                 .orElse(null);

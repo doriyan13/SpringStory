@@ -1,4 +1,4 @@
-package com.dori.SpringStory.wzHandlers;
+package com.dori.SpringStory.dataHandlers;
 
 import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.constants.ServerConstants;
@@ -8,7 +8,7 @@ import com.dori.SpringStory.utils.JsonUtils;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.XMLApi;
 import com.dori.SpringStory.utils.utilEntities.Rect;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
+import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;

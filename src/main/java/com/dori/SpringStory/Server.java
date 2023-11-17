@@ -10,13 +10,14 @@ import com.dori.SpringStory.connection.netty.LoginAcceptor;
 import com.dori.SpringStory.connection.packet.handlers.ChatHandler;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.events.EventManager;
+import com.dori.SpringStory.dataHandlers.MobDropHandler;
 import com.dori.SpringStory.services.*;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.world.MapleChannel;
 import com.dori.SpringStory.world.MapleWorld;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.world.MigrateInUser;
-import com.dori.SpringStory.wzHandlers.*;
+import com.dori.SpringStory.dataHandlers.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -88,6 +89,8 @@ public class Server {
         executorService.submit(MobDataHandler::load);
         // Custom buffs load data -
         executorService.submit(BuffDataHandler::loadBuffsData);
+        // Load custom json data -
+        executorService.submit(MobDropHandler::loadJsonDrops);
         //TODO: next is  QUESTS
     }
 

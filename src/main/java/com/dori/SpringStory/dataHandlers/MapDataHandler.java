@@ -1,4 +1,4 @@
-package com.dori.SpringStory.wzHandlers;
+package com.dori.SpringStory.dataHandlers;
 
 import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.enums.FieldType;
@@ -10,16 +10,14 @@ import com.dori.SpringStory.utils.StringUtils;
 import com.dori.SpringStory.utils.XMLApi;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.*;
-import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
-import com.dori.SpringStory.wzHandlers.wzEntities.WorldMapData;
+import com.dori.SpringStory.dataHandlers.dataEntities.MapData;
+import com.dori.SpringStory.dataHandlers.dataEntities.WorldMapData;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.util.*;
 
 import static com.dori.SpringStory.constants.ServerConstants.*;

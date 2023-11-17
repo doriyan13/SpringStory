@@ -1,4 +1,4 @@
-package com.dori.SpringStory.wzHandlers.wzEntities;
+package com.dori.SpringStory.dataHandlers.dataEntities;
 
 import com.dori.SpringStory.world.fieldEntities.Foothold;
 import com.dori.SpringStory.world.fieldEntities.Life;
@@ -13,12 +13,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.security.SecureRandom;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import static com.dori.SpringStory.constants.ServerConstants.*;
 
 @Data
 @NoArgsConstructor

@@ -2,7 +2,7 @@ package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
+import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

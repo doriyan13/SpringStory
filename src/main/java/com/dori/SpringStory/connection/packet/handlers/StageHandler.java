@@ -39,7 +39,7 @@ public class StageHandler {
                 // Set char position in field -
                 c.getChr().setPosition(new Position(currPortal.getPosition().getX(), currPortal.getPosition().getY()));
                 // Add player to the field -
-                field.addPlayer(chr, true);
+                field.spawnPlayer(chr, true);
                 //TODO: need to handle controller for npcs!!
             } else {
                 logger.error("got un-valid mapID for a char that cause a null field!, closing session for: " + chr.getName());

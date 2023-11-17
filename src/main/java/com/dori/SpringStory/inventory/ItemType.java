@@ -1,7 +1,10 @@
 package com.dori.SpringStory.inventory;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
+@Getter
 public enum ItemType {
     EQUIP(0x01),
     BUNDLE(0x02),
@@ -16,10 +19,6 @@ public enum ItemType {
 
     ItemType(int val) {
         this((byte) val);
-    }
-
-    public byte getVal() {
-        return val;
     }
 
     public static ItemType getTypeById(int id) {

@@ -5,9 +5,8 @@ import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.EnchantStat;
-import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
-import com.dori.SpringStory.wzHandlers.wzEntities.EquipData;
+import com.dori.SpringStory.dataHandlers.dataEntities.EquipData;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,9 +24,7 @@ import java.util.Map;
 @Entity
 @Table(name = "equips")
 @PrimaryKeyJoinColumn(name = "dbItemId")
-public class Equip extends Item{
-
-    private long serialNumber;
+public class Equip extends Item {
     private int equipItemID;
     @Convert(converter = FileTimeConverter.class)
     private FileTime equippedDate = FileTime.fromType(FileTime.Type.PLAIN_ZERO);
@@ -112,6 +109,7 @@ public class Equip extends Item{
     public Equip(EquipData equipData) {
         this.itemId = equipData.getItemID();
         this.type = ItemType.EQUIP;
+        this.quantity = 1;
         this.iSlot = equipData.getISlot();
         this.vSlot = equipData.getVSlot();
         this.rLevel = equipData.getRLevel();
@@ -199,7 +197,7 @@ public class Equip extends Item{
         outPacket.encodeShort(0); // Socket 1
         outPacket.encodeShort(0); // Socket 2
         if (!isCash()) { // if serialNumber == 0 | literally the code in the client O.o
-            outPacket.encodeLong(getId()/*serialNumber*/); // liCashItemSN
+            outPacket.encodeLong(getId()); // liCashItemSN
         }
         outPacket.encodeLong(0); // ftEquipped
         outPacket.encodeInt(0); // nPrevBonusExpRate

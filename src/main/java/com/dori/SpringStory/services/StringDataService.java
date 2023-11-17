@@ -3,7 +3,7 @@ package com.dori.SpringStory.services;
 import com.dori.SpringStory.enums.StringDataType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.repositories.StringDataRepo;
-import com.dori.SpringStory.wzHandlers.wzEntities.StringData;
+import com.dori.SpringStory.dataHandlers.dataEntities.StringData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;

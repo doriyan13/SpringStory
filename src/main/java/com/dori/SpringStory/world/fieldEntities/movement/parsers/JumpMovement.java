@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class JumpMovement extends BaseMovement {
-    public JumpMovement(InPacket inPacket, MovementPathAttr attr) {
+    public JumpMovement(InPacket inPacket, byte attr) {
         super();
         this.attr = attr;
         vPosition = inPacket.decodePosition();

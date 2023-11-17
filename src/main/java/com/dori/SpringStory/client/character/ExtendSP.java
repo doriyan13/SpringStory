@@ -24,7 +24,7 @@ public class ExtendSP {
     private List<SPSet> spSet;
 
     public ExtendSP() {
-        this(0);
+        this(10);
     }
 
     public ExtendSP(int subJobs) {

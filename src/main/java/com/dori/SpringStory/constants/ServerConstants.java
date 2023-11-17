@@ -24,7 +24,7 @@ public interface ServerConstants {
     String RECOMMEND_MSG = "I recommend this world to you";
     String[] WORLD_SELECT_BACKGROUND_IMAGES = {"effect","ghostShip","dragonRider","adventure","golden","signboard","dualBlade","201007","dual","visitors"};
     // Auto Login stuff - (security handle)
-    boolean AUTO_LOGIN = false;
+    boolean AUTO_LOGIN = true;
     String AUTO_LOGIN_USERNAME = "admin";
     String AUTO_LOGIN_PASSWORD = "admin";
     // Dir reading / reflection stuff -
@@ -32,7 +32,7 @@ public interface ServerConstants {
     String HANDLERS_DIR = DIR + "/src/main/java/com/dori/SpringStory/connection/packet/handlers";
     String WZ_DIR = DIR + "/wz";
     // WZ reading stuff -
-    int AMOUNT_OF_LOADERS = 6;
+    int AMOUNT_OF_LOADERS = 7;
     int MAX_LOADING_TIME_IN_MIN = 1;
     boolean PRINT_WZ_UNK = System.getenv("PRINT_WZ_UNK") != null && Boolean.getBoolean(System.getenv("PRINT_WZ_UNK"));
     String MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/Map";
@@ -60,6 +60,8 @@ public interface ServerConstants {
     String MOB_JSON_DIR = JSON_DIR + "/Mob/";
     // Buffs Data -
     String BUFF_JSON_DIR = JSON_DIR + "/Buff/";
+    // Mob Drops -
+    String MOB_DROP_JSON_DIR = JSON_DIR + "/MobDrops/";
     // Life stuff -
     int MAX_RETRIES = 10_000;
     int MAX_OBJ_ID = 9_999_999;
@@ -68,4 +70,5 @@ public interface ServerConstants {
     String COMMANDS_DIR = DIR + "/src/main/java/com/dori/SpringStory/client/commands";
     // Field -
     int MAX_OBJECT_ID_ALLOCATED_TO_FIELD = 30_000;
+    int DROP_REMAIN_ON_GROUND_TIME = 120; // 2 minutes
 }

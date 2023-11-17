@@ -4,7 +4,6 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.Encodable;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.OutPacket;
-import com.dori.SpringStory.enums.MovementPathAttr;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Life;
@@ -13,6 +12,8 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.dori.SpringStory.enums.MovementPathAttr.*;
 
 @Data
 public class MovementData implements Encodable {
@@ -54,8 +55,8 @@ public class MovementData implements Encodable {
         outPacket.encodePosition(oldPos);
         outPacket.encodePosition(oldVPos);
         outPacket.encodeByte(movements.size());
-        for(Movement m : movements) {
-            outPacket.encodeByte(m.getAttr().getVal());
+        for (Movement m : movements) {
+            outPacket.encodeByte(m.getAttr());
             m.encode(outPacket);
         }
     }
@@ -64,25 +65,23 @@ public class MovementData implements Encodable {
         List<Movement> movements = new ArrayList<>();
         byte size = inPacket.decodeByte();
         for (int i = 0; i < size; i++) {
-            // TODO: change implementation to static final bytes, cuz it's very performance heavy rn!!!
-            MovementPathAttr attr = MovementPathAttr.getElementByNum(inPacket.decodeByte());
+            byte attr = inPacket.decodeByte();
             //  CMovePath::Decode -
             switch (attr) {
-                case Normal, HangOnBack, FallDown, Wings, MobAtkRush, MobAtkRushStop
-                        -> movements.add(new NormalMovement(inPacket,attr));
-                case Jump, Impact, StartWings, MobToss, DashSlide, MobLadder,
-                        MobRightAngle, MobStopNodeStart, MobBeforeNode
-                        -> movements.add(new JumpMovement(inPacket,attr));
-                case FlashJump, RocketBooster, BackStepShot, MobPowerKnockBack,
-                        VerticalJump, CustomImpact, CombatStep, Hit, TimeBombAtk,
-                        SnowBallTouch, BuffZoneEffect
-                        -> movements.add(new ActionMovement(inPacket,attr));
-                case Immediate, Teleport, Assaulter, Assassination, Rush, SitDown
-                        -> movements.add(new TeleportMovement(inPacket,attr));
-                case StatChange -> movements.add(new StatChangeMovement(inPacket,attr));
-                case StartFallDown -> movements.add(new StartFallDownMovement(inPacket,attr));
-                case FlyingBlock -> movements.add(new FlyingBlockMovement(inPacket,attr));
-                default -> logger.warning("Movement not handled: " + attr.getVal());
+                case NORMAL, HANG_ON_BACK, FALL_DOWN, WINGS, MOB_ATK_RUSH, MOB_ATK_RUSH_STOP ->
+                        movements.add(new NormalMovement(inPacket, attr));
+                case JUMP, IMPACT, START_WINGS, MOB_TOSS, DASH_SLIDE, MOB_LADDER,
+                        MOB_RIGHT_ANGLE, MOB_STOP_NODE_START, MOB_BEFORE_NODE ->
+                        movements.add(new JumpMovement(inPacket, attr));
+                case FLASH_JUMP, ROCKET_BOOSTER, BACK_STEP_SHOT, MOB_POWER_KNOCK_BACK,
+                        VERTICAL_JUMP, CUSTOM_IMPACT, COMBAT_STEP, HIT, TIME_BOMB_ATK,
+                        SNOW_BALL_TOUCH, BUFF_ZONE_EFFECT -> movements.add(new ActionMovement(inPacket, attr));
+                case IMMEDIATE, TELEPORT, ASSAULTER, ASSASSINATION, RUSH, SIT_DOWN ->
+                        movements.add(new TeleportMovement(inPacket, attr));
+                case STAT_CHANGE -> movements.add(new StatChangeMovement(inPacket, attr));
+                case START_FALL_DOWN -> movements.add(new StartFallDownMovement(inPacket, attr));
+                case FLYING_BLOCK -> movements.add(new FlyingBlockMovement(inPacket, attr));
+                default -> logger.warning("Movement not handled: " + attr);
             }
         }
         return movements;

@@ -5,7 +5,7 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.InventoryType;
 import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
-import com.dori.SpringStory.wzHandlers.wzEntities.ItemData;
+import com.dori.SpringStory.dataHandlers.dataEntities.ItemData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,7 +27,6 @@ public class Item {
     private long id;
     protected int itemId;
     protected int bagIndex;
-    protected long cashItemSerialNumber;
     @Convert(converter = FileTimeConverter.class)
     protected FileTime dateExpire = FileTime.fromType(FileTime.Type.MAX_TIME);
     @Enumerated(EnumType.ORDINAL)
@@ -39,12 +38,12 @@ public class Item {
     protected boolean cash;
     protected int quantity;
     protected String owner = "";
+    protected long serialNumber;
 
     public Item(int itemId, int bagIndex, long cashItemSerialNumber, FileTime dateExpire, InventoryType invType,
                 boolean cash, ItemType type) {
         this.itemId = itemId;
         this.bagIndex = bagIndex;
-        this.cashItemSerialNumber = cashItemSerialNumber;
         this.dateExpire = dateExpire;
         this.invType = invType;
         this.cash = cash;
@@ -64,7 +63,7 @@ public class Item {
         outPacket.encodeInt(getItemId());
         outPacket.encodeByte(isCash());
         if (isCash()) {
-            outPacket.encodeLong(getId());
+            outPacket.encodeLong(getSerialNumber());
         }
         outPacket.encodeFT(getDateExpire());
     }

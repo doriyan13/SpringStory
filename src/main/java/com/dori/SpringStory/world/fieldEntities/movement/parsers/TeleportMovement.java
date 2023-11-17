@@ -3,13 +3,12 @@ package com.dori.SpringStory.world.fieldEntities.movement.parsers;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.OutPacket;
-import com.dori.SpringStory.enums.MovementPathAttr;
 import com.dori.SpringStory.world.fieldEntities.Life;
 import com.dori.SpringStory.world.fieldEntities.movement.BaseMovement;
 
 
 public class TeleportMovement extends BaseMovement {
-    public TeleportMovement(InPacket inPacket, MovementPathAttr attr) {
+    public TeleportMovement(InPacket inPacket, byte attr) {
         super();
         this.attr = attr;
         position = inPacket.decodePosition();

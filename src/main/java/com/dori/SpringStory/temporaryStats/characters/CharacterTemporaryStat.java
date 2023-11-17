@@ -18,7 +18,7 @@ public enum CharacterTemporaryStat {
     Speed(7),
     Jump(8),
     MagicGuard(9),
-    DarkSight(10),
+    DarkSight(10), // dark-sight && hide skill
     Booster(11),
     PowerGuard(12),
     MaxHp(13),

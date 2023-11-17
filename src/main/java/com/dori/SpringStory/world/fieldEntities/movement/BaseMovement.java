@@ -20,7 +20,7 @@ public abstract class BaseMovement implements Movement {
     protected Position position;
     protected Position vPosition;
     protected Position offset;
-    protected MovementPathAttr attr = MovementPathAttr.None;
+    protected byte attr = MovementPathAttr.NONE;
 
     @Override
     public byte getCommand() {
@@ -43,10 +43,6 @@ public abstract class BaseMovement implements Movement {
     @Override
     public byte getForcedStop() {
         return forcedStop;
-    }
-
-    public void setForcedStop(byte forcedStop) {
-        this.forcedStop = forcedStop;
     }
 
     @Override
@@ -72,18 +68,6 @@ public abstract class BaseMovement implements Movement {
         return footStart;
     }
 
-    public void setFhFootStart(short footStart) {
-        this.footStart = footStart;
-    }
-
-    public short getElapse() {
-        return elapse;
-    }
-
-    public void setElapse(short elapse) {
-        this.elapse = elapse;
-    }
-
     @Override
     public Position getPosition() {
         return position;
@@ -98,17 +82,9 @@ public abstract class BaseMovement implements Movement {
         return vPosition;
     }
 
-    public void setVPosition(Position vPosition) {
-        this.vPosition = vPosition;
-    }
-
     @Override
     public Position getOffset() {
         return offset;
-    }
-
-    public void setOffset(Position offset) {
-        this.offset = offset;
     }
 
     @Override
@@ -121,7 +97,7 @@ public abstract class BaseMovement implements Movement {
     }
 
     @Override
-    public MovementPathAttr getAttr(){
+    public byte getAttr(){
         return attr;
     }
 

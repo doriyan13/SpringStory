@@ -4,7 +4,7 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.jobs.handlers.WarriorHandler;
 import com.dori.SpringStory.logger.Logger;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
+import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 
 public interface JobHandler {
 

@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class FlyingBlockMovement extends BaseMovement {
-    public FlyingBlockMovement(InPacket inPacket, MovementPathAttr attr) {
+    public FlyingBlockMovement(InPacket inPacket, byte attr) {
         super();
         this.attr = attr;
         position = inPacket.decodePosition();

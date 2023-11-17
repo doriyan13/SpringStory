@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class StatChangeMovement extends BaseMovement {
-    public StatChangeMovement(InPacket inPacket, MovementPathAttr attr) {
+    public StatChangeMovement(InPacket inPacket, byte attr) {
         super();
         this.attr = attr;
         this.position = new Position(0, 0);

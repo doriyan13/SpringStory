@@ -54,8 +54,6 @@ public class MapleClient extends NettyClient {
         setOldChannel(getChannel());
         setChannel((byte) targetChannel.getChannelId());
         setMapleChannelInstance(targetChannel);
-        // Update the char instance in both the old and new map -
-        chr.getField().removePlayer(chr);
         // Migrate chr -
         Server.migrateInNewUser(this);
         // Send Migrate to the client (reconnect to the new client and reset the client) -

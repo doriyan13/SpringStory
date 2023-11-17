@@ -10,7 +10,7 @@ import com.dori.SpringStory.services.MapleCharService;
 import com.dori.SpringStory.services.ServiceManager;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.world.fieldEntities.Field;
-import com.dori.SpringStory.wzHandlers.MapDataHandler;
+import com.dori.SpringStory.dataHandlers.MapDataHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

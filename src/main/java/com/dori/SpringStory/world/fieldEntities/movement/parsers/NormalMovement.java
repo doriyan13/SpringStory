@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class NormalMovement extends BaseMovement {
-    public NormalMovement(InPacket inPacket, MovementPathAttr attr) {
+    public NormalMovement(InPacket inPacket, byte attr) {
         super();
         this.attr = attr;
 
@@ -21,7 +21,7 @@ public class NormalMovement extends BaseMovement {
         vPosition = inPacket.decodePosition();
         fh = inPacket.decodeShort();
 
-        if(attr == MovementPathAttr.FallDown){
+        if(attr == MovementPathAttr.FALL_DOWN){
             footStart = inPacket.decodeShort();
         }
         offset = inPacket.decodePosition();
@@ -34,7 +34,7 @@ public class NormalMovement extends BaseMovement {
         outPacket.encodePosition(getPosition());
         outPacket.encodePosition(getVPosition());
         outPacket.encodeShort(getFh());
-        if (attr == MovementPathAttr.FallDown) {
+        if (attr == MovementPathAttr.FALL_DOWN) {
             outPacket.encodeShort(getFootStart());
         }
         outPacket.encodePosition(getOffset());

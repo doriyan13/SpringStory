@@ -264,6 +264,10 @@ public enum OutHeader {
     //TODO: need to fill all of them!
     AdminResult(160),
 
+    // CDropPool::OnPacket -
+    DropEnterField(322),
+    DropLeaveField(324),
+
     /*CHANGE_CHANNEL(16),
     ALIVE_REQ(17),
     CHANNEL_SELECTED(20),

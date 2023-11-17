@@ -1,4 +1,4 @@
-package com.dori.SpringStory.wzHandlers.wzEntities;
+package com.dori.SpringStory.dataHandlers.dataEntities;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

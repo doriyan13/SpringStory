@@ -3,21 +3,26 @@ package com.dori.SpringStory.world.fieldEntities;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
-import com.dori.SpringStory.connection.packet.packets.CClientSocket;
-import com.dori.SpringStory.connection.packet.packets.CMobPool;
-import com.dori.SpringStory.connection.packet.packets.CNpcPool;
-import com.dori.SpringStory.connection.packet.packets.CStage;
-import com.dori.SpringStory.enums.MobControllerType;
+import com.dori.SpringStory.connection.packet.packets.*;
+import com.dori.SpringStory.constants.GameConstants;
+import com.dori.SpringStory.dataHandlers.ItemDataHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.MobDropData;
+import com.dori.SpringStory.enums.*;
+import com.dori.SpringStory.events.EventManager;
+import com.dori.SpringStory.events.eventsHandlers.RemoveDropFromField;
+import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.utils.MapleUtils;
+import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
-import com.dori.SpringStory.wzHandlers.MobDataHandler;
-import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
-import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
+import com.dori.SpringStory.dataHandlers.MobDataHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.MapData;
+import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
 import lombok.*;
 
-import java.security.SecureRandom;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -101,7 +106,7 @@ public class Field extends MapData {
 
     public void initObjIdAllocated() {
         for (int i = 1; i <= MAX_OBJECT_ID_ALLOCATED_TO_FIELD; i++) {
-            objIdAllocator.add(i);
+            objIdAllocator.offer(i);
         }
     }
 
@@ -122,7 +127,14 @@ public class Field extends MapData {
         return portal != null ? portal : getPortalByID(0);
     }
 
-    public void addPlayer(MapleChar chr, boolean characterData) {
+    public Foothold getFootholdById(int fh) {
+        return getFootholds().stream()
+                .filter(f -> f.getId() == fh)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void spawnPlayer(MapleChar chr, boolean characterData) {
         boolean firstPlayerInField = players.isEmpty();
         MapleClient c = chr.getMapleClient();
         // Add player to the field -
@@ -147,7 +159,7 @@ public class Field extends MapData {
         players.remove(chr.getId());
     }
 
-    public void addNPC(Npc npc) {
+    private void addNPC(Npc npc) {
         if (npc.getObjectId() <= 0) {
             Integer newObjID = generateObjID();
             if (newObjID != null) {
@@ -175,11 +187,12 @@ public class Field extends MapData {
     }
 
     public void spawnLifesForCharacter(MapleChar chr) {
-        // TODO: Maybe need to refactor and rethink when to respawn npc/mobs? cuz if there is more then 1 player it can act weird
         // Spawn NPCs for the client -
         npcs.values().forEach(npc -> chr.write(CNpcPool.npcEnterField(npc)));
         // Spawn Mobs for the client -
         mobs.values().forEach(mob -> chr.write(CMobPool.mobEnterField(mob)));
+        // Spawn Drops for the client -
+        drops.values().forEach(drop -> chr.write(CDropPool.dropEnterField(drop, DropEnterType.INSTANT, DropOwnType.USER_OWN, drop.getOwnerID(), drop.getPosition(), (short) 0, true)));
     }
 
     public void assignControllerToMobs(MapleChar chr) {
@@ -204,7 +217,9 @@ public class Field extends MapData {
         if (mob != null) {
             getMobs().remove(mob.getObjectId());
             // return the allocated objectId -
-            objIdAllocator.add(mob.getObjectId());
+            objIdAllocator.offer(mob.getObjectId());
+            // broadcast the remove of the mob from the field -
+            broadcastPacket(CMobPool.mobLeaveField(objId));
         }
     }
 
@@ -222,6 +237,105 @@ public class Field extends MapData {
                         }
                     }
             );
+        }
+    }
+
+    private Drop generateDropByMobDropData(MobDropData dropData, int ownerID, float mesoRate) {
+        Drop drop = null;
+        if (!dropData.isMoney()) {
+            Item item = ItemDataHandler.getItemByID(dropData.getItemId());
+            if (item == null) {
+                item = ItemDataHandler.getEquipByID(dropData.getItemId());
+            }
+            if (item != null) {
+                drop = new Drop(dropData);
+                drop.setOwnerID(ownerID);
+            }
+        } else {
+            drop = new Drop(dropData);
+            drop.setOwnerID(ownerID);
+            if (dropData.isMoney()) {
+                drop.setQuantity((int) (drop.getQuantity() * ((100 + mesoRate) / 100D)));
+            }
+        }
+        return drop;
+    }
+
+    public void drop(Set<MobDropData> dropsData, int srcID, int ownerID, Foothold fh, Position position, float mesoRate, float dropRate) {
+        int x = position.getX();
+        int diff = 0;
+        int minX = position.getX();
+        int maxX = position.getX();
+        if (fh != null) {
+            minX = fh.getX1();
+            maxX = fh.getX2();
+        }
+        for (MobDropData dropData : dropsData) {
+            if (dropData.willDrop(dropRate) && dropData.getQuestId() == 0) {
+                x = (x + diff) > maxX ? maxX - 10 : (x + diff) < minX ? minX + 10 : x + diff;
+                Position toPos = (fh == null) ? position.deepCopy() : new Position(x, fh.findYFromX(x));
+                Drop drop = generateDropByMobDropData(dropData, ownerID, mesoRate);
+                if (drop != null) {
+                    diff = diff < 0 ? Math.abs(diff - GameConstants.DROP_DIFF) : -(diff + GameConstants.DROP_DIFF);
+                    spawnDrop(drop, srcID, toPos, true);
+                }
+            }
+        }
+    }
+
+    private void addDrop(Drop drop) {
+        if (drop.getId() <= 0) {
+            Integer newObjID = generateObjID();
+            if (newObjID != null) {
+                drop.setId(newObjID);
+            }
+        }
+        // Only if the object ID is valid add life to list -
+        if (drop.getId() != -1) {
+            drops.putIfAbsent(drop.getId(), drop);
+        }
+    }
+
+    public void spawnDrop(Drop drop, int srcID, Position srcPos, boolean isTradeableItem) {
+        short replay = 100;
+        addDrop(drop);
+        DropEnterType dropEnterType = DropEnterType.FLOATING;
+        if (!isTradeableItem) {
+            dropEnterType = DropEnterType.FADE_AWAY;
+        }
+        // Set the drop position -
+        int x = srcPos.getX();
+        int y = srcPos.getY();
+        Foothold fh = findFootHoldBelow(new Position(x, y - GameConstants.DROP_HEIGHT));
+        drop.setPosition(new Position(x, fh.findYFromX(x)));
+        // Set the fromPos -
+        Position fromPos = new Position(drop.getPosition());
+        fromPos.setY(fromPos.getY() - 20);
+
+        broadcastPacket(CDropPool.dropEnterField(drop, dropEnterType, DropOwnType.USER_OWN, srcID, fromPos, replay, true));
+        EventManager.addEvent(MapleUtils.concat(drop.getId(), (long) getId()), EventType.REMOVE_DROP_FROM_FIELD, new RemoveDropFromField(drop, this), DROP_REMAIN_ON_GROUND_TIME);
+    }
+
+    public void spawnDrop(Drop drop, Position fromPos) {
+        spawnDrop(drop, drop.getOwnerID(), fromPos, true);
+    }
+
+    public void removeDrop(int dropID, int pickupID, int petID) {
+        Drop dropToRemove = getDrops().get(dropID);
+        if (dropToRemove != null) {
+            getDrops().remove(dropToRemove.getId());
+            // Return the allocated objectId -
+            objIdAllocator.offer(dropToRemove.getId());
+            // Broadcast the remove of the drop from the field -
+            if (petID >= 0 || pickupID > 0) {
+                if (petID >= 0) {
+                    broadcastPacket(CDropPool.dropLeaveField(DropLeaveType.PET_PICKUP, pickupID, dropID, (short) 0, petID));
+                } else {
+                    broadcastPacket(CDropPool.dropLeaveField(DropLeaveType.USER_PICKUP, pickupID, dropID, (short) 0, 0));
+                }
+            } else {
+                broadcastPacket(CDropPool.dropLeaveField(DropLeaveType.TIME_OUT, pickupID, dropID, (short) 0, 0));
+            }
         }
     }
 }

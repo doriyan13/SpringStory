@@ -15,10 +15,10 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
-import com.dori.SpringStory.wzHandlers.MobDataHandler;
-import com.dori.SpringStory.wzHandlers.SkillDataHandler;
-import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
+import com.dori.SpringStory.dataHandlers.MobDataHandler;
+import com.dori.SpringStory.dataHandlers.SkillDataHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
+import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.Admin;
 

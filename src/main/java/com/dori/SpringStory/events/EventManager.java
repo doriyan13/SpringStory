@@ -15,11 +15,11 @@ public class EventManager {
     // Scheduler for the events -
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final ExecutorService worker = Executors.newVirtualThreadPerTaskExecutor();
-    private static final HashMap<Integer, HashMap<EventType, ScheduledFuture<?>>> events = new HashMap<>();
+    private static final HashMap<Long, HashMap<EventType, ScheduledFuture<?>>> events = new HashMap<>();
     // Logger -
     private static final Logger logger = new Logger(EventManager.class);
 
-    public static void addEvent(int eventID, EventType eventType, Runnable task, long delay) {
+    public static void addEvent(long eventID, EventType eventType, Runnable task, long delay) {
         events.putIfAbsent(eventID, new HashMap<>());
         if (events.get(eventID).containsKey(eventType)) {
             logger.warning("The event - " + eventID + " | " + eventType + " already in progress thus will be canceled and create a new!");
@@ -27,6 +27,13 @@ public class EventManager {
         }
         ScheduledFuture<?> event = scheduler.schedule(() -> worker.execute(task), delay, TimeUnit.SECONDS);
         events.get(eventID).put(eventType, event);
+    }
+
+    public static void cancelEvent(long eventID, EventType eventType) {
+        if (events.get(eventID) != null && events.get(eventID).containsKey(eventType)) {
+            logger.warning("Canceling the event - " + eventID + " | " + eventType);
+            events.get(eventID).get(eventType).cancel(false);
+        }
     }
 
     public static  Set<ScheduledFuture<?>> getAllActiveEvents() {

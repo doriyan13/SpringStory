@@ -6,18 +6,23 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CMobPool;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
-import com.dori.SpringStory.enums.EventType;
+import com.dori.SpringStory.dataHandlers.MobDropHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.MobDropData;
 import com.dori.SpringStory.enums.MobControllerType;
 import com.dori.SpringStory.enums.MobSummonType;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ReviveMobEvent;
 import com.dori.SpringStory.temporaryStats.mobs.MobTemporaryStat;
+import com.dori.SpringStory.utils.MapleUtils;
+import com.dori.SpringStory.world.fieldEntities.Field;
+import com.dori.SpringStory.world.fieldEntities.Foothold;
 import com.dori.SpringStory.world.fieldEntities.Life;
-import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
+import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_MOB_RESPAWN_DELAY;
@@ -166,6 +171,18 @@ public class Mob extends Life {
         getDamageDone().put(chrID, cur);
     }
 
+    public int getMostDamageDoneChr() {
+        int chrID = 0;
+        long mostDmg = 0;
+        for (Map.Entry<Integer, Long> player : getDamageDone().entrySet()) {
+            if (player.getValue() > mostDmg) {
+                chrID = player.getKey();
+                mostDmg = player.getValue();
+            }
+        }
+        return chrID;
+    }
+
     public void distributeExp() {
         int exp = getExp();
         long totalDamage = getDamageDone().values().stream().mapToLong(l -> l).sum();
@@ -182,12 +199,41 @@ public class Mob extends Life {
         });
     }
 
+    public void applyDrops() {
+        MapleChar mostDmgPlayer = getField().getPlayers().get(getMostDamageDoneChr());
+        // TODO: redo the handling for the new position, the calc rn is fucked!!
+        int fhID = getFh();
+        Foothold fhBelow = getField().findFootHoldBelow(getPosition());
+        if (fhID == 0) {
+            if (fhBelow != null) {
+                fhID = fhBelow.getId();
+            }
+        }
+        // DropRate & MesoRate Increases
+        float mostDamageCharDropRate = (mostDmgPlayer != null ? GameConstants.DROP_RATE : 0); // mostDmgPlayer.getTotalStat(BaseStat.dropR)
+        float mostDamageCharMesoRate = (mostDmgPlayer != null ? GameConstants.MESO_RATE : 0); // getMostDamageChar().getTotalStat(BaseStat.mesoR)
+        float dropRateMob = 0; //TODO: (getTemporaryStat().hasCurrentMobStat(MobStat.Treasure) ? getTemporaryStat().getCurrentOptionsByMobStat(MobStat.Treasure).yOption : 0); // Item Drop Rate
+        float mesoRateMob = 0; //TODO: (getTemporaryStat().hasCurrentMobStat(MobStat.Treasure) ? getTemporaryStat().getCurrentOptionsByMobStat(MobStat.Treasure).zOption : 0); // Meso Drop Rate
+        float totalMesoRate = mesoRateMob + mostDamageCharMesoRate;
+        float totalDropRate = dropRateMob + mostDamageCharDropRate;
+        // TODO: in the future add handling for cash items that modify the rates also! (drop coupon)
+        Set<MobDropData> dropsData = MobDropHandler.getDropsByMobID(getTemplateId());
+        // TODO: do proper calc for money by lvl of the mob!
+        MobDropData moneyByLvl = new MobDropData(getTemplateId(), (getLevel() * 10 * Math.min(Math.round(totalMesoRate), 1)));
+        dropsData.add(moneyByLvl);
+        if (!getField().isDropsDisabled()) {
+            int ownerID = mostDmgPlayer != null ? mostDmgPlayer.getId() : 0;
+            getField().drop(dropsData, getObjectId(), ownerID, getField().getFootholdById(fhID), getPosition(), totalMesoRate, totalDropRate);
+        }
+    }
+
     public void die(boolean drops) {
-        // Kill the Old Mob -
+        // Kill the Old Mob and broadcast it -
         getField().removeMob(getObjectId());
-        getField().broadcastPacket(CMobPool.mobLeaveField(getObjectId()));
         // Distribute exp -
         distributeExp();
+        // Drops -
+        applyDrops();
         // Clear the damaged Mob data -
         MapleChar chr = this.getController();
         this.setHp(getMaxHp());

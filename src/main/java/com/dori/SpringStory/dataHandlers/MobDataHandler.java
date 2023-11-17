@@ -1,4 +1,4 @@
-package com.dori.SpringStory.wzHandlers;
+package com.dori.SpringStory.dataHandlers;
 
 import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.logger.Logger;
@@ -7,7 +7,7 @@ import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.XMLApi;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.world.fieldEntities.mob.MobSkill;
-import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
+import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -76,7 +76,7 @@ public class MobDataHandler {
                     case "action" -> mobSkill.setAction(Byte.parseByte(skillNodeValue));
                     case "level" -> mobSkill.setLevel(Integer.parseInt(skillNodeValue));
                     case "effectAfter" -> {
-                        if (!skillNodeValue.equals("")) {
+                        if (!skillNodeValue.isEmpty()) {
                             mobSkill.setEffectAfter(Integer.parseInt(skillNodeValue));
                         }
                     }

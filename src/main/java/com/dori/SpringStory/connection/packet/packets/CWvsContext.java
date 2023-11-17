@@ -2,6 +2,7 @@ package com.dori.SpringStory.connection.packet.packets;
 
 import com.dori.SpringStory.client.character.ExtendSP;
 import com.dori.SpringStory.client.character.Skill;
+import com.dori.SpringStory.enums.PickupMessageType;
 import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.packet.OutPacket;
@@ -110,26 +111,26 @@ public interface CWvsContext {
         return outPacket;
     }
 
-    static OutPacket dropPickupMessage(int mesoAmountOrItemID, byte type, short internetCafeExtra, short quantity) {
+    static OutPacket dropPickupMessage(int mesoAmountOrItemID, PickupMessageType type, short internetCafeExtra, int quantity) {
         OutPacket outPacket = new OutPacket(OutHeader.Message);
 
         outPacket.encodeByte(DROP_PICK_UP_MESSAGE.getVal());
-        outPacket.encodeByte(type);
+        outPacket.encodeByte(type.getVal());
         switch (type) {
-            case 0 -> {
+            case ITEM_WITH_QUANTITY -> {
                 // Item pickup message -
                 outPacket.encodeInt(mesoAmountOrItemID);
                 outPacket.encodeInt(quantity);
             }
-            case 1 -> {
+            case MESO -> {
                 // Meso pickup message -
                 outPacket.encodeBool(false); // Portion was lost after falling to the ground
                 outPacket.encodeInt(mesoAmountOrItemID); // Meso amount
                 outPacket.encodeShort(internetCafeExtra); // Internet cafe
             }
-            case 2 -> {
-                // IDK?
-                outPacket.encodeInt(100);
+            case ITEM_WITHOUT_QUANTITY -> {
+                // item?
+                outPacket.encodeInt(mesoAmountOrItemID); // item ID?
             }
         }
 

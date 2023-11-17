@@ -24,10 +24,10 @@ import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Drop;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
-import com.dori.SpringStory.wzHandlers.ItemDataHandler;
-import com.dori.SpringStory.wzHandlers.SkillDataHandler;
-import com.dori.SpringStory.wzHandlers.wzEntities.ItemData;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
+import com.dori.SpringStory.dataHandlers.ItemDataHandler;
+import com.dori.SpringStory.dataHandlers.SkillDataHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.ItemData;
+import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -223,8 +223,10 @@ public class MapleChar {
 
     public int getStat(Stat stat) {
         return switch (stat) {
-            case MaxHp -> getMaxHp() + (getMaxHp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_HP) / 100) + (getMaxHp() * getTsm().getCTS(CharacterTemporaryStat.MaxHp) / 100);
-            case MaxMp -> getMaxMp() + (getMaxMp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_MP) / 100) + (getMaxMp() * getTsm().getCTS(CharacterTemporaryStat.MaxMp) / 100);
+            case MaxHp ->
+                    getMaxHp() + (getMaxHp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_HP) / 100) + (getMaxHp() * getTsm().getCTS(CharacterTemporaryStat.MaxHp) / 100);
+            case MaxMp ->
+                    getMaxMp() + (getMaxMp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_MP) / 100) + (getMaxMp() * getTsm().getCTS(CharacterTemporaryStat.MaxMp) / 100);
             default -> 0;
         };
     }
@@ -540,7 +542,7 @@ public class MapleChar {
         // Update the portal ID of the instance -
         this.setPortalId(targetPortal.getId());
         // Add to the new Field -
-        to.addPlayer(this, false);
+        to.spawnPlayer(this, false);
     }
 
     public Inventory getInventoryByType(InventoryType invType) {
@@ -809,7 +811,7 @@ public class MapleChar {
                 } else {
                     message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
                 }
-                EventManager.addEvent(getId() + skillID, VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
+                EventManager.addEvent(MapleUtils.concat(getId(), skillID), VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
             }
             SkillUtils.applySkillConsumptionToChar(skillID, slv, this);
         }
@@ -840,6 +842,8 @@ public class MapleChar {
     }
 
     public void addEquip(Equip equip) {
+        // setEquip SN -
+        equip.setSerialNumber(MapleUtils.concat(getId(), System.currentTimeMillis()));
         getEquipInventory().addItem(equip);
         write(CWvsContext.inventoryOperation(true, Add, (short) equip.getBagIndex(), (short) -1, equip));
     }
@@ -872,13 +876,67 @@ public class MapleChar {
         }
     }
 
-    public Drop dropItem(Item item) {
+    public Drop dropItem(Item item, int quantity) {
+        Item itemToDrop = item;
+        // Partial Drop instead of full drop -
+        if (quantity != 0) {
+            ItemData itemData = ItemDataHandler.getItemDataByID(item.getItemId());
+            itemToDrop = new Item(itemData);
+            item.removeQuantity(quantity);
+            itemToDrop.setQuantity(quantity);
+        }
         // Reset position for when it's picked up -
-        item.setBagIndex(0);
+        itemToDrop.setBagIndex(0);
         // Remove from inventory -
-        Inventory inventory = getInventoryByType(item.getInvType());
-        inventory.removeItem(item);
+        Inventory inventory = getInventoryByType(itemToDrop.getInvType());
+        inventory.removeItem(itemToDrop);
         // Return a Drop instance -
-        return new Drop(item);
+        Drop drop = new Drop(itemToDrop);
+        // Set owner -
+        drop.setOwnerID(getId());
+
+        return drop;
+    }
+
+    public Drop dropItem(Item item) {
+        return dropItem(item, 0);
+    }
+
+    public void modifyMeso(int amount) {
+        int newMoneyAmount;
+        if (amount > 0) {
+            newMoneyAmount = Math.min(amount + getMeso(), MAX_MESO);
+            setMeso(newMoneyAmount);
+            updateStat(Money, newMoneyAmount);
+        } else if (amount < 0 && (amount + getMeso() >= 0)) {
+            newMoneyAmount = amount + getMeso();
+            setMeso(newMoneyAmount);
+            updateStat(Money, newMoneyAmount);
+        }
+    }
+
+    public void pickupItem(Drop drop) {
+        if (drop.getItem() != null) {
+            // Handle item pickup -
+            Item item = drop.getItem();
+            switch (item.getType()) {
+                case EQUIP -> {
+                    addEquip((Equip) item);
+                    write(CWvsContext.dropPickupMessage(item.getItemId(), PickupMessageType.ITEM_WITHOUT_QUANTITY, (short) 0, 1));
+                }
+                case BUNDLE -> {
+                    addItem(item);
+                    write(CWvsContext.dropPickupMessage(item.getItemId(), PickupMessageType.ITEM_WITH_QUANTITY, (short) 0, 1));
+                }
+            }
+        } else if (drop.getQuantity() > 0 && drop.isMoney()) {
+            // Handle meso pickup -
+            int quantity = drop.getQuantity();
+            setMeso(getMeso() + quantity);
+            updateStat(Money, getMeso());
+            write(CWvsContext.dropPickupMessage(quantity, PickupMessageType.MESO, (short) 0, quantity));
+        }
+        getField().removeDrop(drop.getId(), getId(), -1);
+        EventManager.cancelEvent(MapleUtils.concat(drop.getId(), (long) getField().getId()), EventType.REMOVE_DROP_FROM_FIELD);
     }
 }

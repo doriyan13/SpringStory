@@ -1,4 +1,4 @@
-package com.dori.SpringStory.wzHandlers;
+package com.dori.SpringStory.dataHandlers;
 
 import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.enums.InventoryType;
@@ -10,9 +10,8 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.JsonUtils;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.XMLApi;
-import com.dori.SpringStory.wzHandlers.wzEntities.EquipData;
-import com.dori.SpringStory.wzHandlers.wzEntities.ItemData;
-import com.dori.SpringStory.wzHandlers.wzEntities.MapData;
+import com.dori.SpringStory.dataHandlers.dataEntities.EquipData;
+import com.dori.SpringStory.dataHandlers.dataEntities.ItemData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dori.SpringStory.constants.ServerConstants.*;
-import static com.dori.SpringStory.constants.ServerConstants.MAP_JSON_DIR;
 import static com.dori.SpringStory.enums.ScrollStat.*;
 
 @Service

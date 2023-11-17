@@ -10,7 +10,7 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.temporaryStats.TempStatValue;
 import com.dori.SpringStory.utils.FormulaCalcUtils;
 import com.dori.SpringStory.utils.utilEntities.UnsignedInt128BitBlock;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
+import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dori.SpringStory.enums.EventType.REGEN_CHARACTER;
 import static com.dori.SpringStory.enums.SkillStat.time;
 import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.Pad;
-import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.Regen;
 
 @Data
 @AllArgsConstructor

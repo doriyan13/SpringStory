@@ -8,7 +8,7 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
 import com.dori.SpringStory.utils.FormulaCalcUtils;
 import com.dori.SpringStory.utils.MapleUtils;
-import com.dori.SpringStory.wzHandlers.wzEntities.SkillData;
+import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor

@@ -1,62 +1,45 @@
 package com.dori.SpringStory.enums;
 
-import java.util.Arrays;
+public class MovementPathAttr {
+    public static final byte NONE = -1;
+    public static final byte NORMAL = 0;
+    public static final byte JUMP = 1;
+    public static final byte IMPACT = 2;
+    public static final byte IMMEDIATE = 3;
+    public static final byte TELEPORT = 4;
+    public static final byte HANG_ON_BACK = 5;
+    public static final byte ASSAULTER = 6;
+    public static final byte ASSASSINATION = 7;
+    public static final byte RUSH = 8;
+    public static final byte STAT_CHANGE = 9;
+    public static final byte SIT_DOWN = 10;
+    public static final byte START_FALL_DOWN = 11;
+    public static final byte FALL_DOWN = 12;
+    public static final byte START_WINGS = 13;
+    public static final byte WINGS = 14;
+    public static final byte ARAN_ADJUST = 15;
+    public static final byte MOB_TOSS = 16;
+    public static final byte FLYING_BLOCK = 17;
+    public static final byte DASH_SLIDE = 18;
+    public static final byte BATTLE_MAGE_ADJUST = 19;
+    public static final byte FLASH_JUMP = 20;
+    public static final byte ROCKET_BOOSTER = 21;
+    public static final byte BACK_STEP_SHOT = 22;
+    public static final byte MOB_POWER_KNOCK_BACK = 23;
+    public static final byte VERTICAL_JUMP = 24;
+    public static final byte CUSTOM_IMPACT = 25;
+    public static final byte COMBAT_STEP = 26;
+    public static final byte HIT = 27;
+    public static final byte TIME_BOMB_ATK = 28;
+    public static final byte SNOW_BALL_TOUCH = 29;
+    public static final byte BUFF_ZONE_EFFECT = 30;
+    public static final byte MOB_LADDER = 31;
+    public static final byte MOB_RIGHT_ANGLE = 32;
+    public static final byte MOB_STOP_NODE_START = 33;
+    public static final byte MOB_BEFORE_NODE = 34;
+    public static final byte MOB_ATK_RUSH = 35;
+    public static final byte MOB_ATK_RUSH_STOP = 36;
 
-public enum MovementPathAttr {
-    None(-1),
-    Normal(0),
-    Jump(1),
-    Impact(2),
-    Immediate(3),
-    Teleport(4),
-    HangOnBack(5),
-    Assaulter(6),
-    Assassination(7),
-    Rush(8),
-    StatChange(9),
-    SitDown(10),
-    StartFallDown(11),
-    FallDown(12),
-    StartWings(13),
-    Wings(14),
-    AranAdjust(15),
-    MobToss(16),
-    FlyingBlock(17),
-    DashSlide(18),
-    BattleMageAdjust(19),
-    FlashJump(20),
-    RocketBooster(21),
-    BackStepShot(22),
-    MobPowerKnockBack(23),
-    VerticalJump(24),
-    CustomImpact(25),
-    CombatStep(26),
-    Hit(27),
-    TimeBombAtk(28),
-    SnowBallTouch(29),
-    BuffZoneEffect(30),
-    MobLadder(31),
-    MobRightAngle(32),
-    MobStopNodeStart(33),
-    MobBeforeNode(34),
-    MobAtkRush(35),
-    MobAtkRushStop(36)
-    ;
-
-    private final int val;
-
-    MovementPathAttr(int val){
-        this.val = val;
-    }
-
-    public int getVal() {
-        return val;
-    }
-
-    public static MovementPathAttr getElementByNum(byte attrNum){
-        return Arrays.stream(values())
-                .filter(mpa -> mpa.getVal() == attrNum)
-                .findFirst()
-                .orElse(None);
+    private MovementPathAttr(){
     }
 }

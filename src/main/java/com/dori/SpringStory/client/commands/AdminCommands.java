@@ -2,7 +2,6 @@ package com.dori.SpringStory.client.commands;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.packets.CField;
-import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
@@ -15,16 +14,15 @@ import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.world.fieldEntities.Portal;
-import com.dori.SpringStory.wzHandlers.ItemDataHandler;
-import com.dori.SpringStory.wzHandlers.MapDataHandler;
-import com.dori.SpringStory.wzHandlers.MobDataHandler;
-import com.dori.SpringStory.wzHandlers.wzEntities.MobData;
-import com.dori.SpringStory.wzHandlers.wzEntities.StringData;
+import com.dori.SpringStory.dataHandlers.ItemDataHandler;
+import com.dori.SpringStory.dataHandlers.MapDataHandler;
+import com.dori.SpringStory.dataHandlers.MobDataHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
+import com.dori.SpringStory.dataHandlers.dataEntities.StringData;
 
 import java.util.*;
 
-import static com.dori.SpringStory.enums.InventoryOperation.Add;
-import static com.dori.SpringStory.enums.InventoryOperation.Move;
+import static com.dori.SpringStory.constants.GameConstants.MAX_MESO;
 
 public class AdminCommands {
     // Logger -
@@ -263,7 +261,8 @@ public class AdminCommands {
         stats.put(Stat.Luk, Short.MAX_VALUE);
         chr.setNLuk(Short.MAX_VALUE);
         //stats.put(Stat.Level, MAX_LVL);
-        //stats.put(Stat.Money, MAX_MESO);
+        chr.setMeso(MAX_MESO);
+        stats.put(Stat.Money, MAX_MESO);
         chr.changeStats(stats);
         chr.message("Update stats to max!", ChatType.GameDesc);
     }

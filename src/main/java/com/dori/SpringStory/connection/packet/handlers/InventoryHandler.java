@@ -14,12 +14,9 @@ import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Drop;
 import com.dori.SpringStory.world.fieldEntities.Foothold;
-import com.dori.SpringStory.wzHandlers.ItemDataHandler;
-import com.dori.SpringStory.wzHandlers.wzEntities.ItemData;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.UserChangeSlotPositionRequest;
-import static com.dori.SpringStory.enums.InventoryOperation.Add;
-import static com.dori.SpringStory.enums.InventoryOperation.Move;
+import static com.dori.SpringStory.enums.InventoryOperation.*;
 import static com.dori.SpringStory.enums.InventoryType.EQUIP;
 import static com.dori.SpringStory.enums.InventoryType.EQUIPPED;
 
@@ -39,33 +36,20 @@ public class InventoryHandler {
         MapleChar chr = c.getChr();
         InventoryType invTypeFrom = invType == EQUIP ? oldPos < 0 ? EQUIPPED : EQUIP : invType;
         InventoryType invTypeTo = invType == EQUIP ? newPos < 0 ? EQUIPPED : EQUIP : invType;
-        Item item;
-        if (oldPos < 0) {
-            item = chr.getInventoryByType(invTypeFrom).getItemByIndex((short) (Math.abs(oldPos) % 100));
-        } else {
-            item = chr.getInventoryByType(invTypeFrom).getItemByIndex(oldPos);
-        }
+        Item item = chr.getInventoryByType(invTypeFrom).getItemByIndex(oldPos);
         if (item != null && quantity <= item.getQuantity()) {
             // Handling of Drop -
             if (newPos == 0) {
-                Drop drop;
-                //TODO: need to add handling for drops!
                 if (chr.getField().isDropsDisabled()) {
                     chr.message("Drops are disabled in this map!", ChatType.SpeakerChannel);
                     return;
                 }
-                boolean fullDrop = !item.getInvType().isStackable() || (quantity - item.getQuantity() == 0) || ItemUtils.isThrowingStar(item.getItemId())
-                        || ItemUtils.isBullet(item.getItemId());
-                if (fullDrop) {
-                    drop = chr.dropItem(item);
-                } else {
-                    ItemData itemData = ItemDataHandler.getItemDataByID(item.getItemId());
-                    Item itemCopy = new Item(itemData);
-                    item.removeQuantity(quantity);
-                    itemCopy.setQuantity(quantity);
-                    drop = chr.dropItem(itemCopy);
-                }
-                Foothold fh = chr.getField().findFootHoldBelow(new Position(chr.getPosition().getX(), chr.getPosition().getY() - GameConstants.DROP_HEIGHT));
+                boolean fullDrop = !item.getInvType().isStackable() || (quantity - item.getQuantity() == 0)
+                        || ItemUtils.isThrowingStar(item.getItemId()) || ItemUtils.isBullet(item.getItemId());
+                Drop drop = fullDrop ? chr.dropItem(item) : chr.dropItem(item, quantity);
+                //TODO: in the future make a proper handling if the item is trade-able?
+                c.write(CWvsContext.inventoryOperation(true, fullDrop ? Remove : UpdateQuantity, oldPos, newPos, item));
+                chr.getField().spawnDrop(drop, chr.getPosition());
             } else {
                 // Change item position operation -
                 Item swappedItem = chr.getInventoryByType(invTypeTo).getItemByIndex(newPos);
@@ -91,7 +75,8 @@ public class InventoryHandler {
                 c.write(CWvsContext.inventoryOperation(true, Move, oldPos, newPos, item));
             }
         } else {
-            //need to use dispose for the char | need to add at CWvsContext the packet and handling in MapleChar!
+            chr.enableAction();
+            chr.message("Error occurred while doing illegal inventory operation, please contact Admin!", ChatType.SpeakerChannel);
         }
     }
 }
