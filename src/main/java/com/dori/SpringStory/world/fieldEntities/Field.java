@@ -19,10 +19,7 @@ import com.dori.SpringStory.dataHandlers.dataEntities.MapData;
 import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -42,6 +39,7 @@ public class Field extends MapData {
     private Map<Integer, Drop> drops = new ConcurrentHashMap<>();
     private Queue<Integer> objIdAllocator = new ArrayBlockingQueue<>(MAX_OBJECT_ID_ALLOCATED_TO_FIELD);
     private long creationTime;
+    private long deprecationStartTime;
 
     public Field(int id) {
         super(id);
@@ -66,7 +64,6 @@ public class Field extends MapData {
         this.expeditionOnly = mapData.isExpeditionOnly();
         this.needSkillForFly = mapData.isNeedSkillForFly();
         this.fixedMobCapacity = mapData.getFixedMobCapacity() != 0 ? mapData.getFixedMobCapacity() : DEFAULT_FIELD_MOB_CAPACITY;
-        this.fixedMobCapacity = mapData.getFixedMobCapacity() != 0 ? mapData.getFixedMobCapacity() : (int) DEFAULT_FIELD_MOB_RATE_BY_MOB_GEN_COUNT;
         this.createMobInterval = mapData.getCreateMobInterval();
         this.timeOut = mapData.getTimeOut();
         this.timeLimit = mapData.getTimeLimit();
@@ -261,7 +258,7 @@ public class Field extends MapData {
         return drop;
     }
 
-    public void drop(Set<MobDropData> dropsData, int srcID, int ownerID, Foothold fh, Position position, float mesoRate, float dropRate) {
+    public void drop(List<MobDropData> dropsData, int srcID, int ownerID, Foothold fh, Position position, float mesoRate, float dropRate) {
         int x = position.getX();
         int diff = 0;
         int minX = position.getX();
@@ -327,12 +324,10 @@ public class Field extends MapData {
             // Return the allocated objectId -
             objIdAllocator.offer(dropToRemove.getId());
             // Broadcast the remove of the drop from the field -
-            if (petID >= 0 || pickupID > 0) {
-                if (petID >= 0) {
-                    broadcastPacket(CDropPool.dropLeaveField(DropLeaveType.PET_PICKUP, pickupID, dropID, (short) 0, petID));
-                } else {
-                    broadcastPacket(CDropPool.dropLeaveField(DropLeaveType.USER_PICKUP, pickupID, dropID, (short) 0, 0));
-                }
+            if (petID >= 0) {
+                broadcastPacket(CDropPool.dropLeaveField(DropLeaveType.PET_PICKUP, pickupID, dropID, (short) 0, petID));
+            } else if (pickupID > 0) {
+                broadcastPacket(CDropPool.dropLeaveField(DropLeaveType.USER_PICKUP, pickupID, dropID, (short) 0, 0));
             } else {
                 broadcastPacket(CDropPool.dropLeaveField(DropLeaveType.TIME_OUT, pickupID, dropID, (short) 0, 0));
             }

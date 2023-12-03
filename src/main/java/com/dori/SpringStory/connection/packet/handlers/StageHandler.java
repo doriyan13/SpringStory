@@ -89,4 +89,12 @@ public class StageHandler {
             c.close();
         }
     }
+
+    @Handler(op = InHeader.UserPortalScriptRequest)
+    public static void handleUserPortalScriptRequest(MapleClient c, InPacket inPacket) {
+        inPacket.decodeByte(); // Current Field key
+        String portalName = inPacket.decodeString();
+        Position position = inPacket.decodePosition();
+        //TODO: add portal script handler and such..
+    }
 }

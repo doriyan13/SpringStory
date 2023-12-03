@@ -160,7 +160,7 @@ public interface CLogin {
         }
         outPacket.encodeByte(PICType.Disabled.getVal()); // second pw request encode (unregistered | registered | disabled)
         outPacket.encodeInt(account.getAccountSlots());// amount of Slots for characters -> nSlotCount
-        outPacket.encodeInt(0); // amount -> nBuyCharCount
+        outPacket.encodeInt(0); // amount -> nBuyCharCount | 3
 
         return outPacket;
     }

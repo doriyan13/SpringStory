@@ -1,6 +1,7 @@
 package com.dori.SpringStory.dataHandlers.dataEntities;
 
 import com.dori.SpringStory.utils.MapleUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,6 @@ import java.util.Random;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -32,11 +32,28 @@ public class MobDropData {
         this.chance = 1f;
     }
 
+    public MobDropData(int mobID, int itemID, int amount, double chance) {
+        this.mobId = mobID;
+        this.itemId = itemID;
+        this.minQ = amount;
+        this.maxQ = amount;
+        this.chance = chance;
+    }
+
+    public MobDropData(int mobID, int itemID, int minQ, int maxQ, double chance) {
+        this.mobId = mobID;
+        this.itemId = itemID;
+        this.minQ = minQ;
+        this.maxQ = maxQ;
+        this.chance = chance;
+    }
+
     public boolean willDrop(float dropRate) {
         float randomValue = new Random().nextFloat();
         return randomValue <= (chance * dropRate);
     }
 
+    @JsonIgnore
     public boolean isMoney() {
         return getItemId() == 0;
     }
@@ -46,5 +63,14 @@ public class MobDropData {
             return getMinQ();
         }
         return MapleUtils.getRandom(getMinQ(), getMaxQ());
+    }
+
+    @Override
+    public String toString() {
+        return "MobDropData: " +
+                "mobId: " + mobId +
+                " | itemId: " + itemId +
+                " | quantity: " + getQuantity() +
+                " | chance: " + chance;
     }
 }

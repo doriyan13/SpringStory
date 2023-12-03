@@ -54,14 +54,19 @@ public interface BuffsDataLoader {
         add(Job.WhiteKnight, WHITE_KNIGHT_FIRE_CHARGE, WeaponCharge, "1", "10 * x");
         // Paladin
         // need to handle Guardian stuff (check if shield equipped and such & need to handle divine shield!)
-        // TODO: Divine shield works simialr to combo attack - raise stacks till 5 and it give 2 stats - blessing armor and PAD (epad) and after max stacks the buff being removed and cooldown to x time, notice the regenarte of the buff is precentage base!
+        // TODO: Divine shield works similar to combo attack - raise stacks till 5 and it give 2 stats - blessing armor and PAD (epad) and after max stacks the buff being removed and cool down to x time, notice the regenerate of the buff is percentage base!
         add(Job.Paladin, PALADIN_DIVINE_CHARGE, WeaponCharge, "1", "10 * x");
         add(Job.Paladin, PALADIN_DIVINE_CHARGE, Mad, "40", "10 * x");
 
         // Spear-man
+        add(Job.Spearman, SPEARMAN_WEAPON_BOOSTER, Booster, "-2", "10 * x");
         add(Job.Spearman, SPEARMAN_IRON_WALL, Pdd, "15 * x", "15 * x");
         add(Job.Spearman, SPEARMAN_IRON_WALL, Mdd, "5 * x", "15 * x");
         add(Job.Spearman, SPEARMAN_HYPER_BODY, MaxHp, "3 * x", "15 * x");
         add(Job.Spearman, SPEARMAN_HYPER_BODY, MaxMp, "3 * x", "15 * x");
+
+        // Dragon Knight
+        add(Job.DragonKnight, DRAGONKNIGHT_DRAGON_BLOOD, DragonBlood, "1", "10 * x");
+        add(Job.DragonKnight, DRAGONKNIGHT_DRAGON_BLOOD, Pad, "5 + x", "10 * x");
     }
 }

@@ -90,7 +90,7 @@ public class Server {
         // Custom buffs load data -
         executorService.submit(BuffDataHandler::loadBuffsData);
         // Load custom json data -
-        executorService.submit(MobDropHandler::loadJsonDrops);
+        executorService.submit(MobDropHandler::load);
         //TODO: next is  QUESTS
     }
 

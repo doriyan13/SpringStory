@@ -2,14 +2,12 @@ package com.dori.SpringStory.connection.packet.packets;
 
 import com.dori.SpringStory.client.character.ExtendSP;
 import com.dori.SpringStory.client.character.Skill;
-import com.dori.SpringStory.enums.PickupMessageType;
+import com.dori.SpringStory.client.character.quest.Quest;
+import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
-import com.dori.SpringStory.enums.InventoryOperation;
-import com.dori.SpringStory.enums.InventoryType;
-import com.dori.SpringStory.enums.Stat;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
@@ -183,12 +181,12 @@ public interface CWvsContext {
         return outPacket;
     }
 
-    static OutPacket changeSkillRecordResult(Map<Integer,Skill> skills, boolean exclRequestSent, boolean bSN) {
+    static OutPacket changeSkillRecordResult(Map<Integer, Skill> skills, boolean exclRequestSent, boolean bSN) {
         OutPacket outPacket = new OutPacket(OutHeader.ChangeSkillRecordResult);
 
         outPacket.encodeBool(exclRequestSent);
         outPacket.encodeShort(skills.size());
-        skills.forEach((skillID,skill) -> skill.encode(outPacket));
+        skills.forEach((skillID, skill) -> skill.encode(outPacket));
         outPacket.encodeBool(bSN);
 
         return outPacket;
@@ -206,10 +204,25 @@ public interface CWvsContext {
     static OutPacket temporaryStatReset(TemporaryStatManager tsm) {
         OutPacket outPacket = new OutPacket(OutHeader.TemporaryStatReset);
         tsm.encodeMask(outPacket, true);
-        if(tsm.hasMovementEffectingStat()) {
+        if (tsm.hasMovementEffectingStat()) {
             outPacket.encodeByte(0); // tSwallowBuffTime
         }
 
+        return outPacket;
+    }
+
+    static OutPacket questRecordMessage(Quest quest) {
+        OutPacket outPacket = new OutPacket(OutHeader.Message);
+
+        outPacket.encodeByte(QUEST_RECORD_MESSAGE.getVal());
+        outPacket.encodeShort(quest.getQRKey());
+        QuestStatus state = quest.getStatus();
+        outPacket.encodeByte(state.getVal());
+        switch (state) {
+            case NotStarted -> outPacket.encodeByte(0); // If quest is completed, but should never be true?
+            case Started -> outPacket.encodeString(quest.getQrValue());
+            case Completed -> outPacket.encodeFT(quest.getCompletedTime());
+        }
         return outPacket;
     }
 }

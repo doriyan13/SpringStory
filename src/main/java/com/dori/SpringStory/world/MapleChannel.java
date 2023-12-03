@@ -30,7 +30,7 @@ public class MapleChannel {
     private boolean adultChannel;
     // TODO: The map of fields will only hold normal maps, boss maps i will have to manage in diff map !
     private Map<Integer, Field> fields;
-    private Map<Integer, MapleChar> chars = new HashMap<>();
+    private Map<Integer, MapleChar> chars;
     public final int MAX_SIZE = 1000;
     // Logger -
     private static final Logger logger = new Logger(MapleChannel.class);
@@ -42,6 +42,7 @@ public class MapleChannel {
         this.adultChannel = adultChannel;
         this.port = ServerConstants.LOGIN_PORT + 100 + channelId;
         this.fields = new ConcurrentHashMap<>();
+        this.chars = new ConcurrentHashMap<>();
     }
 
     public MapleChannel(MapleWorld world, int channelId) {
@@ -54,7 +55,8 @@ public class MapleChannel {
         this.channelId = channelId;
         this.adultChannel = false;
         this.port = ServerConstants.LOGIN_PORT + (100 * worldId) + channelId;
-        this.fields = new HashMap<>();
+        this.fields = new ConcurrentHashMap<>();
+        this.chars = new ConcurrentHashMap<>();
     }
 
     public void shutdown() {
@@ -104,30 +106,33 @@ public class MapleChannel {
     }
 
     public Field getField(int fieldID) {
-        Field newField;
-        if (fields.get(fieldID) == null) {
-            newField = MapDataHandler.getMapByID(fieldID);
-            if (newField != null) {
-                this.fields.put(newField.getId(), newField);
-            }
-        } else {
-            newField = fields.get(fieldID);
+        Field newField = fields.get(fieldID);
+        if (newField == null && MapDataHandler.getMapByID(fieldID) instanceof Field newFieldFromDataHandler) {
+            newField = newFieldFromDataHandler;
+            this.fields.put(newField.getId(), newField);
         }
         return newField;
     }
 
     public Field getField(String fieldName) {
         Integer fieldID = MapDataHandler.getGoToMaps().get(fieldName.toLowerCase());
-        Field newField;
-        if (fields.get(fieldID) == null) {
-            newField = MapDataHandler.getMapByID(fieldID);
-            if (newField != null) {
-                this.fields.put(newField.getId(), newField);
+        return fieldID != null ? getField(fieldID) : null;
+    }
+
+    public void clearUnUsedFields() {
+        getFields().entrySet().removeIf(fieldEntry -> {
+            Field field = fieldEntry.getValue();
+            if (field.getPlayers().isEmpty() && field.getDeprecationStartTime() == 0) {
+                field.setDeprecationStartTime(System.currentTimeMillis());
+            } else if (!field.getPlayers().isEmpty()) {
+                field.setDeprecationStartTime(0);
             }
-        } else {
-            newField = fields.get(fieldID);
-        }
-        return newField;
+            boolean shouldRemove = field.getDeprecationStartTime() != 0 && System.currentTimeMillis() - field.getDeprecationStartTime() >= ServerConstants.FIELD_DEPRECATION_TIME_IN_MIN * 60_000;
+            if (shouldRemove) {
+                logger.serverNotice("The Field " + fieldEntry.getKey() + " was removed!");
+            }
+            return shouldRemove;
+        });
     }
 
 }

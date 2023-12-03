@@ -62,13 +62,13 @@ public interface ServerConstants {
     String BUFF_JSON_DIR = JSON_DIR + "/Buff/";
     // Mob Drops -
     String MOB_DROP_JSON_DIR = JSON_DIR + "/MobDrops/";
-    // Life stuff -
-    int MAX_RETRIES = 10_000;
-    int MAX_OBJ_ID = 9_999_999;
-    int MIN_OBJ_ID = 1_000_000;
+    int MOB_DROP_DEFAULT_MIN_QUANTITY = 1;
+    int MOB_DROP_DEFAULT_MAX_QUANTITY = 1;
+    double MOB_DROP_DEFAULT_CHANCE = 0.01;
     // Commands stuff -
     String COMMANDS_DIR = DIR + "/src/main/java/com/dori/SpringStory/client/commands";
     // Field -
     int MAX_OBJECT_ID_ALLOCATED_TO_FIELD = 30_000;
     int DROP_REMAIN_ON_GROUND_TIME = 120; // 2 minutes
+    int FIELD_DEPRECATION_TIME_IN_MIN = 15;
 }

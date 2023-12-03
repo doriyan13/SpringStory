@@ -9,7 +9,7 @@ import java.util.Optional;
  *      https://www.digitalocean.com/community/tutorials/java-generics-example-method-class-interface .
  *
  * @param <T> - The Entity Class the Service will have functionalities for.
- * @author Doriyan Esterin.
+ * @author Dori.
  */
 public interface BaseService<T> {
     /**

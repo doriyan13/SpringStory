@@ -1,7 +1,9 @@
 package com.dori.SpringStory.events;
 
+import com.dori.SpringStory.Server;
 import com.dori.SpringStory.enums.EventType;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.world.MapleWorld;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -42,8 +44,7 @@ public class EventManager {
         return setOfEvents;
     }
 
-    @Scheduled(fixedRateString = "${app.event_manager.cleanup_interval_in_milliseconds}")
-    public static void clearOldEvents() {
+    private static void clearOldEvents() {
         logger.serverNotice("|> Start cleanup of all the old events... |>");
         if (!events.isEmpty()) {
             events.values().removeIf(mapOfEvents -> {
@@ -52,5 +53,20 @@ public class EventManager {
             });
         }
         logger.serverNotice("~ Finished cleanup! there still " + events.size() + " events ~");
+    }
+
+    private static void clearUnUsedFields() {
+        logger.serverNotice("|> Start cleanup of all the unused fields... |>");
+        long startTime = System.currentTimeMillis();
+        Server.getWorlds().forEach(MapleWorld::clearUnUsedFields);
+        logger.serverNotice("~ Finished cleanup! took " + (System.currentTimeMillis() - startTime) + "ms ~");
+    }
+
+    @Scheduled(fixedRateString = "${app.event_manager.cleanup_interval_in_milliseconds}")
+    public static void cleanUp() {
+        // Clear all the oldEvents -
+        clearOldEvents();
+        // Clear from all the channels the unused maps =
+        clearUnUsedFields();
     }
 }

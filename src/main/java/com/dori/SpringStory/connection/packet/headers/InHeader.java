@@ -127,7 +127,7 @@ public enum InHeader {
     UserAntiMacroQuestionResult(117),
     UserClaimRequest(118),
     UserQuestRequest(119),
-    UserCalcDamageStatSetRequest(120),
+    UserCalcDamageStatSetRequest(120), // CWvsContext::OnTemporaryStatReset
     UserThrowGrenade(121),
     UserMacroSysDataModified(122), // report?
     UserSelectNpcItemUseRequest(123),

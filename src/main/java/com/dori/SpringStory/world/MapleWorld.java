@@ -83,4 +83,8 @@ public class MapleWorld {
     public List<MapleChannel> getChannelList(){
         return mapleChannels.values().stream().toList();
     }
+
+    public void clearUnUsedFields() {
+        getChannelList().forEach(MapleChannel::clearUnUsedFields);
+    }
 }

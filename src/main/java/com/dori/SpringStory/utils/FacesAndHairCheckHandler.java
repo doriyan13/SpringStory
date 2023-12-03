@@ -6,6 +6,10 @@ import java.io.FileWriter;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * was made for rulax, might modify and improve in the future :D
+ * @Author Dori.
+ */
 public class FacesAndHairCheckHandler {
     private static final Set<Integer> validHair = new HashSet<>();
     private static final Set<Integer> validEyes = new HashSet<>();

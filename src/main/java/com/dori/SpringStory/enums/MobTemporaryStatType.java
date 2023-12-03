@@ -1,5 +1,8 @@
 package com.dori.SpringStory.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum MobTemporaryStatType {
     Pad(0),
     Pdr(1),
@@ -49,15 +52,4 @@ public enum MobTemporaryStatType {
         this.pos = (byte) (bitPos >> 5);
     }
 
-    public int getBitPos() {
-        return bitPos;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public byte getPos() {
-        return pos;
-    }
 }

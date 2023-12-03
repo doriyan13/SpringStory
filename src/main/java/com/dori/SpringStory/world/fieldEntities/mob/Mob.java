@@ -21,6 +21,7 @@ import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -217,7 +218,7 @@ public class Mob extends Life {
         float totalMesoRate = mesoRateMob + mostDamageCharMesoRate;
         float totalDropRate = dropRateMob + mostDamageCharDropRate;
         // TODO: in the future add handling for cash items that modify the rates also! (drop coupon)
-        Set<MobDropData> dropsData = MobDropHandler.getDropsByMobID(getTemplateId());
+        List<MobDropData> dropsData = MobDropHandler.getDropsByMobID(getTemplateId());
         // TODO: do proper calc for money by lvl of the mob!
         MobDropData moneyByLvl = new MobDropData(getTemplateId(), (getLevel() * 10 * Math.min(Math.round(totalMesoRate), 1)));
         dropsData.add(moneyByLvl);

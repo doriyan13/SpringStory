@@ -23,7 +23,6 @@ import java.util.concurrent.locks.ReentrantLock;
 @EqualsAndHashCode(callSuper = true)
 public class MapleClient extends NettyClient {
     private MapleChar chr;
-    private Lock lock;
     private MapleAccount account;
     private byte channel;
     private byte worldId;
@@ -33,7 +32,6 @@ public class MapleClient extends NettyClient {
 
     public MapleClient(io.netty.channel.Channel channel) {
         super(channel);
-        lock = new ReentrantLock(true);
     }
 
     public void logout() {

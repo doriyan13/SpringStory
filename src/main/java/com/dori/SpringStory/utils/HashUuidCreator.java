@@ -9,7 +9,7 @@ import java.util.UUID;
  * This class is an util class to create hash UUID.
  * articles for ref - https://stackoverflow.com/questions/29059530/is-there-any-way-to-generate-the-same-uuid-from-a-string
  *                    https://devblogs.microsoft.com/oldnewthing/20080627-00/?p=21823
- * @author Doriyan Esterin.
+ * @author Dori.
  */
 public class HashUuidCreator {
 
