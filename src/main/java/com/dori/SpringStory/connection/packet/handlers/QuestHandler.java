@@ -21,6 +21,10 @@ public class QuestHandler {
 
     @Handler(op = UserQuestRequest)
     public static void handleUserQuestRequest(MapleClient c, InPacket inPacket) {
+        if(true) {
+            //TODO: need to properly handle it!
+            return;
+        }
         QuestRequestType questType = QuestRequestType.getQuestTypeByVal(inPacket.decodeByte());
         short questID = inPacket.decodeShort();
         int dwNpcTemplateID = 0;

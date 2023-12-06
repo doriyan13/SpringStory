@@ -129,6 +129,7 @@ public class MapleChannel {
             }
             boolean shouldRemove = field.getDeprecationStartTime() != 0 && System.currentTimeMillis() - field.getDeprecationStartTime() >= ServerConstants.FIELD_DEPRECATION_TIME_IN_MIN * 60_000;
             if (shouldRemove) {
+                field.shutdownField();
                 logger.serverNotice("The Field " + fieldEntry.getKey() + " was removed!");
             }
             return shouldRemove;

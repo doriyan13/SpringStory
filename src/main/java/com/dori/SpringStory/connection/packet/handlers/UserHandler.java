@@ -10,7 +10,6 @@ import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.headers.InHeader;
 import com.dori.SpringStory.connection.packet.packets.CUserRemote;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
-import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.jobs.handlers.WarriorHandler;
 import com.dori.SpringStory.utils.JobUtils;
@@ -29,8 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
+import static com.dori.SpringStory.constants.GameConstants.QUICK_SLOT_LENGTH;
 import static com.dori.SpringStory.enums.AttackType.*;
 import static com.dori.SpringStory.enums.Skills.*;
+import static com.dori.SpringStory.utils.FuncKeyMapUtils.handleKeyModifiedToChr;
 
 public class UserHandler {
     @Handler(op = UserMove)
@@ -101,12 +102,12 @@ public class UserHandler {
         switch (type) {
             case Physical, Magic -> {
                 mobID = inPacket.decodeInt();
-                int objID = inPacket.decodeInt();
+                inPacket.decodeInt(); // objID
                 isLeft = inPacket.decodeBool();
-                byte top = inPacket.decodeByte();
-                byte relativeDir = inPacket.decodeByte();
-                byte damageMissed = inPacket.decodeByte();
-                byte nX = inPacket.decodeByte();
+                inPacket.decodeByte(); // top
+                inPacket.decodeByte(); // relativeDir
+                inPacket.decodeByte(); // damageMissed
+                inPacket.decodeByte(); // nX
             }
         }
         chr.getField().broadcastPacket(CUserRemote.hit(chr, type, dmg, mobID, isLeft));
@@ -122,13 +123,29 @@ public class UserHandler {
 
     @Handler(op = QuickslotKeyMappedModified)
     public static void handleQuickSlotKeyMappedModified(MapleClient c, InPacket inPacket) {
-        int length = GameConstants.QUICK_SLOT_LENGTH;
         List<Integer> quickSlotKeys = new ArrayList<>();
-        for (int i = 0; i <= length; i++) {
+        for (int i = 0; i <= QUICK_SLOT_LENGTH; i++) {
             quickSlotKeys.add(inPacket.decodeInt());
         }
         c.getChr().setQuickSlotKeys(quickSlotKeys);
         //TODO:funcKeyMappedManInit!!!!
+        //TODO:QUICKSLOT_MAPPED_INIT!!!! (chronos did it!)
+    }
+
+    @Handler(op = FuncKeyMappedModified)
+    public static void handleFuncKeyMappedModified(MapleClient c, InPacket inPacket) {
+        FuncKeyMappingType funcKeyType = FuncKeyMappingType.getMappingTypeByVal(inPacket.decodeInt());
+        if (funcKeyType != null) {
+            switch (funcKeyType) {
+                case PetConsumeItemModified -> {
+                    inPacket.decodeInt(); // TODO: need to handle -> ChangePetConsumeItemID
+                }
+                case PetConsumeMPItemModified -> {
+                    int m_nPetConsumeItemID_MP = inPacket.decodeInt(); // TODO: need to handle -> ChangePetConsumeMPItemID
+                }
+                case KeyModified -> handleKeyModifiedToChr(inPacket, c.getChr());
+            }
+        }
     }
 
     @Handler(op = UserSkillUpRequest)
@@ -198,9 +215,9 @@ public class UserHandler {
         if (false) { // inPacket.getUnreadAmount() > 2
             byte nMobCount = inPacket.decodeByte();
             for (int i = 0; i < nMobCount; i++) {
-                int adwMobID = inPacket.decodeInt();
+                inPacket.decodeInt(); // adwMobID
             }
-            int tDelay = inPacket.decodeShort();
+            inPacket.decodeShort(); // tDelay
         }
         // Handle the skill cts -
         chr.handleSkill(skillID, slv);

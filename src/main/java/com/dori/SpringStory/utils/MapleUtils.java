@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Predicate;
@@ -130,7 +131,7 @@ public class MapleUtils {
         if (inclBound <= 0) {
             return 0;
         }
-        return new Random().nextInt(inclBound + 1);
+        return new SecureRandom().nextInt(inclBound + 1);
     }
 
     /**

@@ -11,6 +11,7 @@ import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.RemoveDropFromField;
 import com.dori.SpringStory.inventory.Item;
+import com.dori.SpringStory.utils.HashUuidCreator;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_CAPACITY;
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_RATE_BY_MOB_GEN_COUNT;
 import static com.dori.SpringStory.constants.ServerConstants.*;
+import static com.dori.SpringStory.utils.HashUuidCreator.getRandomUuidInLong;
 
 @Data
 @AllArgsConstructor
@@ -148,8 +150,12 @@ public class Field extends MapData {
             // Assign Controllers For life -
             this.assignControllerToMobs(chr);
         }
+        // Init the player passive stats -
+        chr.initPassiveStats();
         // Apply the chr temporary stats -
         chr.applyTemporaryStats();
+        // Init function keys mapping -
+        chr.write(CFuncKeyMappedMan.funcKeyMappedManInit(chr.getKeymap()));
     }
 
     public void removePlayer(MapleChar chr) {
@@ -310,7 +316,7 @@ public class Field extends MapData {
         fromPos.setY(fromPos.getY() - 20);
 
         broadcastPacket(CDropPool.dropEnterField(drop, dropEnterType, DropOwnType.USER_OWN, srcID, fromPos, replay, true));
-        EventManager.addEvent(MapleUtils.concat(drop.getId(), (long) getId()), EventType.REMOVE_DROP_FROM_FIELD, new RemoveDropFromField(drop, this), DROP_REMAIN_ON_GROUND_TIME);
+        EventManager.addEvent(getRandomUuidInLong(), EventType.REMOVE_DROP_FROM_FIELD, new RemoveDropFromField(drop, this), DROP_REMAIN_ON_GROUND_TIME);
     }
 
     public void spawnDrop(Drop drop, Position fromPos) {
@@ -332,5 +338,17 @@ public class Field extends MapData {
                 broadcastPacket(CDropPool.dropLeaveField(DropLeaveType.TIME_OUT, pickupID, dropID, (short) 0, 0));
             }
         }
+    }
+
+    public void shutdownField() {
+        // Clear mobs -
+        getMobs().values().forEach(mob -> mob.setField(null));
+        getMobs().clear();
+        // Clear Npcs -
+        getNpcs().values().forEach(npc -> npc.setField(null));
+        getNpcs().clear();
+        // Clear Drops -
+        getDrops().keySet().forEach(dropObjID -> EventManager.cancelEvent(MapleUtils.concat((long) getId(), dropObjID), EventType.REMOVE_DROP_FROM_FIELD));
+        getDrops().clear();
     }
 }

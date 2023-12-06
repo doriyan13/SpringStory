@@ -68,4 +68,8 @@ public class HashUuidCreator {
         }
         return result;
     }
+
+    public static long getRandomUuidInLong() {
+        return UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
+    }
 }

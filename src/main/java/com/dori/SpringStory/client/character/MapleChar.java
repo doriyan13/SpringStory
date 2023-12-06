@@ -1,12 +1,12 @@
 package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.client.MapleClient;
+import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ValidateChrTempStatsEvent;
 import com.dori.SpringStory.jobs.JobHandler;
 import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
 import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
-import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CUserLocal;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
@@ -119,13 +119,12 @@ public class MapleChar {
     @MapKey(name = "skillId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Map<Integer, Skill> skills;
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "skillCoolTimes", joinColumns = @JoinColumn(name = "charID"))
-    @MapKeyColumn(name = "skillId")
-    @Column(name = "nextUsableTime")
-    private Map<Integer, Long> skillCoolTimes; //TODO: i will move into trasient field, don't see a reason to save into DB...
+    // Key mapping -
     @Convert(converter = InlinedIntArrayConverter.class)
     private List<Integer> quickSlotKeys;
+    @MapKey(name = "key")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Map<Integer, KeyMapping> keymap;
     // Non-DB fields -
     @Transient
     private static final Logger logger = new Logger(MapleChar.class);
@@ -143,6 +142,8 @@ public class MapleChar {
     private TemporaryStatManager tsm = new TemporaryStatManager();
     @Transient
     private AtomicInteger hpIntervalCountLeft = new AtomicInteger(0);
+    @Transient
+    private Map<Integer, Long> skillCoolTimes = new HashMap<>();
 
     public MapleChar(int accountID, String name, int gender) {
         // Set char base data -
@@ -175,7 +176,8 @@ public class MapleChar {
         this.linkedCharacterName = "";
         // Skills -
         this.skills = new HashMap<>();
-        this.skillCoolTimes = new HashMap<>();
+        // KeyMapping -
+        this.keymap = new HashMap<>();
     }
 
     public MapleChar(int accountID, String name, byte gender, int job, short subJob, int[] charAppearance) {
@@ -218,7 +220,8 @@ public class MapleChar {
         this.linkedCharacterName = "";
         // Skills -
         this.skills = new HashMap<>();
-        this.skillCoolTimes = new HashMap<>();
+        // KeyMapping -
+        this.keymap = new HashMap<>();
     }
 
     public int getStat(Stat stat) {
@@ -937,6 +940,6 @@ public class MapleChar {
             write(CWvsContext.dropPickupMessage(quantity, PickupMessageType.MESO, (short) 0, quantity));
         }
         getField().removeDrop(drop.getId(), getId(), -1);
-        EventManager.cancelEvent(MapleUtils.concat(drop.getId(), (long) getField().getId()), EventType.REMOVE_DROP_FROM_FIELD);
+        EventManager.cancelEvent(MapleUtils.concat((long) getField().getId(), drop.getId()), EventType.REMOVE_DROP_FROM_FIELD);
     }
 }

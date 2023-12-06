@@ -48,7 +48,7 @@ public class EventManager {
         logger.serverNotice("|> Start cleanup of all the old events... |>");
         if (!events.isEmpty()) {
             events.values().removeIf(mapOfEvents -> {
-                mapOfEvents.values().removeIf(Future::isDone);
+                mapOfEvents.values().removeIf(event -> event.isDone() || event.isCancelled());
                 return mapOfEvents.isEmpty();
             });
         }

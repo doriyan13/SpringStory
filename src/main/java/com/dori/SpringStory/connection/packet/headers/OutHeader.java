@@ -1,8 +1,11 @@
 package com.dori.SpringStory.connection.packet.headers;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.List;
 
+@Getter
 public enum OutHeader {
     // GENERAL
     PING(17),
@@ -267,6 +270,11 @@ public enum OutHeader {
     // CDropPool::OnPacket -
     DropEnterField(322),
     DropLeaveField(324),
+
+    // CFuncKeyMappedMan::OnPacket -
+    FunkKeyMappedManInit(398),
+    FunkKeyMappedManPetConsumeItemInit(399),
+    FunkKeyMappedManPetConsumeMPItemInit(400),
 
     /*CHANGE_CHANNEL(16),
     ALIVE_REQ(17),
@@ -546,17 +554,16 @@ public enum OutHeader {
 
     private static final List<OutHeader> spam = Arrays.asList(
             MobCtrlAck,
-            MobMove
+            MobMove,
+            NpcEnterField,
+            MobEnterField,
+            MobChangeController
     );
 
     private final short value;
 
     OutHeader(int value) {
         this.value = (short) value;
-    }
-
-    public short getValue() {
-        return value;
     }
 
     public static OutHeader getOutHeaderByOp(int op) {

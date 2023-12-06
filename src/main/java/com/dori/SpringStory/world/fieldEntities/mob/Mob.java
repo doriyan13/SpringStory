@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_MOB_RESPAWN_DELAY;
 import static com.dori.SpringStory.enums.EventType.REVIVE_MOB;
+import static com.dori.SpringStory.utils.HashUuidCreator.getRandomUuidInLong;
 
 @Data
 @NoArgsConstructor
@@ -242,7 +243,7 @@ public class Mob extends Life {
         this.setController(null);
         getDamageDone().clear();
         long delay = getStatsData().getRespawnDelay() > 0 ? getStatsData().getRespawnDelay() : DEFAULT_MOB_RESPAWN_DELAY;
-        EventManager.addEvent(getObjectId(), REVIVE_MOB, new ReviveMobEvent(this, chr), delay);
+        EventManager.addEvent(getRandomUuidInLong(), REVIVE_MOB, new ReviveMobEvent(this, chr), delay);
     }
 
     // need to synchronize this method to avoid double damage/kill a mob in the same time

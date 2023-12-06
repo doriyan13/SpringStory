@@ -28,8 +28,6 @@ public class StageHandler {
         Optional<?> entity = ServiceManager.getService(ServiceType.Character).getEntityById((long) playerID);
         if (entity.isPresent() && entity.get() instanceof MapleChar chr) { // init the chr instance cast inline
             chr.setMapleClient(c);
-            // Init the player passive stats -
-            chr.initPassiveStats();
             // Handle adding a new user online -
             Server.addNewOnlineUser(chr, c);
             // Set the field for the character to spawn in -

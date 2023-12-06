@@ -2,10 +2,11 @@ package com.dori.SpringStory.connection.packet.packets;
 
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
+import org.jetbrains.annotations.NotNull;
 
 public interface CField {
 
-    static OutPacket adminResult(int cmdType, boolean hidden) {
+    static @NotNull OutPacket adminResult(int cmdType, boolean hidden) {
         OutPacket outPacket = new OutPacket(OutHeader.AdminResult);
         outPacket.encodeByte(cmdType);
         switch (cmdType) {

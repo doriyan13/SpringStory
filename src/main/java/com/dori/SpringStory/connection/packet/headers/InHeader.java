@@ -330,7 +330,8 @@ public enum InHeader {
             LogoutWorld,
             UserMove,
             MobMove,
-            PassiveskillInfoUpdate
+            PassiveskillInfoUpdate,
+            UserQuestRequest //TODO: still need to properly handle it someday!!!
     );
 
     private final short value;

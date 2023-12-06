@@ -12,6 +12,7 @@ import com.dori.SpringStory.enums.JobType;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.ServiceManager;
+import com.dori.SpringStory.utils.FuncKeyMapUtils;
 import com.dori.SpringStory.world.MapleWorld;
 import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.enums.LoginType;
@@ -71,7 +72,7 @@ public class LoginHandler {
         c.write(CLogin.checkPasswordResult(isSuccess, loginType, account));
     }
 
-    @Handler(op = WorldRequest)
+    @Handler(ops = {WorldRequest, WorldInfoRequest})
     public static void handleWorldListRequest(MapleClient c, InPacket inPacket) {
         // TODO: figure how to Set different background images - (currently this thing don't work :( )
         //c.write(CLogin.changeWorldSelectBackgroundImg());
@@ -84,18 +85,18 @@ public class LoginHandler {
         c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
     }
 
-    @Handler(op = WorldInfoRequest)
-    public static void handleWorldInfoRequest(MapleClient c, InPacket inPacket) {
-        // TODO: figure how to Set different background images - (currently this thing don't work :( )
-        //c.write(CLogin.changeWorldSelectBackgroundImg());
-
-        for (MapleWorld world : Server.getWorlds()) {
-            c.write(CLogin.sendWorldInformation(world, world.getWorldSelectMessages()));
-        }
-        c.write(CLogin.sendWorldInformationEnd());
-        c.write(CLogin.sendLatestConnectedWorld(ServerConstants.DEFAULT_WORLD_ID));
-        c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
-    }
+//    @Handler(op =)
+//    public static void handleWorldInfoRequest(MapleClient c, InPacket inPacket) {
+//        // TODO: figure how to Set different background images - (currently this thing don't work :( )
+//        //c.write(CLogin.changeWorldSelectBackgroundImg());
+//
+//        for (MapleWorld world : Server.getWorlds()) {
+//            c.write(CLogin.sendWorldInformation(world, world.getWorldSelectMessages()));
+//        }
+//        c.write(CLogin.sendWorldInformationEnd());
+//        c.write(CLogin.sendLatestConnectedWorld(ServerConstants.DEFAULT_WORLD_ID));
+//        c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
+//    }
 
     @Handler(op = CheckUserLimit)
     public static void handleWorldStatusRequest(MapleClient c, InPacket inPacket) {
@@ -159,6 +160,8 @@ public class LoginHandler {
         if (existingChar.isEmpty()) {
             // Attempt to create a new character -
             newChar = new MapleChar(c.getAccount().getId(), name, gender, job, subJob, charAppearance);
+            // Add default Key mapping for the new character -
+            newChar.setKeymap(FuncKeyMapUtils.getDefaultKeyMapping());
             c.getAccount().getCharacters().add(newChar);
             if (newChar.getEquippedInventory().getItems().size() == AMOUNT_OF_CREATION_EQUIPS_FOR_CHAR) {
                 ((MapleCharService) ServiceManager.getService(ServiceType.Character)).addNewEntity(newChar);
