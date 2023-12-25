@@ -7,7 +7,6 @@ import com.dori.SpringStory.utils.FuncKeyMapUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.stream.IntStream;
 
 public interface CFuncKeyMappedMan {
 

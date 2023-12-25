@@ -516,4 +516,8 @@ public class MapleUtils {
         // Convert the concatenated string to long and return -
         return Integer.parseInt(s);
     }
+
+    public static int getPercentageOf(int value, int percentage) {
+        return value * percentage / 100;
+    }
 }

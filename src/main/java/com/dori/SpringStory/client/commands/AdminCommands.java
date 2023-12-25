@@ -19,19 +19,17 @@ import com.dori.SpringStory.dataHandlers.MapDataHandler;
 import com.dori.SpringStory.dataHandlers.MobDataHandler;
 import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
 import com.dori.SpringStory.dataHandlers.dataEntities.StringData;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 
 import static com.dori.SpringStory.constants.GameConstants.MAX_MESO;
-
+@NoArgsConstructor
 public class AdminCommands {
     // Logger -
     private static final Logger logger = new Logger(AdminCommands.class);
 
     private static AdminCommands instance;
-
-    private AdminCommands() {
-    }
 
     @SuppressWarnings("InstantiationOfUtilityClass")
     public static AdminCommands getInstance() {

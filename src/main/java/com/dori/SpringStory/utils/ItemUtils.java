@@ -58,7 +58,8 @@ public interface ItemUtils {
                 case EvanPendant -> bodyPart = BodyPart.EvanPendant;
                 case EvanWing -> bodyPart = BodyPart.EvanWing;
                 case EvanShoes -> bodyPart = BodyPart.EvanShoes;
-                case OneHandedAxe,OneHandedSword,OneHandedBluntWeapon,TwoHandedBluntWeapon,TwoHandedAxe,TwoHandedSword -> bodyPart =BodyPart.Weapon;
+                case OneHandedAxe, OneHandedSword, OneHandedBluntWeapon, TwoHandedBluntWeapon, TwoHandedAxe, TwoHandedSword, PoleArm, Spear,
+                        Staff, Wand, Bow, Crossbow, Claw, Dagger, Gauntlet, Gun, Knuckle -> bodyPart = BodyPart.Weapon;
                 case CashWeapon -> bodyPart = BodyPart.CashWeapon;
                 default -> System.out.println("idk? " + prefix);
             }
@@ -72,25 +73,23 @@ public interface ItemUtils {
                                List<Integer> cWeapon) {
         for (Item item : chr.getEquippedInventory().getItems()) {
             BodyPart bodyPart = getBodyPartFromItem(item.getItemId());
-            if(bodyPart != BodyPart.BPBase){
-                if(bodyPart.getVal() < BodyPart.BPEnd.getVal()){
+            if (bodyPart != BodyPart.BPBase) {
+                if (bodyPart.getVal() < BodyPart.BPEnd.getVal()) {
                     if (!charEquips.containsKey(bodyPart)) {
-                        charEquips.put(bodyPart,item.getItemId());
-                    } else if (item.isCash()){
+                        charEquips.put(bodyPart, item.getItemId());
+                    } else if (item.isCash()) {
                         int nonCashItem = charEquips.remove(bodyPart);
-                        charEquips.put(bodyPart,item.getItemId());
+                        charEquips.put(bodyPart, item.getItemId());
                         charMaskedEquips.put(bodyPart, nonCashItem);
                     } else {
                         charMaskedEquips.put(bodyPart, item.getItemId());
                     }
                 }
-                if(bodyPart.getVal() < BodyPart.BPEnd.getVal() && !item.isCash()){
-                    charEquips.put(bodyPart,item.getItemId());
-                }
-                else if (bodyPart.getVal() < BodyPart.BPEnd.getVal() && bodyPart.getVal() != BodyPart.CashWeapon.getVal()){
-                    charMaskedEquips.put(bodyPart,item.getItemId());
-                }
-                else if(bodyPart.getVal() == BodyPart.CashWeapon.getVal()){
+                if (bodyPart.getVal() < BodyPart.BPEnd.getVal() && !item.isCash()) {
+                    charEquips.put(bodyPart, item.getItemId());
+                } else if (bodyPart.getVal() < BodyPart.BPEnd.getVal() && bodyPart.getVal() != BodyPart.CashWeapon.getVal()) {
+                    charMaskedEquips.put(bodyPart, item.getItemId());
+                } else if (bodyPart.getVal() == BodyPart.CashWeapon.getVal()) {
                     cWeapon.add(item.getItemId());
                 }
             }
@@ -217,13 +216,17 @@ public interface ItemUtils {
                 isCape(itemId);
     }
 
-    static boolean shouldEncodeEquipByType(EquipType type, Equip equip){
+    static boolean shouldEncodeEquipByType(EquipType type, Equip equip) {
         boolean result = true;
-        switch (type){
-            case Equipped -> result = equip.getBagIndex() > BodyPart.BPBase.getVal() && equip.getBagIndex() < BodyPart.BPEnd.getVal();
-            case Cash -> result = equip.getBagIndex() >= BodyPart.CBPBase.getVal() && equip.getBagIndex() <= BodyPart.CBPEnd.getVal();
-            case Evan -> result = equip.getBagIndex() >= BodyPart.EvanBase.getVal() && equip.getBagIndex() < BodyPart.EvanEnd.getVal();
-            case Mechanic -> result = equip.getBagIndex() >= BodyPart.MechBase.getVal() && equip.getBagIndex() < BodyPart.MechEnd.getVal();
+        switch (type) {
+            case Equipped ->
+                    result = equip.getBagIndex() > BodyPart.BPBase.getVal() && equip.getBagIndex() < BodyPart.BPEnd.getVal();
+            case Cash ->
+                    result = equip.getBagIndex() >= BodyPart.CBPBase.getVal() && equip.getBagIndex() <= BodyPart.CBPEnd.getVal();
+            case Evan ->
+                    result = equip.getBagIndex() >= BodyPart.EvanBase.getVal() && equip.getBagIndex() < BodyPart.EvanEnd.getVal();
+            case Mechanic ->
+                    result = equip.getBagIndex() >= BodyPart.MechBase.getVal() && equip.getBagIndex() < BodyPart.MechEnd.getVal();
         }
         return result;
     }

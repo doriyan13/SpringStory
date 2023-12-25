@@ -6,18 +6,18 @@ import com.dori.SpringStory.events.EventManager;
 
 import static com.dori.SpringStory.enums.EventType.REGEN_CHARACTER;
 
-public record RegenChrEvent(MapleChar chr, int amount, boolean healthRegen, int delay) implements Runnable {
+public record RegenChrEvent(MapleChar chr, int amount, boolean healthRegen, int delay, int intervalCount) implements Runnable {
     @Override
     public void run() {
-        if (healthRegen) {
-            chr.modifyHp(amount);
-        } else {
-            chr.modifyMp(amount);
-        }
-        int intervalCount = chr.getHpIntervalCountLeft().get();
-        if(intervalCount > 0) {
-            chr.getHpIntervalCountLeft().set(intervalCount - 1);
-            EventManager.addEvent(chr.getId(), REGEN_CHARACTER,new RegenChrEvent(chr, amount, healthRegen, delay), delay);
+        if (amount > 0) {
+            if (healthRegen) {
+                chr.modifyHp(amount);
+            } else {
+                chr.modifyMp(amount);
+            }
+            if (intervalCount > 0) {
+                EventManager.addEvent(chr.getId(), REGEN_CHARACTER, new RegenChrEvent(chr, amount, healthRegen, delay, intervalCount - 1), delay);
+            }
         }
     }
 }

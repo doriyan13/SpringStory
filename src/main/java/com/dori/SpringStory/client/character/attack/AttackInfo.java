@@ -3,6 +3,7 @@ package com.dori.SpringStory.client.character.attack;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.enums.AttackType;
+import com.dori.SpringStory.jobs.handlers.WarriorHandler;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.JobUtils;
 import com.dori.SpringStory.utils.SkillUtils;
@@ -11,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -107,13 +109,14 @@ public class AttackInfo {
         for (int i = 0; i < this.mobCount; i++) {
             DamageInfo di = new DamageInfo();
             di.decode(inPacket, getHits());
+            di.setSkillId(this.skillId);
             mobAttackInfo.add(di);
         }
     }
 
     public void apply(MapleChar chr) {
         if (skillId != 0) {
-            // TODO: In the future i need to also handle other kind of consumption - hp / and maybe more?
+            // TODO: In the future i need to also handle other kind of consumption - meso and maybe more?
             SkillUtils.applySkillConsumptionToChar(skillId, chr.getSkill(skillId).getCurrentLevel(), chr);
         }
         this.mobAttackInfo.forEach(mai -> mai.apply(chr));

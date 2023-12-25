@@ -36,12 +36,12 @@ public class LoginHandler {
         // Get from the packet the username & password -
         String username = inPacket.decodeString();
         String password = inPacket.decodeString();
-        byte[] macID = inPacket.decodeArr(16);
-        int gameRoomClient = inPacket.decodeInt(); // idk?
-        byte nGameStartMode = inPacket.decodeByte(); // WebStart = 0, Unknown1 = 1, GameLaunching = 2
-        byte unk = inPacket.decodeByte(); // idk?
-        byte unk2 = inPacket.decodeByte(); // idk?
-        int partnerCode = inPacket.decodeInt(); // idk?
+        inPacket.decodeArr(16); // macID
+        inPacket.decodeInt(); // gameRoomClient
+        inPacket.decodeByte(); // nGameStartMode | WebStart = 0, Unknown1 = 1, GameLaunching = 2
+        inPacket.decodeByte(); // idk?
+        inPacket.decodeByte(); // idk?
+        inPacket.decodeInt(); // partnerCode
         // Is successful login -
         boolean isSuccess = false;
         // Login result -
@@ -85,24 +85,11 @@ public class LoginHandler {
         c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
     }
 
-//    @Handler(op =)
-//    public static void handleWorldInfoRequest(MapleClient c, InPacket inPacket) {
-//        // TODO: figure how to Set different background images - (currently this thing don't work :( )
-//        //c.write(CLogin.changeWorldSelectBackgroundImg());
-//
-//        for (MapleWorld world : Server.getWorlds()) {
-//            c.write(CLogin.sendWorldInformation(world, world.getWorldSelectMessages()));
-//        }
-//        c.write(CLogin.sendWorldInformationEnd());
-//        c.write(CLogin.sendLatestConnectedWorld(ServerConstants.DEFAULT_WORLD_ID));
-//        c.write(CLogin.sendRecommendWorldMessage(ServerConstants.DEFAULT_WORLD_ID, ServerConstants.RECOMMEND_MSG));
-//    }
-
     @Handler(op = CheckUserLimit)
     public static void handleWorldStatusRequest(MapleClient c, InPacket inPacket) {
         //TODO: need to add handling for verifying amount of connected users to the world
         byte worldId = inPacket.decodeByte();
-        byte unk = inPacket.decodeByte(); // idk what is it?
+        inPacket.decodeByte(); // idk what is it?
         // Send the current world status -
         c.write(CLogin.getCheckUserLimit(worldId));
     }
@@ -163,10 +150,11 @@ public class LoginHandler {
             // Add default Key mapping for the new character -
             newChar.setKeymap(FuncKeyMapUtils.getDefaultKeyMapping());
             c.getAccount().getCharacters().add(newChar);
-            if (newChar.getEquippedInventory().getItems().size() == AMOUNT_OF_CREATION_EQUIPS_FOR_CHAR) {
-                ((MapleCharService) ServiceManager.getService(ServiceType.Character)).addNewEntity(newChar);
-                loginType = LoginType.Success;
-            }
+//            if (newChar.getEquippedInventory().getItems().size() == AMOUNT_OF_CREATION_EQUIPS_FOR_CHAR) {
+//
+//            }
+            ((MapleCharService) ServiceManager.getService(ServiceType.Character)).addNewEntity(newChar);
+            loginType = LoginType.Success;
         }
         // Send a new character creation successful creation -
         c.write(CLogin.createNewCharacterResult(loginType, newChar));
@@ -175,8 +163,8 @@ public class LoginHandler {
     @Handler(op = SelectCharacter)
     public static void handleCharSelect(MapleClient c, InPacket inPacket) {
         int characterID = inPacket.decodeInt();
-        String hwID = inPacket.decodeString(); // hardware id
-        String macID = inPacket.decodeString(); // machine id
+        inPacket.decodeString(); // hwID | hardware id
+        inPacket.decodeString(); // macID | machine id
         byte[] clientMachineID = new byte[0];
         try {
             clientMachineID = InetAddress.getByName(ServerConstants.HOST_IP).getAddress(); // for normal maple (not local host i need to give the original maple IP: 63.251.217.1)

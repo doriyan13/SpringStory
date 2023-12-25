@@ -1,21 +1,21 @@
 package com.dori.SpringStory.enums;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
+@Getter
 public enum JobType {
-    Cygnus(0),
+    Resistance(0),
     Adventurer(1),
-    Aran(2),
-    Evan(3);
+    Cygnus(2),
+    Aran(3),
+    Evan(4);
 
     private final int val;
 
     JobType(int val) {
         this.val = val;
-    }
-
-    public int getVal() {
-        return val;
     }
 
     public static JobType getTypeByVal(int val){
@@ -25,6 +25,7 @@ public enum JobType {
     public Job getStartJobByType(){
         Job job = Job.Beginner;
         switch (this){
+            case Resistance -> job = Job.Citizen;
             case Cygnus -> job = Job.Noblesse;
             case Aran -> job = Job.Legend;
             case Evan -> job = Job.Evan;

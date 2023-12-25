@@ -59,8 +59,6 @@ public interface FuncKeyMapUtils {
 
     static Map<Integer, KeyMapping> getDefaultKeyMapping() {
         Map<Integer, KeyMapping> keymap = new HashMap<>();
-        // KeyMapping keyMapping = new KeyMapping(key, type, action);
-        //                    addKeyMappingToChr(chr, keyMapping);
         int[] array1 = new int[]{2, 3, 35, 4, 36, 5, 37, 6, 38, 7, 8, 41, 43, 44, 13, 45, 46, 16, 17, 18, 21, 23, 57, 26};
         int[] array2 = new int[]{6, 6, 4, 6, 4, 6, 4, 6, 4, 6, 6, 4, 4, 5, 4, 5, 5, 4, 4, 4, 5, 4, 5, 4};
         int[] array3 = new int[]{100, 101, 2, 102, 9, 103, 3, 104, 7, 105, 106, 23, 28, 50, 4, 51, 52, 8, 5, 0, 54, 1, 53, 15};

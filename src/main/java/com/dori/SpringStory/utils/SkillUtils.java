@@ -4,6 +4,7 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.enums.SkillStat;
+import com.dori.SpringStory.jobs.handlers.WarriorHandler;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.dataHandlers.SkillDataHandler;
 import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
@@ -14,7 +15,7 @@ import static com.dori.SpringStory.enums.Skills.*;
 
 @Component
 public interface SkillUtils {
-    static Logger logger = new Logger(SkillUtils.class);
+    Logger logger = new Logger(SkillUtils.class);
 
     private static boolean isIgnoreMasterLevelForCommon(int nSkillID) {
         return nSkillID == CROSSBOWMASTER_MARKMAN_SHIP.getId()
@@ -111,7 +112,10 @@ public interface SkillUtils {
         if (amountToConsume != 0) {
             chr.modifyMp(-amountToConsume);
         }
-        if(SkillUtils.isComboAttackDrainingSkill(skillID)) {
+        if (JobUtils.isDarkKnight(chr.getJob())) {
+            WarriorHandler.getInstance().handleDarkKnightHpConsumption(skillData,skillID,slv,chr);
+        }
+        if (SkillUtils.isComboAttackDrainingSkill(skillID)) {
             chr.resetAttackCombo();
         }
     }

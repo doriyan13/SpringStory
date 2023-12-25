@@ -1,6 +1,9 @@
 package com.dori.SpringStory.jobs.handlers;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.client.character.Skill;
+import com.dori.SpringStory.dataHandlers.SkillDataHandler;
+import com.dori.SpringStory.enums.ChatType;
 import com.dori.SpringStory.enums.SkillStat;
 import com.dori.SpringStory.enums.Skills;
 import com.dori.SpringStory.jobs.JobHandler;
@@ -10,6 +13,11 @@ import com.dori.SpringStory.utils.FormulaCalcUtils;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 import lombok.NoArgsConstructor;
+
+import static com.dori.SpringStory.enums.SkillStat.prop;
+import static com.dori.SpringStory.enums.SkillStat.x;
+import static com.dori.SpringStory.enums.Skills.DRAGONKNIGHT_DRAGON_ROAR;
+import static com.dori.SpringStory.utils.MapleUtils.getPercentageOf;
 
 @NoArgsConstructor
 public class WarriorHandler implements JobHandler {
@@ -28,6 +36,39 @@ public class WarriorHandler implements JobHandler {
         int percentageToHeal = FormulaCalcUtils.calcValueFromFormula(skillData.getSkillStatInfo().get(SkillStat.x), slv);
         int amountToHeal = chr.getMaxHp() * percentageToHeal / 100;
         chr.modifyHp(amountToHeal);
+    }
+
+    public void handleDarkKnightHpConsumption(SkillData skillData, int skillID, int slv, MapleChar chr) {
+        if (skillID == Skills.DRAGONKNIGHT_SACRIFICE.getId() || skillID == DRAGONKNIGHT_DRAGON_ROAR.getId()) {
+            int amountToConsume;
+            // wz base handling for the skill -
+            String hpConsumptionFormula = skillData.getSkillStatInfo().getOrDefault(x, "");
+            amountToConsume = FormulaCalcUtils.calcValueFromFormula(hpConsumptionFormula, slv);
+            if (amountToConsume != 0) {
+                chr.modifyHp(-(amountToConsume * chr.getHp() / 100));
+            }
+        }
+    }
+
+    public boolean isDragonSkill(int skillID) {
+        return skillID == DRAGONKNIGHT_DRAGON_ROAR.getId()
+                || skillID == Skills.DRAGONKNIGHT_DRAGON_FURY.getId()
+                || skillID == Skills.DRAGONKNIGHT_DRAGON_BURSTER.getId()
+                || skillID == Skills.DRAGONKNIGHT_SACRIFICE.getId();
+    }
+
+    public void handleDarkKnightDragonSkillHealthRegen(MapleChar chr, int skillID, int dmg) {
+        Skill dragonWisdom = chr.getSkill(Skills.DRAGONKNIGHT_DRAGON_WISDOM.getId());
+        if (isDragonSkill(skillID) && dragonWisdom != null) {
+            SkillData skillData = SkillDataHandler.getSkillDataByID(dragonWisdom.getSkillId());
+            int chanceToRegen = FormulaCalcUtils.calcValueFromFormula(skillData.getSkillStatInfo().get(prop), dragonWisdom.getCurrentLevel());
+            int percentageOfHealthToRegen = FormulaCalcUtils.calcValueFromFormula(skillData.getSkillStatInfo().get(x), dragonWisdom.getCurrentLevel());
+            if (MapleUtils.succeedProp(chanceToRegen)) {
+                int amountOfHealthToRegen = getPercentageOf(dmg, percentageOfHealthToRegen);
+                int healthRegenCap = getPercentageOf(chr.getMaxHp(), 50);
+                chr.modifyHp(Math.min(amountOfHealthToRegen, healthRegenCap));
+            }
+        }
     }
 
     private void handleDivineShield(MapleChar chr, SkillData skillData, int slv) {

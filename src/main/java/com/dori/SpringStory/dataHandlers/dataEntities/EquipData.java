@@ -74,7 +74,6 @@ public class EquipData {
     private boolean notSale;
     private int attackSpeed;
     private int price;
-    private int charmEXP;
     private boolean expireOnLogout;
     private int itemID;
     private boolean exItem;

@@ -18,8 +18,8 @@ public interface BuffsDataLoader {
                     String durationInSecFormula,
                     int coolDownInSec,
                     int intervalInSec,
-                    boolean healthRegen) {
-        addBuff(job, skill.getId(), new BuffData(stat, calcFormula, durationInSecFormula, coolDownInSec, intervalInSec, healthRegen));
+                    boolean health) {
+        addBuff(job, skill.getId(), new BuffData(stat, calcFormula, durationInSecFormula, coolDownInSec, intervalInSec, health));
     }
 
     static void add(Job job,
@@ -28,6 +28,16 @@ public interface BuffsDataLoader {
                     String calcFormula,
                     String durationInSecFormula) {
         add(job, skill, stat, calcFormula, durationInSecFormula, 0, 0, false);
+    }
+
+    static void add(Job job,
+                    Skills skill,
+                    CharacterTemporaryStat stat,
+                    String calcFormula,
+                    String durationInSecFormula,
+                    int intervalInSec,
+                    boolean health) {
+        add(job, skill, stat, calcFormula, durationInSecFormula, 0, intervalInSec, health);
     }
 
     static void loadCustomBuffsData() {
@@ -66,7 +76,11 @@ public interface BuffsDataLoader {
         add(Job.Spearman, SPEARMAN_HYPER_BODY, MaxMp, "3 * x", "15 * x");
 
         // Dragon Knight
-        add(Job.DragonKnight, DRAGONKNIGHT_DRAGON_BLOOD, DragonBlood, "1", "10 * x");
+        add(Job.DragonKnight, DRAGONKNIGHT_DRAGON_BLOOD, DragonBlood, "100 - 3 * x", "10 * x", 1, true);
         add(Job.DragonKnight, DRAGONKNIGHT_DRAGON_BLOOD, Pad, "5 + x", "10 * x");
+
+        // Machanic 1st Job -
+        add(Job.Mechanic1, MECHANIC_HN07, Mechanic, "x", "99999999");
+        add(Job.Mechanic1, MECHANIC_HN07, RideVehicle, "1932016", "-1000");
     }
 }

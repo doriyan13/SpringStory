@@ -11,7 +11,6 @@ import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.RemoveDropFromField;
 import com.dori.SpringStory.inventory.Item;
-import com.dori.SpringStory.utils.HashUuidCreator;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
@@ -25,7 +24,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_CAPACITY;
-import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_RATE_BY_MOB_GEN_COUNT;
 import static com.dori.SpringStory.constants.ServerConstants.*;
 import static com.dori.SpringStory.utils.HashUuidCreator.getRandomUuidInLong;
 

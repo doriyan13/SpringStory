@@ -5,6 +5,7 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.PassiveBuffStat;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.events.EventManager;
+import com.dori.SpringStory.events.eventsHandlers.ConsumeChrHpOrMpEvent;
 import com.dori.SpringStory.events.eventsHandlers.RegenChrEvent;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.temporaryStats.TempStatValue;
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dori.SpringStory.enums.EventType.CONSUME_CHARACTER_HP;
 import static com.dori.SpringStory.enums.EventType.REGEN_CHARACTER;
 import static com.dori.SpringStory.enums.SkillStat.time;
 import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.Pad;
@@ -128,12 +130,10 @@ public class TemporaryStatManager {
     }
 
     private void handleSpecialBuffEffect(MapleChar chr, BuffData buffData, int value, int slv) {
+        int duration = FormulaCalcUtils.calcValueFromFormula(buffData.getDurationInSecFormula(), slv);
         switch (buffData.getTempStat()) {
-            case Regen -> {
-                int duration = FormulaCalcUtils.calcValueFromFormula(buffData.getDurationInSecFormula(), slv);
-                EventManager.addEvent(chr.getId(), REGEN_CHARACTER, new RegenChrEvent(chr, value, buffData.isHealthRegen(), buffData.getIntervalInSec()), buffData.getIntervalInSec());
-                chr.getHpIntervalCountLeft().set(duration / buffData.getIntervalInSec());
-            }
+            case Regen -> EventManager.addEvent(chr.getId(), REGEN_CHARACTER, new RegenChrEvent(chr, value, buffData.isHealth(), buffData.getIntervalInSec(), (duration / buffData.getIntervalInSec())), buffData.getIntervalInSec());
+            case DragonBlood ->  EventManager.addEvent(chr.getId(), CONSUME_CHARACTER_HP, new ConsumeChrHpOrMpEvent(chr, value, true, buffData.getIntervalInSec(), (duration / buffData.getIntervalInSec())), buffData.getIntervalInSec());
         }
     }
 
@@ -246,7 +246,7 @@ public class TemporaryStatManager {
 
     public void encodeForLocal(OutPacket outPacket) {
         encodeMask(outPacket, false);
-        Arrays.stream(CharacterTemporaryStat.values()).forEach(stat -> encodeAdditionalStat(stat, outPacket, false));
+        CharacterTemporaryStat.getEncodingLocalStats().forEach(stat -> encodeAdditionalStat(stat, outPacket, false));
 
         outPacket.encodeBool(isDefenseAtt()); // bDefenseAtt
         outPacket.encodeBool(isDefenseState()); // bDefenseState

@@ -1,6 +1,5 @@
 package com.dori.SpringStory.connection.packet.packets;
 
-import com.dori.SpringStory.client.character.ExtendSP;
 import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.client.character.quest.Quest;
 import com.dori.SpringStory.enums.*;
@@ -79,8 +78,12 @@ public interface CWvsContext {
                     case Face, Hair, Hp, MaxHp, Mp, MaxMp, Exp, Money -> outPacket.encodeInt(statValue);
                     case SubJob, Str, Dex, Inte, Luk, AbilityPoint, Pop -> outPacket.encodeShort((short) statValue);
                     case SkillPoint -> {
-                        if (stat.getValue() instanceof ExtendSP) {
-                            ((ExtendSP) stat.getValue()).encode(outPacket);
+                        if (stat.getValue() instanceof List<?> extendedSP) {
+                            outPacket.encodeByte(extendedSP.size());
+                            for (int i = 0; i < extendedSP.size(); i++) {
+                                outPacket.encodeByte(i);
+                                outPacket.encodeByte((int) extendedSP.get(i));
+                            }
                         } else {
                             outPacket.encodeShort(((Integer) stat.getValue()).shortValue());
                         }

@@ -2,6 +2,9 @@ package com.dori.SpringStory.client.character.attack;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.InPacket;
+import com.dori.SpringStory.jobs.handlers.WarriorHandler;
+import com.dori.SpringStory.utils.JobUtils;
+import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import lombok.AllArgsConstructor;
@@ -23,6 +26,7 @@ public class DamageInfo {
     private Position hitPos;
     private Position prevPos;
     private int[] damages;
+    private int skillId;
 
     public void decode(InPacket inPacket, byte hits) {
         this.mobId = inPacket.decodeInt();
@@ -46,6 +50,9 @@ public class DamageInfo {
             int totalDmg = Arrays.stream(damages).sum();
             mob.setController(chr);
             mob.damage(chr, totalDmg);
+            if (JobUtils.isDarkKnight(chr.getJob())) {
+                WarriorHandler.getInstance().handleDarkKnightDragonSkillHealthRegen(chr, skillId, totalDmg);
+            }
         }
     }
 }

@@ -128,7 +128,6 @@ public class UserHandler {
             quickSlotKeys.add(inPacket.decodeInt());
         }
         c.getChr().setQuickSlotKeys(quickSlotKeys);
-        //TODO:funcKeyMappedManInit!!!!
         //TODO:QUICKSLOT_MAPPED_INIT!!!! (chronos did it!)
     }
 

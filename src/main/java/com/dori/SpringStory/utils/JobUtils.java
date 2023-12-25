@@ -131,4 +131,19 @@ public interface JobUtils {
                 ? nType : 0;
     }
 
+    static boolean isExtendedJob(int nJobId) {
+        // Maybe in the future i will add additional exclusion for normal jobs so the sp will be shared for 1-4th jobs?
+        return nJobId / 1000 >= 3 || nJobId / 100 == 22 || nJobId == Job.Evan.getId();
+    }
+
+    static int getExtendedSpIndexByJob(int nJobId) {
+        if (nJobId < Job.Evan2.getId() || nJobId == Job.Citizen.getId()) {
+            return 0;
+        }
+        if (nJobId % 100 == 0) {
+            return 1;
+        }
+        return (nJobId % 10) + 2;
+    }
+
 }

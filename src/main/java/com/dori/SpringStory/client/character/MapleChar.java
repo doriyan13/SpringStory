@@ -15,10 +15,7 @@ import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Inventory;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
-import com.dori.SpringStory.utils.FormulaCalcUtils;
-import com.dori.SpringStory.utils.ItemUtils;
-import com.dori.SpringStory.utils.MapleUtils;
-import com.dori.SpringStory.utils.SkillUtils;
+import com.dori.SpringStory.utils.*;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Drop;
@@ -42,8 +39,9 @@ import static com.dori.SpringStory.enums.InventoryOperation.Add;
 import static com.dori.SpringStory.enums.InventoryOperation.UpdateQuantity;
 import static com.dori.SpringStory.enums.InventoryType.*;
 import static com.dori.SpringStory.enums.Stat.*;
-import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.CombatOrders;
-import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.ComboCounter;
+import static com.dori.SpringStory.enums.Stat.MaxHp;
+import static com.dori.SpringStory.enums.Stat.MaxMp;
+import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.*;
 
 @Data
 @AllArgsConstructor
@@ -81,9 +79,8 @@ public class MapleChar {
     private int exp;
     private int pop; // fame
     private int meso;
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "extend_sp")
-    private ExtendSP extendSP; // it's the Skill Points for each job and need to manage the job number by lvl 'getJobLevelByCharLevel' it's relevant for DualBlade and Evan (which have extra jobs)!!
+    @Convert(converter = InlinedIntArrayConverter.class)
+    private List<Integer> extendSP;
     private int mapId;
     private int portalId;
     private int subJob;
@@ -141,8 +138,6 @@ public class MapleChar {
     @Transient
     private TemporaryStatManager tsm = new TemporaryStatManager();
     @Transient
-    private AtomicInteger hpIntervalCountLeft = new AtomicInteger(0);
-    @Transient
     private Map<Integer, Long> skillCoolTimes = new HashMap<>();
 
     public MapleChar(int accountID, String name, int gender) {
@@ -168,7 +163,7 @@ public class MapleChar {
         // map pos -
         this.mapId = DEFAULT_MAP_ID;
         // ExtendSP -
-        this.extendSP = new ExtendSP();
+        this.extendSP = List.of(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         // Rank -
         this.ranked = false;
         // LinkedChar -
@@ -190,7 +185,7 @@ public class MapleChar {
         this.hair = charAppearance[1] + charAppearance[2]; // Hair contain: hair + hairColor values!
         this.skin = charAppearance[3];
         this.level = DEFAULT_START_LVL;
-        this.job = job;
+        this.job = subJob != 1 ? job : Job.Thief.getId();
         this.subJob = subJob;
         // Set basic stats -
         this.nStr = BASE_START_STAT;
@@ -203,9 +198,9 @@ public class MapleChar {
         this.mp = BASE_START_MP;
         this.maxMp = BASE_START_MP;
         // map pos -
-        this.mapId = DEFAULT_MAP_ID;
+        this.mapId = FieldUtils.getStartingFieldByJob(this.job);
         // ExtendSP -
-        this.extendSP = new ExtendSP();
+        this.extendSP = List.of(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         // Rank -
         this.ranked = false;
         // Handle equips -
@@ -264,6 +259,22 @@ public class MapleChar {
         }
     }
 
+    public void encodeExtendedSP(OutPacket outPacket) {
+        outPacket.encodeByte(getExtendSP().size());
+        for (int i = 0; i < getExtendSP().size(); i++) {
+            outPacket.encodeByte(i);
+            outPacket.encodeByte(getExtendSP().get(i));
+        }
+    }
+
+    public void encodeSP(OutPacket outPacket) {
+        if (JobUtils.isExtendedJob(getJob())) {
+            encodeExtendedSP(outPacket);
+        } else {
+            outPacket.encodeShort(getSp()); // remaining SP
+        }
+    }
+
     public void encodeBasicStats(OutPacket outPacket) {
         outPacket.encodeShort(getNStr());
         outPacket.encodeShort(getNDex());
@@ -292,13 +303,8 @@ public class MapleChar {
         encodeBasicStats(outPacket);
         //avoid popup ?, idk i just encode the AP normally -
         outPacket.encodeShort(getAp()); // Math.min(199,getAp())
-
-        //TODO: Check if job is special -> GM / Manager / Evan / DualBlade? ->  a1 / 1000 == 3 || a1 / 100 == 22 || a1 == 2001
-        if (false) {
-            getExtendSP().encode(outPacket);
-        } else {
-            outPacket.encodeShort(getSp()); // remaining SP
-        }
+        // Encode SP -
+        encodeSP(outPacket);
         outPacket.encodeInt(getExp());
         outPacket.encodeShort(getPop()); // fame
         outPacket.encodeInt(0); // Gach exp -> nTempEXP
@@ -637,6 +643,15 @@ public class MapleChar {
         }
     }
 
+    public void addSp(int spToAdd) {
+        if (JobUtils.isExtendedJob(getJob())) {
+            int extendedSpIndex = JobUtils.getExtendedSpIndexByJob(getJob());
+            getExtendSP().add(extendedSpIndex, getExtendSP().get(extendedSpIndex) + spToAdd);
+        } else {
+            setSp(getSp() + spToAdd);
+        }
+    }
+
     public void lvlUp(int amountOfLevels) {
         int optionalNewLvl = amountOfLevels + getLevel();
         int amountOfLvlUps = MAX_LVL - optionalNewLvl > 0 ? amountOfLevels : MAX_LVL - getLevel();
@@ -654,8 +669,8 @@ public class MapleChar {
             stats.put(Stat.Level, getLevel());
             setAp(getAp() + apToAdd);
             stats.put(Stat.AbilityPoint, getAp());
-            setSp(getSp() + spToAdd);
-            stats.put(Stat.SkillPoint, getSp());
+            addSp(spToAdd);
+            stats.put(Stat.SkillPoint, JobUtils.isExtendedJob(getJob()) ? getExtendSP() : getSp());
             setMaxHp(getMaxHp() + hpToAdd);
             stats.put(MaxHp, getMaxHp());
             setHp(getMaxHp());
@@ -707,9 +722,8 @@ public class MapleChar {
 
     public void gainSP(int amountOfSp) {
         if (amountOfSp > 0) {
-            int newSP = sp + amountOfSp;
-            setSp(newSP);
-            updateStat(SkillPoint, newSP);
+            addSp(amountOfSp);
+            updateStat(SkillPoint, JobUtils.isExtendedJob(getJob()) ? getExtendSP() : getSp());
         }
     }
 
@@ -723,6 +737,10 @@ public class MapleChar {
 
     public Skill getSkill(int skillID) {
         return getSkills().get(skillID);
+    }
+
+    public boolean hasSkill(int skillID) {
+        return getSkill(skillID) != null;
     }
 
     private void applyPassiveSkillDataStats(SkillData skillData, int slv) {
@@ -750,8 +768,8 @@ public class MapleChar {
         if (skillData != null && skillData.isPassive()) {
             applyPassiveSkillDataStats(skillData, currSkill.getCurrentLevel());
         }
-        setSp(getSp() - 1);
-        updateStat(Stat.SkillPoint, getSp());
+        addSp(getSp() - 1);
+        updateStat(Stat.SkillPoint, JobUtils.isExtendedJob(getJob()) ? getExtendSP() : getSp());
     }
 
     public void addSkill(Skill skill) {

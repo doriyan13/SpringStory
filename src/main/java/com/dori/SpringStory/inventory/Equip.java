@@ -153,7 +153,6 @@ public class Equip extends Item {
         this.superiorEqp = equipData.isSuperiorEqp();
         this.iReduceReq = equipData.getIReduceReq();
         this.specialGrade = equipData.getSpecialGrade();
-        this.charmEXP = equipData.getCharmEXP();
         this.options = equipData.getOptions();
     }
 

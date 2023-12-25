@@ -267,7 +267,6 @@ public class ItemDataHandler {
                 case "reduceReq" -> equip.setIReduceReq((byte) Short.parseShort(value));
                 case "fixedGrade" -> equip.setFixedGrade(Integer.parseInt(value));
                 case "specialGrade" -> equip.setSpecialGrade(Integer.parseInt(value));
-                case "charmEXP" -> equip.setCharmEXP(Integer.parseInt(value));
                 case "level" -> {
                     // TODO: proper parsing, actual stats and skills for each level the equip gets
                     //logger.warning("Need to handle level parsing properly and such.. ");

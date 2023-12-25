@@ -1,7 +1,10 @@
 package com.dori.SpringStory.enums;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
+@Getter
 public enum Job {
     Beginner(0),
     Warrior(100),
@@ -90,6 +93,7 @@ public enum Job {
     Evan9(2216),
     Evan10(2217),
     Evan11(2218),
+    Citizen(3000),
     BattleMage1(3200),
     BattleMage2(3210),
     WildHunter1(3300),
@@ -103,10 +107,6 @@ public enum Job {
 
     Job(int id){
         this.id = id;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public static Job getJobById(int id){
