@@ -1,7 +1,10 @@
 package com.dori.SpringStory.inventory;
 
+import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.enums.EquipType;
+import com.dori.SpringStory.enums.InventoryOperation;
 import com.dori.SpringStory.enums.InventoryType;
 import com.dori.SpringStory.utils.ItemUtils;
 import jakarta.persistence.*;
@@ -11,6 +14,10 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import static com.dori.SpringStory.enums.InventoryOperation.Remove;
+import static com.dori.SpringStory.enums.InventoryOperation.UpdateQuantity;
+import static com.dori.SpringStory.utils.ItemUtils.isFullItemConsume;
 
 @Data
 @AllArgsConstructor
@@ -83,7 +90,7 @@ public class Inventory {
     public void addItem(Item item) {
         if (getItems().size() < getSlots()) {
             item.setBagIndex(Math.abs(item.getBagIndex()));
-            if(getType() == InventoryType.EQUIPPED && item.getBagIndex() < 100){
+            if (getType() == InventoryType.EQUIPPED && item.getBagIndex() < 100) {
                 item.setBagIndex(Math.abs(ItemUtils.getBodyPartFromItem(item.getItemId()).getVal()));
             }
             if (item.getBagIndex() == 0) {
@@ -113,6 +120,16 @@ public class Inventory {
                 .filter(item -> (item.getItemId() == itemId) && item.getQuantity() != 0)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public InventoryOperation updateItemQuantity(Item item, int quantity) {
+        if (isFullItemConsume(item, quantity)) {
+            removeItem(item);
+            return Remove;
+        } else {
+            item.setQuantity(Math.max(item.getQuantity() + quantity, 0));
+            return UpdateQuantity;
+        }
     }
 
     private boolean isFull() {

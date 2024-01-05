@@ -6,6 +6,7 @@ import com.dori.SpringStory.enums.EquipPrefix;
 import com.dori.SpringStory.enums.EquipType;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Item;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -233,5 +234,9 @@ public interface ItemUtils {
 
     static boolean isPet(int itemId) {
         return getItemPrefix(itemId) == 500;
+    }
+
+    static boolean isFullItemConsume(@NotNull Item item, int quantity) {
+        return item.getQuantity() + quantity <= 0 && !ItemUtils.isThrowingItem(item.getItemId());
     }
 }

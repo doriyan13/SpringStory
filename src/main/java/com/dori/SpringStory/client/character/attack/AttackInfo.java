@@ -33,6 +33,7 @@ public class AttackInfo {
     private byte atkSpeed;
     private int atkTime; // tick?
     private boolean left = false;
+    private short bulletPos;
     private List<DamageInfo> mobAttackInfo = new ArrayList<>();
     private static Logger logger = new Logger(AttackInfo.class);
 
@@ -60,13 +61,13 @@ public class AttackInfo {
         this.slv = inPacket.decodeByte();
 
         if (type == AttackType.Magic) {
-            inPacket.decodeInt();
-            inPacket.decodeInt();
-            inPacket.decodeInt();
-            inPacket.decodeInt();
-            inPacket.decodeInt();
-            inPacket.decodeInt();
             //TODO: some loop need to happen for 6 times of decodeInt?
+            inPacket.decodeInt();
+            inPacket.decodeInt();
+            inPacket.decodeInt();
+            inPacket.decodeInt();
+            inPacket.decodeInt();
+            inPacket.decodeInt();
         }
 
         inPacket.decodeInt(); // rnd
@@ -97,7 +98,7 @@ public class AttackInfo {
         int finalAttackLastSkillID = inPacket.decodeInt(); // Battle mage thing? | TODO: verify if it acting diff in other atk types?
 
         if (type == AttackType.Shoot) {
-            short properBulletPosition = inPacket.decodeShort();
+            this.bulletPos = inPacket.decodeShort();
             short pnCashItemPos = inPacket.decodeShort();
             byte nShootRange0a = inPacket.decodeByte();
             if (false) {
@@ -117,7 +118,7 @@ public class AttackInfo {
     public void apply(MapleChar chr) {
         if (skillId != 0) {
             // TODO: In the future i need to also handle other kind of consumption - meso and maybe more?
-            SkillUtils.applySkillConsumptionToChar(skillId, chr.getSkill(skillId).getCurrentLevel(), chr);
+            SkillUtils.applySkillConsumptionToChar(skillId, chr.getSkill(skillId).getCurrentLevel(), chr, this);
         }
         this.mobAttackInfo.forEach(mai -> mai.apply(chr));
         // Hero combo attack stacks handling -

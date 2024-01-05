@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 import java.util.*;
 
 import static com.dori.SpringStory.constants.GameConstants.MAX_MESO;
+
 @NoArgsConstructor
 public class AdminCommands {
     // Logger -
@@ -318,6 +319,7 @@ public class AdminCommands {
         // Knuckle | Steel Knuckler - 1482000
         // Gun | Pistol - 1492000
         // Katara | Snowy Earth Katara - 1342023
+        // Crystal Ilbi throwing star - 2070016
         int[] weaponListToAdd = {1302020, 1402009, 1312000, 1412011, 1322013, 1422000, 1452016, 1462014, 1472030, 1332023, 1432012, 1442047, 1372005, 1382000, 1482000, 1492000, 1342023};
         for (int weaponID : weaponListToAdd) {
             Equip equip = ItemDataHandler.getEquipByID(weaponID);
@@ -344,5 +346,15 @@ public class AdminCommands {
         chr.getInventoryByType(InventoryType.ETC)
                 .getItems()
                 .forEach(item -> chr.message(item.getItemId() + " : bagIndex - " + item.getBagIndex() + " | quantity: " + item.getQuantity(), ChatType.SpeakerWorld));
+    }
+
+    @Command(names = {"stars"}, requiredPermission = AccountType.GameMaster)
+    public static void getStars(MapleChar chr, List<String> args) {
+        Item crystalIlbi = ItemDataHandler.getItemByID(2070016);
+        crystalIlbi.setQuantity(200);
+        chr.addItem(crystalIlbi);
+        Item balancedFury = ItemDataHandler.getItemByID(2070018);
+        balancedFury.setQuantity(200);
+        chr.addItem(balancedFury);
     }
 }

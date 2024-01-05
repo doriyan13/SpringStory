@@ -2,15 +2,21 @@ package com.dori.SpringStory.utils;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.client.character.Skill;
+import com.dori.SpringStory.client.character.attack.AttackInfo;
+import com.dori.SpringStory.enums.InventoryType;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.enums.SkillStat;
+import com.dori.SpringStory.enums.Skills;
+import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.jobs.handlers.WarriorHandler;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.dataHandlers.SkillDataHandler;
 import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
-import static com.dori.SpringStory.enums.SkillStat.x;
+import static com.dori.SpringStory.enums.SkillStat.*;
 import static com.dori.SpringStory.enums.Skills.*;
 
 @Component
@@ -93,27 +99,41 @@ public interface SkillUtils {
                 skillID == 5121000 || skillID == 5211007 || skillID == 5221000;
     }
 
-    static void applySkillConsumptionToChar(int skillID, int slv, MapleChar chr) {
+    static void applySkillConsumptionToChar(int skillID,
+                                            int slv,
+                                            @NotNull MapleChar chr) {
+        applySkillConsumptionToChar(skillID, slv, chr, null);
+    }
+
+    static void applySkillConsumptionToChar(int skillID,
+                                            int slv,
+                                            @NotNull MapleChar chr,
+                                            @Nullable AttackInfo attackInfo) {
         int amountToConsume = 0;
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
-        if (skillData != null) {
-            // wz base handling for the skill -
-            String mpConsumptionFormula = skillData.getSkillStatInfo().getOrDefault(SkillStat.mpCon, "");
+        if (skillData == null) {
+            logger.error("Trying to apply consumption of a skill that don't exist! - " + skillID);
+            return;
+        }
+        // wz base handling for the skill -
+        String mpConsumptionFormula = skillData.getSkillStatInfo().getOrDefault(SkillStat.mpCon, "");
 
-            if (skillData.getMpCostByLevel().isEmpty() && !mpConsumptionFormula.isEmpty()) {
-                amountToConsume = FormulaCalcUtils.calcValueFromFormula(mpConsumptionFormula, slv);
-            } else if (!skillData.getMpCostByLevel().isEmpty()) {
-                amountToConsume = skillData.getMpCostByLevel().getOrDefault(slv, 0);
+        if (skillData.getMpCostByLevel().isEmpty() && !mpConsumptionFormula.isEmpty()) {
+            amountToConsume = FormulaCalcUtils.calcValueFromFormula(mpConsumptionFormula, slv);
+        } else if (!skillData.getMpCostByLevel().isEmpty()) {
+            amountToConsume = skillData.getMpCostByLevel().getOrDefault(slv, 0);
+        }
+        if (JobUtils.isDarkKnight(chr.getJob())) {
+            WarriorHandler.getInstance().handleDarkKnightHpConsumption(skillData, skillID, slv, chr);
+        } else if (JobUtils.isNightLord(chr.getJob())) {
+            if (attackInfo != null) {
+                handleThiefThrowSkills(skillData, chr, attackInfo);
             } else {
-                // TODO: here i will need to manage other type of consume - HP / Meso and such! | or maybe customSkill handling?
-                logger.error("Cannot clac mpConsume / mpCostByLvl for this skill - " + skillID);
+                handleThiefSkillConsume(skillData, slv, chr);
             }
         }
         if (amountToConsume != 0) {
             chr.modifyMp(-amountToConsume);
-        }
-        if (JobUtils.isDarkKnight(chr.getJob())) {
-            WarriorHandler.getInstance().handleDarkKnightHpConsumption(skillData,skillID,slv,chr);
         }
         if (SkillUtils.isComboAttackDrainingSkill(skillID)) {
             chr.resetAttackCombo();
@@ -137,5 +157,41 @@ public interface SkillUtils {
 
     static boolean isComboAttackDrainingSkill(int skillID) {
         return skillID == CRUSADER_PANIC.getId() || skillID == CRUSADER_COMA.getId() || skillID == HERO_ENRAGE.getId();
+    }
+
+    static void handleThiefSkillConsume(SkillData skillData,
+                                        int slv,
+                                        MapleChar chr) {
+        if (skillData.getSkillStatInfo().get(moneyCon) != null) {
+            // Basically Shadow Meso
+            int amountToConsume = FormulaCalcUtils.calcValueFromFormula(skillData.getSkillStatInfo().get(moneyCon), slv);
+            chr.modifyMeso(-amountToConsume);
+        } else if (skillData.getSkillStatInfo().get(itemCon) != null && skillData.getSkillStatInfo().get(itemConNo) != null) {
+            int itemIdToConsume = Integer.parseInt(skillData.getSkillStatInfo().get(itemCon));
+            int amountToConsume = Integer.parseInt(skillData.getSkillStatInfo().get(itemConNo));
+            chr.consumeItem(InventoryType.ETC, itemIdToConsume, amountToConsume);
+        }
+    }
+
+    static void handleThiefThrowSkills(SkillData skillData,
+                                       MapleChar chr,
+                                       AttackInfo attackInfo) {
+        int amountOfStarsToConsume = getNumOfStarsToConsumeBySkillID(skillData.getSkillId());
+        if (amountOfStarsToConsume != 0) {
+            Item stackToConsumeFrom = chr.getConsumeInventory().getItemByIndex(attackInfo.getBulletPos());
+            chr.consumeItem(InventoryType.CONSUME, stackToConsumeFrom.getItemId(), amountOfStarsToConsume);
+        }
+    }
+
+    static int getNumOfStarsToConsumeBySkillID(int skillID) {
+        Skills skill = Skills.getSkillById(skillID);
+        int amountOfStarsToConsume = 0;
+        switch (skill) {
+            case ASSASSIN_DRAIN -> amountOfStarsToConsume = 1;
+            case ROGUE_LUCKY_SEVEN -> amountOfStarsToConsume = 2;
+            case HERMIT_AVENGER, NIGHTLORD_TRIPLE_THROW -> amountOfStarsToConsume = 3;
+            case NIGHTLORD_SHADOW_STARS -> amountOfStarsToConsume = 200;
+        }
+        return amountOfStarsToConsume;
     }
 }

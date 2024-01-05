@@ -1,6 +1,7 @@
 package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.client.MapleClient;
+import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ValidateChrTempStatsEvent;
@@ -384,7 +385,6 @@ public class MapleChar {
 
     private void encodeAdminShopCount(OutPacket outPacket) {
         outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME)); // extra pendant slot ?
-        //outPacket.encodeInt(0); // aEquipExtExpire[0].dwHighDateTime -> not exist?
     }
 
     private void encodeEquipments(OutPacket outPacket) {
@@ -709,6 +709,11 @@ public class MapleChar {
             } else {
                 updateStat(Stat.Exp, getExp());
             }
+            // Send the increase exp message -
+            IncEXPMessage expMessage = new IncEXPMessage();
+            expMessage.setLastHit(true);
+            expMessage.setIncEXP(amountOfExp);
+            write(CWvsContext.incExpMessage(expMessage));
         }
     }
 
@@ -768,7 +773,7 @@ public class MapleChar {
         if (skillData != null && skillData.isPassive()) {
             applyPassiveSkillDataStats(skillData, currSkill.getCurrentLevel());
         }
-        addSp(getSp() - 1);
+        addSp(-1);
         updateStat(Stat.SkillPoint, JobUtils.isExtendedJob(getJob()) ? getExtendSP() : getSp());
     }
 
@@ -829,10 +834,11 @@ public class MapleChar {
                 if (tsm.attemptHandleCustomSkillsByID(this, skillData, slv)
                         || tsm.attemptToAutoHandleSkillByID(skillData, slv)) {
                     applyTemporaryStats();
+                    EventManager.addEvent(MapleUtils.concat(getId(), skillID), VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
                 } else {
-                    message("The skill: " + skillID + ", need manual handling!", ChatType.SpeakerWorld);
+                    // Must do it cuz if not the client will be locked for skills that don't modify stats
+                    enableAction();
                 }
-                EventManager.addEvent(MapleUtils.concat(getId(), skillID), VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
             }
             SkillUtils.applySkillConsumptionToChar(skillID, slv, this);
         }
@@ -959,5 +965,24 @@ public class MapleChar {
         }
         getField().removeDrop(drop.getId(), getId(), -1);
         EventManager.cancelEvent(MapleUtils.concat((long) getField().getId(), drop.getId()), EventType.REMOVE_DROP_FROM_FIELD);
+    }
+
+    public void consumeItem(InventoryType invType,
+                            int itemID,
+                            int amount) {
+        Inventory itemInv = getInventoryByType(invType);
+        Item item = itemInv.getItemByItemID(itemID);
+        if (item != null) {
+            modifyItem(itemInv, item, -amount);
+        } else {
+            logger.error("The player: " + getName() + ", try to modify an item that don't exist!! - " + itemID + " | inv - " + invType);
+        }
+    }
+
+    private void modifyItem(Inventory inventory,
+                            Item item,
+                            int amount) {
+        InventoryOperation inventoryOperation = inventory.updateItemQuantity(item, amount);
+        write(CWvsContext.inventoryOperation(true, inventoryOperation, (short) item.getBagIndex(), (short) -1, item));
     }
 }

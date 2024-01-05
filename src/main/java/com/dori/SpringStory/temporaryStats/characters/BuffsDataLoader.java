@@ -74,13 +74,32 @@ public interface BuffsDataLoader {
         add(Job.Spearman, SPEARMAN_IRON_WALL, Mdd, "5 * x", "15 * x");
         add(Job.Spearman, SPEARMAN_HYPER_BODY, MaxHp, "3 * x", "15 * x");
         add(Job.Spearman, SPEARMAN_HYPER_BODY, MaxMp, "3 * x", "15 * x");
-
         // Dragon Knight
         add(Job.DragonKnight, DRAGONKNIGHT_DRAGON_BLOOD, DragonBlood, "100 - 3 * x", "10 * x", 1, true);
         add(Job.DragonKnight, DRAGONKNIGHT_DRAGON_BLOOD, Pad, "5 + x", "10 * x");
+        // Rogue
+        add(Job.Thief, ROGUE_DARK_SIGHT, DarkSight, "1", "20 * x");
+        // Assassin
+        add(Job.Assasin, ASSASSIN_CLAW_BOOSTER, Booster, "-2", "10 * x");
+        add(Job.Assasin, ASSASSIN_HASTE, Speed, "2 * x", "10 * x");
+        add(Job.Assasin, ASSASSIN_HASTE, Jump, "x", "10 * x");
+        // TODO: need to think how to implement Drain correctly? (i think i need to check skillId in the hitMob handling)
+        // Hermit
+        add(Job.Hermit, HERMIT_MESO_UP, MesoUp, "110 + 2 * x", "10 * x");
+        add(Job.Hermit, HERMIT_SHADOW_PARTNER, ShadowPartner, "10 + 2 * x", "60 + 40 * d(x/6)");
+        // Night Lord
+        add(Job.Nightlord, NIGHTLORD_MAPLE_HERO, BasicStatUp, "u (x / 2)", "30 * x");
+//        add(Job.Nightlord, NIGHTLORD_SHADOW_STARS, SpiritJavelin, "1", "90 + 3 * x"); TODO: need to make it a dynamic handling -> the value is the consumedItemId % 10_000 +1 | to let the client to know which star to use automaticlly ... MONKA
 
         // Machanic 1st Job -
         add(Job.Mechanic1, MECHANIC_HN07, Mechanic, "x", "99999999");
         add(Job.Mechanic1, MECHANIC_HN07, RideVehicle, "1932016", "-1000");
+
+        // GM
+        add(Job.GM, ADMIN_HASTE, Speed, "40", "1800");
+        add(Job.GM, ADMIN_HASTE, Jump, "20", "1800");
+        // Super GM
+        add(Job.SuperGM, ADMIN_SUPER_HASTE, Speed, "40", "1800");
+        add(Job.SuperGM, ADMIN_SUPER_HASTE, Jump, "20", "1800");
     }
 }

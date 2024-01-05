@@ -188,17 +188,15 @@ public class Mob extends Life {
     public void distributeExp() {
         int exp = getExp();
         long totalDamage = getDamageDone().values().stream().mapToLong(l -> l).sum();
-        getField().getPlayers().values().forEach(chr -> {
-            double dmgPercentage = getDamageDone().get(chr.getId()) / (double) totalDamage;
-            int mobExpRate = chr.getLevel() < 10 ? 1 : GameConstants.EXP_RATE;
-            int expForChr = (int) (exp * dmgPercentage * mobExpRate);
-            chr.gainExp(expForChr);
-            // Send the increase exp message -
-            IncEXPMessage expMessage = new IncEXPMessage();
-            expMessage.setLastHit(true);
-            expMessage.setIncEXP(expForChr);
-            chr.write(CWvsContext.incExpMessage(expMessage));
-        });
+        getField()
+                .getPlayers()
+                .values()
+                .forEach(chr -> {
+                    double dmgPercentage = getDamageDone().get(chr.getId()) / (double) totalDamage;
+                    int mobExpRate = chr.getLevel() < 10 ? 1 : GameConstants.EXP_RATE;
+                    int expForChr = (int) (exp * dmgPercentage * mobExpRate);
+                    chr.gainExp(expForChr);
+                });
     }
 
     public void applyDrops() {

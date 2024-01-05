@@ -38,7 +38,7 @@ public class InventoryHandler {
         InventoryType invTypeTo = invType == EQUIP ? newPos < 0 ? EQUIPPED : EQUIP : invType;
         Item item = chr.getInventoryByType(invTypeFrom).getItemByIndex(oldPos);
         //TODO: some times equips get fucked bagIndex again (happen after changing to mechanic and then move / equip a stuff switching to battle mage?)
-        if (item != null && quantity <= item.getQuantity()) {
+        if (item != null && (quantity <= item.getQuantity() || ItemUtils.isThrowingItem(item.getItemId()))) {
             // Handling of Drop -
             if (newPos == 0) {
                 if (chr.getField().isDropsDisabled()) {

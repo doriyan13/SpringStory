@@ -200,7 +200,7 @@ public class UserHandler {
         if (SkillUtils.isAntiRepeatBuffSkill(skillID)) {
             // Anti-repeat buff skill -
             Position chrPos = inPacket.decodePosition();
-            if (skillID == NIGHTLORD_SPIRIT_JAVELIN.getId()) {
+            if (skillID == NIGHTLORD_SHADOW_STARS.getId()) {
                 int nSpiritJavelinItemID = inPacket.decodeInt();
             }
             // TODO: can be mapped by each skill in the WZ files!
