@@ -206,11 +206,27 @@ public class Field extends MapData {
         });
     }
 
-    public void spawnMob(Mob mob, MapleChar chr) {
+    public void spawnMobById(int mobId, MapleChar controller) {
+        Mob mob = MobDataHandler.getMobByID(mobId);
+        if (mob != null) {
+            //TODO: i want to redo the position concept - randomize it on the initial spawn points a map have
+            Position pos = controller.getPosition();
+            mob.setPosition(pos.deepCopy());
+            mob.setVPosition(pos.deepCopy());
+            mob.setHomePosition(pos.deepCopy());
+            mob.setFh(controller.getFoothold());
+            mob.setHomeFh(controller.getFoothold());
+            mob.setRespawnable(false);
+            mob.setField(this);
+            spawnMob(mob, controller);
+        }
+    }
+
+    public void spawnMob(Mob mob, MapleChar controller) {
         addMob(mob);
         getPlayers().values().forEach(player -> player.write(CMobPool.mobEnterField(mob)));
-        mob.setController(chr);
-        chr.write(CMobPool.mobChangeController(mob, MobControllerType.ActiveInit));
+        mob.setController(controller);
+        controller.write(CMobPool.mobChangeController(mob, MobControllerType.ActiveInit));
     }
 
     public void removeMob(int objId) {

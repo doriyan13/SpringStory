@@ -8,10 +8,10 @@ import com.dori.SpringStory.enums.Stat;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.world.MapleWorld;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PlayerCommands {
     // Logger -
@@ -58,6 +58,18 @@ public class PlayerCommands {
         chr.message("<-------------------------------------------->", ChatType.SpeakerWorld);
         world.getChannelList().forEach(channel -> {
                     Map<String, Integer> onlineCharacters = new HashMap<>();
+                    //TODO: verify the new code is better and working as intended?
+                    Map<String, Integer> testOnlinePlayers = channel.getFields()
+                            .values()
+                            .stream()
+                            .flatMap(field -> field.getPlayers()
+                                    .values()
+                                    .stream()
+                                    .map(player -> Map.entry(player.getName(), field.getId())))
+                            .collect(HashMap::new,
+                                    (OnlinePlayersFields, entry) -> OnlinePlayersFields.put(entry.getKey(), entry.getValue()),
+                                    HashMap::putAll);
+
                     channel.getFields()
                             .values()
                             .forEach(field ->

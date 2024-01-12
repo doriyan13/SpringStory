@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
  */
 public class MapleUtils {
 
-    private static Pattern regexPattern = Pattern.compile("^\\$2[a-z]\\$.{56}$");
+    private static final Pattern regexPattern = Pattern.compile("^\\$2[a-z]\\$.{56}$");
 
     /**
      * Gets a random element from a given List. This is done by utilizing {@link #getRandom(int)}.
@@ -30,7 +30,7 @@ public class MapleUtils {
      * @return A random element from the list, or null if the list is null or empty.
      */
     public static <T> T getRandomFromCollection(List<T> list) {
-        if(list != null && list.size() > 0) {
+        if(list != null && !list.isEmpty()) {
             return list.get(getRandom(list.size() - 1));
         }
         return null;
@@ -157,7 +157,7 @@ public class MapleUtils {
      * Checks if some action succeeds, given a chance and maximum number.
      * @param chance The threshold at which something is classified as success
      * @param max The maximum number that is generated, exclusive
-     * @return Whether or not the test succeeded
+     * @return Whether the test succeeded
      */
     public static boolean succeedProp(int chance, int max) {
         Random random = new Random();
@@ -167,7 +167,7 @@ public class MapleUtils {
     /**
      * Checks of some action succeeds, given a chance out of a 100.
      * @param chance The threshold at which something is classified as success
-     * @return Whether or not the test succeeded
+     * @return Whether the test succeeded
      */
     public static boolean succeedProp(int chance) {
         return succeedProp(chance, 100);
@@ -208,7 +208,7 @@ public class MapleUtils {
     /**
      * Checks if a String is a number ((negative) natural or decimal).
      * @param string The String to check
-     * @return Whether or not the String is a number
+     * @return Whether the String is a number
      */
     public static boolean isNumber(String string) {
         return string != null && string.matches("-?\\d+(\\.\\d+)?");
@@ -285,7 +285,7 @@ public class MapleUtils {
     /**
      * Adds right padding given an initial String, padding character and maximum length. If the input String is longer
      * than the given maximum length, the String length is taken instead (effectively doing nothing, as there is
-     * nothing to pad.
+     * nothing to pad).
      * @param totalLength The total length the String should amount to
      * @param c The padding character
      * @param value The initial value of the String
@@ -295,19 +295,15 @@ public class MapleUtils {
         totalLength = Math.max(totalLength, value.length());
         char[] chars = new char[totalLength];
         char[] valueChars = value.toCharArray();
-        for (int i = 0; i < value.length() ; i++) {
-            chars[i] = valueChars[i];
-        }
-        for(int i = value.length(); i < chars.length; i++) {
-            chars[i] = c;
-        }
+        System.arraycopy(valueChars, 0, chars, 0, value.length());
+        IntStream.range(value.length(), chars.length).forEach(i -> chars[i] = c);
         return new String(chars);
     }
 
     /**
      * Adds left padding given an initial String, padding character and maximum length. If the input String is longer
      * than the given maximum length, the String length is taken instead (effectively doing nothing, as there is
-     * nothing to pad.
+     * nothing to pad).
      * @param totalLength The total length the String should amount to
      * @param c The padding character
      * @param value The initial value of the String
@@ -388,11 +384,10 @@ public class MapleUtils {
      * @param <T> the type of the elements
      * @return a new Set created from the elements
      */
+    @SafeVarargs
     public static <T> Set<T> makeSet(T... elems) {
         Set<T> set = new HashSet<>();
-        for (T elem : elems) {
-            set.add(elem);
-        }
+        Collections.addAll(set, elems);
         return set;
     }
 
@@ -447,10 +442,10 @@ public class MapleUtils {
     }
 
     /**
-     * Checks whether or not a raw int array contains a value.
+     * Checks whether a raw int array contains a value.
      * @param arr the array to check the value
      * @param checkVal the value to look for
-     * @return whether or not the array contains the value
+     * @return whether the array contains the value
      */
     public static boolean arrayContains(int[] arr, int checkVal) {
         return IntStream.of(arr).anyMatch(val -> val == checkVal);
@@ -488,7 +483,7 @@ public class MapleUtils {
             crypt.update(toHash);
             return crypt.digest();
         }
-        catch (NoSuchAlgorithmException nsae)   {
+        catch (NoSuchAlgorithmException ignored)   {
             return null;
         }
     }

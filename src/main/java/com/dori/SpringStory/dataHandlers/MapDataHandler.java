@@ -13,6 +13,7 @@ import com.dori.SpringStory.world.fieldEntities.*;
 import com.dori.SpringStory.dataHandlers.dataEntities.MapData;
 import com.dori.SpringStory.dataHandlers.dataEntities.WorldMapData;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -31,6 +32,7 @@ public class MapDataHandler {
     // List of world map fields -
     private static final WorldMapData worldMapFields = new WorldMapData(new ArrayList<>());
     // List of maps for goto command -
+    @Getter
     private static final HashMap<String, Integer> goToMaps = new HashMap<>();
 
     public static void initGoToMaps() {
@@ -95,10 +97,6 @@ public class MapDataHandler {
         goToMaps.put("goldenbeach", 914200000);
         goToMaps.put("ardentmill", 910001000);
         goToMaps.put("oz", 992000000);
-    }
-
-    public static HashMap<String, Integer> getGoToMaps() {
-        return goToMaps;
     }
 
     public static Field getMapByName(String mapName) {

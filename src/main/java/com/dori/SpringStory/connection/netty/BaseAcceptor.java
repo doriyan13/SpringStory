@@ -30,7 +30,7 @@ public interface BaseAcceptor {
      * @param channel - The current channel if it's a channel acceptor.
      * @param logger - The acceptor logger.
      */
-    static void createAcceptor(@NonNull int port, @Nullable Map<String, Channel> channelPool,
+    static void createAcceptor(int port, @Nullable Map<String, Channel> channelPool,
                                @Nullable MapleChannel channel, @NonNull Logger logger){
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();

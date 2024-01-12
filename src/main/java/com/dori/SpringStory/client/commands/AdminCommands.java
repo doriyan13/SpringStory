@@ -10,9 +10,7 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.utils.MapleUtils;
-import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
-import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.dataHandlers.ItemDataHandler;
 import com.dori.SpringStory.dataHandlers.MapDataHandler;
@@ -49,7 +47,7 @@ public class AdminCommands {
 
     @Command(names = {"lvl", "level", "setlvl"}, requiredPermission = AccountType.GameMaster)
     public static void levelUp(MapleChar chr, List<String> args) {
-        int lvl = Integer.parseInt(args.get(0));
+        int lvl = Integer.parseInt(args.getFirst());
         int amountOfLevels = lvl - chr.getLevel();
         if (amountOfLevels > 0) {
             chr.lvlUp(amountOfLevels);
@@ -63,7 +61,7 @@ public class AdminCommands {
     @Command(names = {"goto"}, requiredPermission = AccountType.GameMaster)
     public static void goToMap(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            Field toField = chr.getMapleClient().getMapleChannelInstance().getField(args.get(0));
+            Field toField = chr.getMapleClient().getMapleChannelInstance().getField(args.getFirst());
             if (toField != null) {
                 Portal targetPortal = toField.findDefaultPortal();
                 chr.warp(toField, targetPortal);
@@ -79,7 +77,7 @@ public class AdminCommands {
     @Command(names = {"warp"}, requiredPermission = AccountType.GameMaster)
     public static void warp(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            Field toField = chr.getMapleClient().getMapleChannelInstance().getField(Integer.parseInt(args.get(0)));
+            Field toField = chr.getMapleClient().getMapleChannelInstance().getField(Integer.parseInt(args.getFirst()));
             if (toField != null) {
                 Portal targetPortal = toField.findDefaultPortal();
                 chr.warp(toField, targetPortal);
@@ -94,7 +92,7 @@ public class AdminCommands {
     @Command(names = {"job", "setJob"}, requiredPermission = AccountType.GameMaster)
     public static void job(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            int id = Short.parseShort(args.get(0));
+            int id = Short.parseShort(args.getFirst());
             chr.setJob(id);
         }
     }
@@ -102,7 +100,7 @@ public class AdminCommands {
     @Command(names = {"find", "search"}, requiredPermission = AccountType.GameMaster)
     public static void find(MapleChar chr, List<String> args) {
         if (args.size() >= 2) {
-            StringDataType type = StringDataType.findTypeByName(args.get(0));
+            StringDataType type = StringDataType.findTypeByName(args.getFirst());
             StringBuilder sb = new StringBuilder();
             for (int i = 1; i <= args.size() - 1; i++) {
                 sb.append(args.get(i)).append(" ");
@@ -146,19 +144,7 @@ public class AdminCommands {
             MobData mobData = MobDataHandler.getMobDataByID(id);
             if (mobData != null) {
                 for (int i = 0; i < count; i++) {
-                    Field field = chr.getField();
-                    Mob mob = MobDataHandler.getMobByID(id);
-                    if (mob != null) {
-                        Position pos = chr.getPosition();
-                        mob.setPosition(pos.deepCopy());
-                        mob.setVPosition(pos.deepCopy());
-                        mob.setHomePosition(pos.deepCopy());
-                        mob.setFh(chr.getFoothold());
-                        mob.setHomeFh(chr.getFoothold());
-                        mob.setRespawnable(false);
-                        mob.setField(field);
-                        field.spawnMob(mob, chr);
-                    }
+                    chr.getField().spawnMobById(id, chr);
                 }
             }
         }
@@ -167,7 +153,7 @@ public class AdminCommands {
     @Command(names = {"setstr", "setStr", "str"}, requiredPermission = AccountType.GameMaster)
     public static void setStrength(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            String amountToSet = args.get(0);
+            String amountToSet = args.getFirst();
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = desiredAmount > Short.MAX_VALUE ? Short.MAX_VALUE : desiredAmount;
@@ -181,7 +167,7 @@ public class AdminCommands {
     @Command(names = {"setdex", "setDex", "dex"}, requiredPermission = AccountType.GameMaster)
     public static void setDexterity(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            String amountToSet = args.get(0);
+            String amountToSet = args.getFirst();
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = desiredAmount > Short.MAX_VALUE ? Short.MAX_VALUE : desiredAmount;
@@ -195,7 +181,7 @@ public class AdminCommands {
     @Command(names = {"setint", "setint", "int"}, requiredPermission = AccountType.GameMaster)
     public static void setIntelligence(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            String amountToSet = args.get(0);
+            String amountToSet = args.getFirst();
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = desiredAmount > Short.MAX_VALUE ? Short.MAX_VALUE : desiredAmount;
@@ -209,7 +195,7 @@ public class AdminCommands {
     @Command(names = {"setluk", "setLuk", "luk"}, requiredPermission = AccountType.GameMaster)
     public static void setLuk(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            String amountToSet = args.get(0);
+            String amountToSet = args.getFirst();
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = desiredAmount > Short.MAX_VALUE ? Short.MAX_VALUE : desiredAmount;
@@ -223,7 +209,7 @@ public class AdminCommands {
     @Command(names = {"sethp", "setHp", "hp"}, requiredPermission = AccountType.GameMaster)
     public static void setHp(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            String amountToSet = args.get(0);
+            String amountToSet = args.getFirst();
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = Math.min(desiredAmount, GameConstants.MAX_HP);
@@ -237,7 +223,7 @@ public class AdminCommands {
     @Command(names = {"setmp", "setMp", "mp"}, requiredPermission = AccountType.GameMaster)
     public static void setMp(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            String amountToSet = args.get(0);
+            String amountToSet = args.getFirst();
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = Math.min(desiredAmount, GameConstants.MAX_MP);
@@ -281,7 +267,7 @@ public class AdminCommands {
     @Command(names = {"item", "getitem"}, requiredPermission = AccountType.GameMaster)
     public static void item(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            int itemID = Integer.parseInt(args.get(0));
+            int itemID = Integer.parseInt(args.getFirst());
             Equip equip = ItemDataHandler.getEquipByID(itemID);
             if (equip != null) {
                 chr.addEquip(equip);
@@ -333,7 +319,7 @@ public class AdminCommands {
     @Command(names = {"test"}, requiredPermission = AccountType.GameMaster)
     public static void test(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            String cmdType = args.get(0);
+            String cmdType = args.getFirst();
             if (MapleUtils.isNumber(cmdType)) {
                 int cmdTypeFlag = Integer.parseInt(cmdType);
                 chr.write(CField.adminResult(cmdTypeFlag, false));
@@ -351,10 +337,14 @@ public class AdminCommands {
     @Command(names = {"stars"}, requiredPermission = AccountType.GameMaster)
     public static void getStars(MapleChar chr, List<String> args) {
         Item crystalIlbi = ItemDataHandler.getItemByID(2070016);
-        crystalIlbi.setQuantity(200);
-        chr.addItem(crystalIlbi);
+        if (crystalIlbi != null) {
+            crystalIlbi.setQuantity(200);
+            chr.addItem(crystalIlbi);
+        }
         Item balancedFury = ItemDataHandler.getItemByID(2070018);
-        balancedFury.setQuantity(200);
-        chr.addItem(balancedFury);
+        if (balancedFury != null) {
+            balancedFury.setQuantity(200);
+            chr.addItem(balancedFury);
+        }
     }
 }

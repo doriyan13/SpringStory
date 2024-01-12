@@ -101,19 +101,7 @@ public class AdminHandler {
                     MobData mobData = MobDataHandler.getMobDataByID(mobID);
                     if (mobData != null) {
                         for (int i = 0; i < amount; i++) {
-                            Field field = chr.getField();
-                            Mob mob = MobDataHandler.getMobByID(mobID);
-                            if (mob != null) {
-                                Position pos = chr.getPosition();
-                                mob.setPosition(pos.deepCopy());
-                                mob.setVPosition(pos.deepCopy());
-                                mob.setHomePosition(pos.deepCopy());
-                                mob.setFh(chr.getFoothold());
-                                mob.setHomeFh(chr.getFoothold());
-                                mob.setRespawnable(false);
-                                mob.setField(field);
-                                field.spawnMob(mob, chr);
-                            }
+                            chr.getField().spawnMobById(mobID,chr);
                         }
                     }
                 }

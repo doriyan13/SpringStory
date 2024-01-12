@@ -87,7 +87,7 @@ public final class MapleCrypto {
         try {
             cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
+        } catch (Exception e) {
             System.err.println("ERROR" + e);
         }
 

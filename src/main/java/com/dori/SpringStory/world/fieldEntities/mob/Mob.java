@@ -1,10 +1,8 @@
 package com.dori.SpringStory.world.fieldEntities.mob;
 
 import com.dori.SpringStory.client.character.MapleChar;
-import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CMobPool;
-import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.dataHandlers.MobDropHandler;
 import com.dori.SpringStory.dataHandlers.dataEntities.MobDropData;
@@ -13,8 +11,6 @@ import com.dori.SpringStory.enums.MobSummonType;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ReviveMobEvent;
 import com.dori.SpringStory.temporaryStats.mobs.MobTemporaryStat;
-import com.dori.SpringStory.utils.MapleUtils;
-import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Foothold;
 import com.dori.SpringStory.world.fieldEntities.Life;
 import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
@@ -23,7 +19,6 @@ import lombok.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_MOB_RESPAWN_DELAY;
@@ -53,7 +48,7 @@ public class Mob extends Life {
     @JsonIgnore
     private MobData statsData;
     @JsonIgnore
-    private boolean isRespawnable = false;
+    private boolean respawnable = false;
     @JsonIgnore
     private MobTemporaryStat temporaryStats = new MobTemporaryStat();
 
@@ -149,7 +144,7 @@ public class Mob extends Life {
         }
         outPacket.encodeByte(getTeamForMCarnival());
         outPacket.encodeInt(0); // nEffectItemID
-        outPacket.encodeInt(0); // this
+        outPacket.encodeInt(0); // unk
     }
 
     public void setController(MapleChar chr, MobControllerType controllerType) {
@@ -201,7 +196,6 @@ public class Mob extends Life {
 
     public void applyDrops() {
         MapleChar mostDmgPlayer = getField().getPlayers().get(getMostDamageDoneChr());
-        // TODO: redo the handling for the new position, the calc rn is fucked!!
         int fhID = getFh();
         Foothold fhBelow = getField().findFootHoldBelow(getPosition());
         if (fhID == 0) {

@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Abstraction for Netty channels that contains some attribute keys
- * for important resources used by the net.swordie.ms.client during encryption,
+ * for important resources used by the net.springStory.ms.client during encryption,
  * decryption, and general functions. <B>Note: Some methods cannot be
  * overridden by descendants due to the nature of the functionality they
  * provide</B>
@@ -69,20 +69,11 @@ public class NettyClient {
      * scaling compared to keeping OutPacket for each session.
      */
     private final InPacket r;
-    
-    /**
-     * Empty constructor for child class implementation.
-     */
-    private NettyClient() {
-        ch = null;
-        lock = null;
-        r = null;
-    }
-    
+
     /**
      * Construct a new NettyClient with the corresponding Channel that
      * will be used to write to as well as the send and recv seeds or IVs.
-     * @param c the channel object associated with this net.swordie.ms.client session.
+     * @param c the channel object associated with this net.springStory.ms.client session.
      */
     public NettyClient(Channel c) {
         ch = c;
@@ -92,25 +83,25 @@ public class NettyClient {
     
     /**
      * Gets the InPacket object associated with this NettyClient.
-     * @return a net.swordie.ms.connection.packet reader.
+     * @return a net.springStory.ms.connection.packet reader.
      */
     public final InPacket getReader() {
         return r;
     }
     
     /**
-     * Gets the stored length for the next net.swordie.ms.connection.packet to be read. Used as
+     * Gets the stored length for the next net.springStory.ms.connection.packet to be read. Used as
      * a decoding state variable to determine when it is ok to proceed with
-     * decoding a net.swordie.ms.connection.packet.
-     * @return stored length for next net.swordie.ms.connection.packet.
+     * decoding a net.springStory.ms.connection.packet.
+     * @return stored length for next net.springStory.ms.connection.packet.
      */
     public final int getStoredLength() {
         return storedLength;
     }
     
     /**
-     * Sets the stored length for the next net.swordie.ms.connection.packet to be read.
-     * @param val length of the next net.swordie.ms.connection.packet to be read.
+     * Sets the stored length for the next net.springStory.ms.connection.packet to be read.
+     * @param val length of the next net.springStory.ms.connection.packet to be read.
      */
     public final void setStoredLength(int val) {
         storedLength = val;
