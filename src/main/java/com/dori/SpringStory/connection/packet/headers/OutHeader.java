@@ -271,6 +271,17 @@ public enum OutHeader {
     DropEnterField(322),
     DropLeaveField(324),
 
+    // CScriptMan::OnPacket -
+    ScriptMessage(363),
+
+    // CTownPortalPool::OnPacket -
+    TownPortalCreated(330),
+    TownPortalRemoved(331),
+
+    // COpenGatePool::OnPacket -
+    OpenGateCreate(332),
+    OpenGateRemoved(333),
+
     // CFuncKeyMappedMan::OnPacket -
     FunkKeyMappedManInit(398),
     FunkKeyMappedManPetConsumeItemInit(399),

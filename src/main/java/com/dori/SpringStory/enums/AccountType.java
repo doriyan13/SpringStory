@@ -1,10 +1,13 @@
 package com.dori.SpringStory.enums;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
+@Getter
 public enum AccountType {
     Player(0, 0),
-    Tester(1, 0),
+    Tester(1, 0x100),
     Intern(2, 0),
     GameMaster(3, 0x40),
     Admin(5, 0x80);
@@ -28,14 +31,6 @@ public enum AccountType {
     AccountType(int lvl, int subGrade) {
         this.lvl = lvl;
         this.subGrade = (byte) subGrade;
-    }
-
-    public int getLvl() {
-        return lvl;
-    }
-
-    public byte getSubGrade() {
-        return subGrade;
     }
 
     public static AccountType getTypeByLvl(int lvl){

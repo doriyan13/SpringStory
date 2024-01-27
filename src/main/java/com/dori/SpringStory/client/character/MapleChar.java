@@ -6,6 +6,7 @@ import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ValidateChrTempStatsEvent;
 import com.dori.SpringStory.jobs.JobHandler;
+import com.dori.SpringStory.scripts.api.ScriptApi;
 import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
 import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.connection.packet.OutPacket;
@@ -32,7 +33,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.enums.EventType.VALIDATE_CHARACTER_TEMP_STATS;
@@ -140,6 +140,8 @@ public class MapleChar {
     private TemporaryStatManager tsm = new TemporaryStatManager();
     @Transient
     private Map<Integer, Long> skillCoolTimes = new HashMap<>();
+    @Transient
+    private ScriptApi script;
 
     public MapleChar(int accountID, String name, int gender) {
         // Set char base data -
@@ -327,7 +329,7 @@ public class MapleChar {
         List<Integer> cWeapon = new ArrayList<>();
         // Fill Equips and possibly the CashWeapon -
         ItemUtils.fillEquipsMaps(this, charEquips, charMaskedEquips, cWeapon);
-        Integer cWeaponID = cWeapon.isEmpty() ? null : cWeapon.get(0);
+        Integer cWeaponID = cWeapon.isEmpty() ? null : cWeapon.getFirst();
         // TODO: this is wrong and need to be fixed!
         //for -> myEquips (visible items)
         charEquips.forEach((BodyPart, itemID) -> {
@@ -984,5 +986,13 @@ public class MapleChar {
                             int amount) {
         InventoryOperation inventoryOperation = inventory.updateItemQuantity(item, amount);
         write(CWvsContext.inventoryOperation(true, inventoryOperation, (short) item.getBagIndex(), (short) -1, item));
+    }
+
+    public void boundScript(ScriptApi script) {
+        this.script = script;
+    }
+
+    public void clearScript() {
+        this.script = null;
     }
 }

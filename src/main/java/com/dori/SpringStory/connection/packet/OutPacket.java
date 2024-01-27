@@ -6,9 +6,7 @@ import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.utils.utilEntities.Rect;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.*;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -27,7 +25,7 @@ public class OutPacket extends Packet {
      */
     public OutPacket(short op) {
         super(new byte[]{});
-        baos = PooledByteBufAllocator.DEFAULT.buffer();
+        baos = Unpooled.buffer();
         encodeShort(op);
         this.op = op;
     }
@@ -46,7 +44,7 @@ public class OutPacket extends Packet {
      */
     public OutPacket() {
         super(new byte[]{});
-        baos = ByteBufAllocator.DEFAULT.buffer();
+        baos = Unpooled.buffer();
     }
 
     /**
@@ -56,7 +54,7 @@ public class OutPacket extends Packet {
      */
     public OutPacket(byte[] data) {
         super(data);
-        baos = ByteBufAllocator.DEFAULT.buffer();
+        baos = Unpooled.buffer();
         encodeArr(data);
     }
 
@@ -202,7 +200,7 @@ public class OutPacket extends Packet {
         if (s == null) {
             s = "";
         }
-        if (s.length() > 0) {
+        if (!s.isEmpty()) {
             for (char c : s.toCharArray()) {
                 encodeChar(c);
             }
@@ -221,13 +219,11 @@ public class OutPacket extends Packet {
 
     @Override
     public byte[] getData() {
-        if (baos.hasArray()) {
-            return baos.array();
-        } else {
-            byte[] arr = new byte[baos.writerIndex()];
-            baos.nioBuffer().get(arr, 0, baos.writerIndex());
-            return arr;
+        if(super.getLength() == 0) {
+            super.setData(ByteBufUtil.getBytes(baos));
+            baos.release();
         }
+        return super.getData();
     }
 
     @Override
@@ -308,10 +304,6 @@ public class OutPacket extends Packet {
     public void encodeTime(int time) {
         encodeByte(false);
         encodeInt(time);
-    }
-
-    public void release() {
-
     }
 
     public void encodeFT(LocalDateTime localDateTime) {

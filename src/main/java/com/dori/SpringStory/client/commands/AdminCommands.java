@@ -2,6 +2,8 @@ package com.dori.SpringStory.client.commands;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.packets.CField;
+import com.dori.SpringStory.connection.packet.packets.COpenGatePool;
+import com.dori.SpringStory.connection.packet.packets.CTownPortalPool;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
@@ -10,6 +12,7 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.utils.MapleUtils;
+import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.dataHandlers.ItemDataHandler;
@@ -319,12 +322,16 @@ public class AdminCommands {
     @Command(names = {"test"}, requiredPermission = AccountType.GameMaster)
     public static void test(MapleChar chr, List<String> args) {
         if (!args.isEmpty()) {
-            String cmdType = args.getFirst();
-            if (MapleUtils.isNumber(cmdType)) {
-                int cmdTypeFlag = Integer.parseInt(cmdType);
-                chr.write(CField.adminResult(cmdTypeFlag, false));
-            }
+//            String cmdType = args.getFirst();
+//            if (MapleUtils.isNumber(cmdType)) {
+//                int cmdTypeFlag = Integer.parseInt(cmdType);
+//                chr.write(CField.adminResult(cmdTypeFlag, false));
+//            }
         }
+        Position pos = new Position(chr.getPosition());
+        pos.setX(pos.getX() + 10);
+        pos.setY(pos.getY() + 10);
+        chr.write(CTownPortalPool.townPortalCreated(chr.getId(), true, pos));
     }
 
     @Command(names = {"invdata"}, requiredPermission = AccountType.GameMaster)

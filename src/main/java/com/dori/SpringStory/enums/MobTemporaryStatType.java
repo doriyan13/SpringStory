@@ -47,6 +47,7 @@ public enum MobTemporaryStatType {
     private final byte pos;
 
     MobTemporaryStatType(int bitPos){
+        //TODO: just remove it, and handle it like i did for CTS
         this.bitPos = bitPos;
         this.value = 1 << (bitPos % 32);
         this.pos = (byte) (bitPos >> 5);

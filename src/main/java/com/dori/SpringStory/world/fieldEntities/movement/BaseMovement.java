@@ -6,6 +6,7 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.enums.MovementPathAttr;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import lombok.Data;
+
 @Data
 public abstract class BaseMovement implements Movement {
     protected byte command;
@@ -27,17 +28,9 @@ public abstract class BaseMovement implements Movement {
         return command;
     }
 
-    public void setCommand(byte command) {
-        this.command = command;
-    }
-
     @Override
     public byte getMoveAction() {
         return moveAction;
-    }
-
-    public void setMoveAction(byte moveAction) {
-        this.moveAction = moveAction;
     }
 
     @Override
@@ -50,17 +43,9 @@ public abstract class BaseMovement implements Movement {
         return stat;
     }
 
-    public void setStat(byte stat) {
-        this.stat = stat;
-    }
-
     @Override
     public short getFh() {
         return fh;
-    }
-
-    public void setFh(short fh) {
-        this.fh = fh;
     }
 
     @Override
@@ -71,10 +56,6 @@ public abstract class BaseMovement implements Movement {
     @Override
     public Position getPosition() {
         return position;
-    }
-
-    public void setPosition(Position position) {
-        this.position = position;
     }
 
     @Override
@@ -92,21 +73,17 @@ public abstract class BaseMovement implements Movement {
         return elapse;
     }
 
-    public void setDuration(short duration) {
-        this.elapse = duration;
-    }
-
     @Override
-    public byte getAttr(){
+    public byte getAttr() {
         return attr;
     }
 
-    public void decode(InPacket inPacket){
+    public void decode(InPacket inPacket) {
         moveAction = inPacket.decodeByte();
         elapse = inPacket.decodeShort();
     }
 
-    public void encode(OutPacket outPacket){
+    public void encode(OutPacket outPacket) {
         outPacket.encodeByte(getMoveAction());
         outPacket.encodeShort(getElapse());
     }

@@ -6,7 +6,11 @@ import com.dori.SpringStory.events.EventManager;
 
 import static com.dori.SpringStory.enums.EventType.REGEN_CHARACTER;
 
-public record RegenChrEvent(MapleChar chr, int amount, boolean healthRegen, int delay, int intervalCount) implements Runnable {
+public record RegenChrEvent(MapleChar chr,
+                            int amount,
+                            boolean healthRegen,
+                            int delay,
+                            int intervalCount) implements Runnable {
     @Override
     public void run() {
         if (amount > 0) {

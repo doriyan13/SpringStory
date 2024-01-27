@@ -57,9 +57,7 @@ public class PlayerCommands {
         MapleWorld world = Server.getWorldById(chr.getMapleClient().getWorldId());
         chr.message("<-------------------------------------------->", ChatType.SpeakerWorld);
         world.getChannelList().forEach(channel -> {
-                    Map<String, Integer> onlineCharacters = new HashMap<>();
-                    //TODO: verify the new code is better and working as intended?
-                    Map<String, Integer> testOnlinePlayers = channel.getFields()
+                    Map<String, Integer> onlinePlayers = channel.getFields()
                             .values()
                             .stream()
                             .flatMap(field -> field.getPlayers()
@@ -69,15 +67,8 @@ public class PlayerCommands {
                             .collect(HashMap::new,
                                     (OnlinePlayersFields, entry) -> OnlinePlayersFields.put(entry.getKey(), entry.getValue()),
                                     HashMap::putAll);
-
-                    channel.getFields()
-                            .values()
-                            .forEach(field ->
-                                    field.getPlayers()
-                                            .values()
-                                            .forEach(player -> onlineCharacters.put(player.getName(), field.getId())));
-                    chr.message("Channel " + channel.getChannelId() + " : " + onlineCharacters.size(), ChatType.SpeakerWorld);
-                    onlineCharacters.forEach((name, fieldID) -> chr.message(name + " -> " + fieldID, ChatType.SpeakerWorld));
+                    chr.message("Channel " + channel.getChannelId() + " : " + onlinePlayers.size(), ChatType.SpeakerWorld);
+                    onlinePlayers.forEach((name, fieldID) -> chr.message(name + " -> " + fieldID, ChatType.SpeakerWorld));
                 }
         );
         chr.message("<-------------------------------------------->", ChatType.SpeakerWorld);

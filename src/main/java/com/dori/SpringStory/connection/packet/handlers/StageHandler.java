@@ -94,5 +94,6 @@ public class StageHandler {
         String portalName = inPacket.decodeString();
         Position position = inPacket.decodePosition();
         //TODO: add portal script handler and such..
+        c.getChr().enableAction();
     }
 }
