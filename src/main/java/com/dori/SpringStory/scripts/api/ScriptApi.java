@@ -212,6 +212,16 @@ public class ScriptApi {
         return applyInputToMsg(NpcMessageUtils.toProgressBar(progressInNum));
     }
 
+    public ScriptApi addMsg(String msg) {
+        //TODO: need to add handling if this is the first msg (didn't create a npcMsg yet?)
+        return applyInputToMsg(msg);
+    }
+
+    public ScriptApi addMsg(Integer msg) {
+        //TODO: need to add handling if this is the first msg (didn't create a npcMsg yet?)
+        return addMsg(msg.toString());
+    }
+
     private void menuLine(int index, String val) {
         applyInputToMsg(NpcMessageUtils.menuLine(index, val));
     }

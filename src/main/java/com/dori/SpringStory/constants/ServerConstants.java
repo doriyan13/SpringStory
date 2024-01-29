@@ -30,6 +30,7 @@ public interface ServerConstants {
     // Dir reading / reflection stuff -
     String DIR = System.getProperty("user.dir");
     String HANDLERS_DIR = DIR + "/src/main/java/com/dori/SpringStory/connection/packet/handlers";
+    String NPC_SCRIPTS_DIR = DIR + "/src/main/java/com/dori/SpringStory/scripts/npcs";
     String WZ_DIR = DIR + "/wz";
     // WZ reading stuff -
     int AMOUNT_OF_LOADERS = 7;

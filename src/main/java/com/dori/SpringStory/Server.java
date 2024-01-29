@@ -8,6 +8,7 @@ import com.dori.SpringStory.connection.netty.ChannelHandler;
 import com.dori.SpringStory.connection.netty.ChatAcceptor;
 import com.dori.SpringStory.connection.netty.LoginAcceptor;
 import com.dori.SpringStory.connection.packet.handlers.ChatHandler;
+import com.dori.SpringStory.connection.packet.handlers.NpcHandler;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.dataHandlers.MobDropHandler;
@@ -124,6 +125,8 @@ public class Server {
         MapleCrypto.initialize();
         // Register all the Packet handlers -
         ChannelHandler.initHandlers(false);
+        // Register all the Npc scripts -
+        NpcHandler.initHandlers();
         // Init Login & Chat acceptors -
         initAcceptors();
         // Init all the MapleWorlds (including channels) -

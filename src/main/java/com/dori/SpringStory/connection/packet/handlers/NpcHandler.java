@@ -5,46 +5,91 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.packets.CScriptMan;
+import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.enums.NpcMessageType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.scripts.api.NpcMessage;
+import com.dori.SpringStory.scripts.api.NpcScript;
 import com.dori.SpringStory.scripts.api.ScriptApi;
 import com.dori.SpringStory.scripts.message.NpcMessageData;
+import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.world.fieldEntities.Npc;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
 
 public class NpcHandler {
     private static final Logger logger = new Logger(NpcHandler.class);
+    private static final Map<Integer, Method> npcScripts = new HashMap<>();
+
+    public static void initHandlers() {
+        long start = System.currentTimeMillis();
+        String handlersDir = ServerConstants.NPC_SCRIPTS_DIR;
+        Set<File> files = new HashSet<>();
+        MapleUtils.findAllFilesInDirectory(files, new File(handlersDir));
+        for (File file : files) {
+            try {
+                // grab all files in the NPCs scripts dir, strip them to their package name, and remove .java extension -
+                String className = file.getPath()
+                        .replaceAll("[\\\\|/]", ".")
+                        .split("src\\.main\\.java\\.")[1]
+                        .replaceAll("\\.java", "");
+                Class<?> clazz = Class.forName(className);
+                for (Method method : clazz.getMethods()) {
+                    NpcScript npcScript = method.getAnnotation(NpcScript.class);
+                    if (npcScript != null) {
+                        int npcID = npcScript.id();
+                        if (npcID == -1) {
+                            logger.error("Found unMarked script! in the class - " + className);
+                        } else {
+                            npcScripts.put(npcID, method);
+                        }
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        logger.serverNotice("Initialized " + npcScripts.size() + " NPC scripts in " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
     @Handler(op = UserSelectNpc)
-    public static void handleUserMove(MapleClient c, InPacket inPacket) {
+    public void handleUserMove(MapleClient c, InPacket inPacket) {
+        MapleChar chr = c.getChr();
         int npcOid = inPacket.decodeInt();
         inPacket.decodePosition(); // playerPos
         Npc npc = c.getChr().getField().getNpcs().get(npcOid);
-        // TODO: k now move to reflection handling and we are DONE!
-        ScriptApi test = new ScriptApi();
-        test.setNpcID(npc.getTemplateId());
-        test.sayNext("Hey")
-                .sayNext("This is a test")
-                .askYesNo("are you ready?", result -> {
-                    if (result) {
-                        test.askMenu(
-                                test.addMenuOption("first option",
-                                        () -> test.askNumber("choose a num between 1 - 10", 1, 10,
-                                                (answer) -> test.sayOK("DONE"))
-                                ),
-                                test.addMenuOption("second",
-                                        () -> test.sayNext("didn't want to end")
-                                        .sayOK("Bye again!"))
-                        );
-                    } else {
-                        test.sayOK("Bye");
-                    }
-                });
-        c.getChr().boundScript(test);
-        NpcMessage msg = test.getCurrentMsg();
-        c.getChr().write(CScriptMan.scriptMessage((byte) 0, npc.getTemplateId(), msg.getType(), msg.getData()));
+
+        Method method = npcScripts.get(npc.getTemplateId());
+        ScriptApi script = null;
+        if(method == null) {
+            script = new ScriptApi();
+            script.sayOK("The Npc ");
+            script.addMsg(npc.getTemplateId())
+                    .red()
+                    .addMsg("wasn't handled!");
+        } else {
+            try {
+                //TODO: need to think on solution to this (does making the method not static is good enough? | need testin!)
+                script = (ScriptApi) method.invoke(this, chr);
+
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        if (script != null) {
+            chr.boundScript(script, npc.getTemplateId());
+            NpcMessage msg = script.getCurrentMsg();
+            c.getChr().write(CScriptMan.scriptMessage((byte) 0, npc.getTemplateId(), msg.getType(), msg.getData()));
+        }
+
         //TODO: need to handle script invoking!
         // First try invoke the npc script
         // - OR -
@@ -63,6 +108,94 @@ public class NpcHandler {
          */
     }
 
+    private static NpcMessageData getSayMsgData(MapleChar chr,
+                                                byte action) {
+        NpcMessage message = null;
+        if (action == 0) {
+            // Prev action -
+            message = chr.getScript().getPrevMsg();
+        } else if (action == 1) {
+            message = chr.getScript().getNextMsg();
+        } else {
+            // close dialog!
+            chr.clearScript();
+        }
+        if (message != null) {
+            return message.getData();
+        }
+        return null;
+    }
+
+    private static NpcMessageData getAskYesNoMsgData(MapleChar chr,
+                                                     byte action) {
+        chr.getScript().applyAskResponseAction(action == 1);
+        NpcMessage message = chr.getScript().getNextMsg();
+        if (message != null) {
+            return message.getData();
+        }
+        return null;
+    }
+
+    private static NpcMessageData getAskMenuMsgData(MapleChar chr,
+                                                    InPacket inPacket,
+                                                    byte action) {
+        int selection = inPacket.decodeInt();
+        NpcMessage message = null;
+        if (action == 0) {
+            // Prev action -
+            message = chr.getScript().getPrevMsg();
+        } else if (action == 1) {
+            // handle the API selection action!
+            chr.getScript().applyResponseAction(selection);
+            message = chr.getScript().getNextMsg();
+        } else {
+            // close dialog!
+            chr.clearScript();
+        }
+        if (message != null) {
+            return message.getData();
+        }
+        return null;
+    }
+
+    private static NpcMessageData getAskNumberMsgData(MapleChar chr,
+                                                      InPacket inPacket,
+                                                      byte action) {
+        NpcMessage message = null;
+        if (action == 0) {
+            // Prev action?
+            message = chr.getScript().getPrevMsg();
+        } else if (action == 1) {
+            int input = inPacket.decodeInt();
+            // handle the API selection action!
+            chr.getScript().applyAskResponseAction(input);
+            message = chr.getScript().getNextMsg();
+        }
+        if (message != null) {
+            return message.getData();
+        }
+        return null;
+    }
+
+    private static NpcMessageData getAskTextMsgData(MapleChar chr,
+                                                    InPacket inPacket,
+                                                    byte action) {
+        NpcMessage message = null;
+        if (action == 0) {
+            // Prev action?
+            message = chr.getScript().getPrevMsg();
+        } else if (action == 1) {
+            String text = inPacket.decodeString();
+            // handle the API selection action!
+            chr.getScript().applyAskResponseAction(text);
+            message = chr.getScript().getNextMsg();
+        }
+        if (message != null) {
+            return message.getData();
+        }
+        return null;
+    }
+
     @Handler(op = UserScriptMessageAnswer)
     public static void handleUserScriptMessageAnswer(MapleClient c, InPacket inPacket) {
         MapleChar chr = c.getChr();
@@ -70,81 +203,13 @@ public class NpcHandler {
         byte action = inPacket.decodeByte();
         NpcMessageType msgType = NpcMessageType.getNpcMsgTypeByVal(type);
         NpcMessageData messageData = null;
-        //TODO: move to small methods~!!
         switch (msgType) {
-            case Say, SayNext, SayPrev, SayOk -> {
-                NpcMessage message = null;
-                if (action == 0) {
-                    // Prev action?
-                    message = chr.getScript().getPrevMsg();
-                } else if (action == 1) {
-                    message = chr.getScript().getNextMsg();
-                } else {
-                    // close dialog!
-                    chr.clearScript();
-                }
-                if (message != null) {
-                    messageData = message.getData();
-                }
-            }
-            case AskYesNo -> {
-                chr.getScript().applyAskResponseAction(action == 1);
-                NpcMessage message = chr.getScript().getNextMsg();
-                if (message != null) {
-                    messageData = message.getData();
-                }
-            }
-            case AskMenu -> {
-                int selection = inPacket.decodeInt();
-                NpcMessage message = null;
-                if (action == 0) {
-                    // Prev action?
-                    message = chr.getScript().getPrevMsg();
-                } else if (action == 1) {
-                    // handle the API selection action!
-                    chr.getScript().applyResponseAction(selection);
-                    message = chr.getScript().getNextMsg();
-                } else {
-                    // close dialog!
-                    chr.clearScript();
-                }
-                if (message != null) {
-                    messageData = message.getData();
-                }
-            }
-            case AskNumber -> {
-                NpcMessage message = null;
-                if (action == 0) {
-                    // Prev action?
-                    message = chr.getScript().getPrevMsg();
-                } else if (action == 1) {
-                    int input = inPacket.decodeInt();
-                    // handle the API selection action!
-                    chr.getScript().applyAskResponseAction(input);
-                    message = chr.getScript().getNextMsg();
-                }
-                if (message != null) {
-                    messageData = message.getData();
-                }
-            }
-            case AskText, AskBoxText -> {
-                NpcMessage message = null;
-                if (action == 0) {
-                    // Prev action?
-                    message = chr.getScript().getPrevMsg();
-                } else if (action == 1) {
-                    String text = inPacket.decodeString();
-                    // handle the API selection action!
-                    chr.getScript().applyAskResponseAction(text);
-                    message = chr.getScript().getNextMsg();
-                }
-                if (message != null) {
-                    messageData = message.getData();
-                }
-            }
-            default -> {
-                logger.warning("Unsupported Npc message type!!! - " + msgType);
-            }
+            case Say, SayNext, SayPrev, SayOk -> messageData = getSayMsgData(chr, action);
+            case AskYesNo -> messageData = getAskYesNoMsgData(chr, action);
+            case AskMenu -> messageData = getAskMenuMsgData(chr, inPacket, action);
+            case AskNumber -> messageData = getAskNumberMsgData(chr, inPacket, action);
+            case AskText, AskBoxText -> messageData = getAskTextMsgData(chr, inPacket, action);
+            default -> logger.warning("Unsupported Npc message type!!! - " + msgType);
         }
         if (messageData != null) {
             chr.write(CScriptMan.scriptMessage((byte) 0, chr.getScript().getNpcID(), chr.getScript().getCurrMsgType(), messageData));
