@@ -988,7 +988,8 @@ public class MapleChar {
         write(CWvsContext.inventoryOperation(true, inventoryOperation, (short) item.getBagIndex(), (short) -1, item));
     }
 
-    public void boundScript(ScriptApi script) {
+    public void boundScript(ScriptApi script, int npcID) {
+        script.setNpcID(npcID);
         this.script = script;
     }
 

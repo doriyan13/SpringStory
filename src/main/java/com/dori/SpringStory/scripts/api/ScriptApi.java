@@ -144,28 +144,86 @@ public class ScriptApi {
         return applyActionToMsg(msg -> msg.setMsg(msg.getMsg() + " " + additionalMsg));
     }
 
+    public ScriptApi addMsg(String msg) {
+        //TODO: need to add handling if this is the first msg (didn't create a npcMsg yet?)
+        return applyInputToMsg(msg);
+    }
+
+    public ScriptApi addMsg(Integer msg) {
+        //TODO: need to add handling if this is the first msg (didn't create a npcMsg yet?)
+        return addMsg(msg.toString());
+    }
+
     public ScriptApi blue() {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.blue(msg.getMsg())));
+    }
+
+    public ScriptApi blue(String msg) {
+        return addMsg(NpcMessageUtils.blue(msg));
+    }
+
+    public ScriptApi blue(Integer msg) {
+        return addMsg(NpcMessageUtils.blue(msg));
     }
 
     public ScriptApi red() {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.red(msg.getMsg())));
     }
 
+    public ScriptApi red(String msg) {
+        return addMsg(NpcMessageUtils.red(msg));
+    }
+
+    public ScriptApi red(Integer msg) {
+        return addMsg(NpcMessageUtils.red(msg));
+    }
+
     public ScriptApi green() {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.green(msg.getMsg())));
+    }
+
+    public ScriptApi green(String msg) {
+        return addMsg(NpcMessageUtils.green(msg));
+    }
+
+    public ScriptApi green(Integer msg) {
+        return addMsg(NpcMessageUtils.green(msg));
     }
 
     public ScriptApi purple() {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.purple(msg.getMsg())));
     }
 
+    public ScriptApi purple(String msg) {
+        return addMsg(NpcMessageUtils.purple(msg));
+    }
+
+    public ScriptApi purple(Integer msg) {
+        return addMsg(NpcMessageUtils.purple(msg));
+    }
+
     public ScriptApi black() {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.black(msg.getMsg())));
     }
 
+    public ScriptApi black(String msg) {
+        return addMsg(NpcMessageUtils.black(msg));
+    }
+
+    public ScriptApi black(Integer msg) {
+        return addMsg(NpcMessageUtils.black(msg));
+    }
+
     public ScriptApi bold() {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.bold(msg.getMsg())));
+    }
+
+    public ScriptApi bold(String msg) {
+        return addMsg(NpcMessageUtils.bold(msg));
+    }
+
+    public ScriptApi bold(Integer msg) {
+        return addMsg(NpcMessageUtils.bold(msg));
     }
 
     public ScriptApi itemName(int itemID) {
@@ -210,16 +268,6 @@ public class ScriptApi {
 
     public ScriptApi toProgressBar(int progressInNum) {
         return applyInputToMsg(NpcMessageUtils.toProgressBar(progressInNum));
-    }
-
-    public ScriptApi addMsg(String msg) {
-        //TODO: need to add handling if this is the first msg (didn't create a npcMsg yet?)
-        return applyInputToMsg(msg);
-    }
-
-    public ScriptApi addMsg(Integer msg) {
-        //TODO: need to add handling if this is the first msg (didn't create a npcMsg yet?)
-        return addMsg(msg.toString());
     }
 
     private void menuLine(int index, String val) {

@@ -8,10 +8,10 @@ import com.dori.SpringStory.connection.netty.ChannelHandler;
 import com.dori.SpringStory.connection.netty.ChatAcceptor;
 import com.dori.SpringStory.connection.netty.LoginAcceptor;
 import com.dori.SpringStory.connection.packet.handlers.ChatHandler;
-import com.dori.SpringStory.connection.packet.handlers.NpcHandler;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.dataHandlers.MobDropHandler;
+import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
 import com.dori.SpringStory.services.*;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.world.MapleChannel;
@@ -126,7 +126,7 @@ public class Server {
         // Register all the Packet handlers -
         ChannelHandler.initHandlers(false);
         // Register all the Npc scripts -
-        NpcHandler.initHandlers();
+        NpcScriptHandler.initHandlers();
         // Init Login & Chat acceptors -
         initAcceptors();
         // Init all the MapleWorlds (including channels) -

@@ -6,7 +6,7 @@ import com.dori.SpringStory.scripts.api.ScriptApi;
 
 public class Henesys {
     // Town ID - 100000000
-    @NpcScript(id = 0) //TODO: need to put the correct ID!!!
+    @NpcScript(id = 1012000)
     public static ScriptApi handleTaxi(MapleChar chr) {
         ScriptApi test = new ScriptApi();
         test.sayNext("Hey")
