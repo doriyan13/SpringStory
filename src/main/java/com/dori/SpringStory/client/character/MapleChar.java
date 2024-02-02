@@ -945,6 +945,8 @@ public class MapleChar {
     }
 
     public void pickupItem(Drop drop) {
+        getField().removeDrop(drop.getId(), getId(), -1);
+        EventManager.cancelEvent(MapleUtils.concat((long) getField().getId(), drop.getId()), EventType.REMOVE_DROP_FROM_FIELD);
         if (drop.getItem() != null) {
             // Handle item pickup -
             Item item = drop.getItem();
@@ -965,8 +967,6 @@ public class MapleChar {
             updateStat(Money, getMeso());
             write(CWvsContext.dropPickupMessage(quantity, PickupMessageType.MESO, (short) 0, quantity));
         }
-        getField().removeDrop(drop.getId(), getId(), -1);
-        EventManager.cancelEvent(MapleUtils.concat((long) getField().getId(), drop.getId()), EventType.REMOVE_DROP_FROM_FIELD);
     }
 
     public void consumeItem(InventoryType invType,
