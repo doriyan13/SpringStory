@@ -39,7 +39,7 @@
 - [x] More cool stuff that I'm probably just don't remember xD
 
 ## 💻 Personal Note
-This project is for learning and fun, I'm planing to continue work, so it will be continued to be updated but not consistently.
+This project is for learning and fun, I'm planing to continue work on, so it will be continued to be updated but not consistently.
 Part of my plan was to suggest another way to go about creating a server and give good base for anyone that was to build on it
 with more updated and better performances.
 
