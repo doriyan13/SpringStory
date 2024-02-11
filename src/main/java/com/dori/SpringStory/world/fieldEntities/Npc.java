@@ -43,7 +43,7 @@ public class Npc extends Life{
     public void encode(OutPacket outPacket){
         // CNpc::Init
         outPacket.encodePosition(getPosition());
-        outPacket.encodeBool(!isFlip()); // m_nMoveAction
+        outPacket.encodeBool(!isFlip()); // m_nMoveAction | actually if the npc should be flipped or not
         outPacket.encodeShort(getFh()); // foothold
         outPacket.encodeShort(getRx0()); // rgHorz.low
         outPacket.encodeShort(getRx1()); // rgHorz.high
