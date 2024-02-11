@@ -72,7 +72,7 @@ public class NpcScriptHandler {
             script = new ScriptApi();
             script.sayOK("The Npc ");
             script.red(npc.getTemplateId())
-                    .addMsg("wasn't handled!");
+                    .addMsg(" wasn't handled!");
         } else {
             try {
                 script = (ScriptApi) method.invoke(this, chr);

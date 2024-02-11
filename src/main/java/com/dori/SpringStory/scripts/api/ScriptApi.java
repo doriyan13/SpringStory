@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +29,15 @@ public class ScriptApi {
     private NpcMessageType currMsgType;
 
     private void addSayMsg(@NotNull String msg,
-                           NpcMessageType type) {
-        SayMsg npcMsg = new SayMsg(msg, type, (byte) 0/*in swordie they put always 4*/, npcID);
+                           NpcMessageType type,
+                           @Nullable Runnable action) {
+        SayMsg npcMsg = new SayMsg(msg, type, (byte) 0/*in swordie they put always 4*/, npcID, action);
         npcMessages.add(new NpcMessage(type, npcMsg));
+    }
+
+    private void addSayMsg(@NotNull String msg,
+                           NpcMessageType type) {
+        addSayMsg(msg, type, null);
     }
 
     private void addImageMsg(String[] images) {
@@ -64,8 +71,19 @@ public class ScriptApi {
         addSayMsg(msg, SayOk);
     }
 
+    public void sayOK(@NotNull String msg,
+                      Runnable action) {
+        addSayMsg(msg, SayOk, action);
+    }
+
     public ScriptApi sayNext(@NotNull String msg) {
         addSayMsg(msg, SayNext);
+        return this;
+    }
+
+    public ScriptApi sayNext(@NotNull String msg,
+                             Runnable action) {
+        addSayMsg(msg, SayNext, action);
         return this;
     }
 
@@ -75,6 +93,12 @@ public class ScriptApi {
 
     public ScriptApi say(@NotNull String msg) {
         addSayMsg(msg, Say);
+        return this;
+    }
+
+    public ScriptApi say(@NotNull String msg,
+                         Runnable action) {
+        addSayMsg(msg, Say, action);
         return this;
     }
 
@@ -130,6 +154,15 @@ public class ScriptApi {
         addMenuItems(menuOptions);
     }
 
+    public void askMenu(@NotNull String msg, @NotNull List<MenuOption> menuOptions) {
+        addBaseAskMsg(msg, AskMenu);
+        this.responseAction = new ArrayList<>();
+        for (int i = 0; i < menuOptions.size(); i++) {
+            menuLine(i, menuOptions.get(i).getMsg());
+            this.responseAction.add(menuOptions.get(i).getAction());
+        }
+    }
+
     public void askAccept(@NotNull String msg) {
         addBaseAskMsg(msg, AskAccept);
     }
@@ -141,7 +174,7 @@ public class ScriptApi {
     }
 
     private ScriptApi applyInputToMsg(@NotNull String additionalMsg) {
-        return applyActionToMsg(msg -> msg.setMsg(msg.getMsg() + " " + additionalMsg));
+        return applyActionToMsg(msg -> msg.setMsg(msg.getMsg() + additionalMsg));
     }
 
     public ScriptApi addMsg(@NotNull String msg) {
@@ -332,5 +365,6 @@ public class ScriptApi {
     @SuppressWarnings("unchecked")
     public <T> void applyAskResponseAction(T response) {
         ((Consumer<T>) this.askResponseAction).accept(response);
+        this.askResponseAction = null;
     }
 }

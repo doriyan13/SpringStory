@@ -10,6 +10,7 @@ import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.scripts.api.NpcMessage;
 import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
 import com.dori.SpringStory.scripts.message.NpcMessageData;
+import com.dori.SpringStory.scripts.message.SayMsg;
 import com.dori.SpringStory.world.fieldEntities.Npc;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
@@ -24,7 +25,7 @@ public class NpcHandler {
         inPacket.decodePosition(); // playerPos
         Npc npc = chr.getField().getNpcs().get(npcOid);
         // Invoke the script by the handler -
-        NpcScriptHandler.getInstance().handleNpcScript(chr,npc);
+        NpcScriptHandler.getInstance().handleNpcScript(chr, npc);
 
         //TODO: need to handle script invoking!
         // First try invoke the npc script
@@ -36,6 +37,7 @@ public class NpcHandler {
     private static NpcMessageData getSayMsgData(MapleChar chr,
                                                 byte action) {
         NpcMessage message = null;
+        ((SayMsg) chr.getScript().getCurrentMsg().getData()).applyAction();
         if (action == 0) {
             // Prev action -
             message = chr.getScript().getPrevMsg();

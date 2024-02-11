@@ -9,7 +9,7 @@ import com.dori.SpringStory.utils.NpcScriptUtils;
 
 import java.util.*;
 
-public class Common {
+public class GlobalScripts {
 
     // Regular Cab in Victoria
     // Text for this script is 100% GMS-like
@@ -17,7 +17,7 @@ public class Common {
     public static ScriptApi handleTaxi(MapleChar chr) {
         ScriptApi script = new ScriptApi();
         String npcName = NpcMessageUtils.npcName(1012000);
-        script.sayNext("Hello! I'm")
+        script.sayNext("Hello! I'm ")
                 .blue(npcName)
                 .addMsg(", and I am here to take you to your destination quickly and safely.")
                 .blue(npcName)
@@ -34,7 +34,7 @@ public class Common {
             }
         }
 
-        script.askMenu("Please select your destination.\r\n", menuOptions.toArray(MenuOption[]::new));
+        script.askMenu("Please select your destination.\r\n", menuOptions);
         return script;
     }
 }
