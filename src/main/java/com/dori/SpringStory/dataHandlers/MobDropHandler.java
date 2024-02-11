@@ -21,7 +21,8 @@ public class MobDropHandler {
     private static final Map<Integer, List<MobDropData>> dropByMobsId = new HashMap<>();
 
     public static List<MobDropData> getDropsByMobID(int mobID) {
-        return new ArrayList<>(dropByMobsId.get(mobID));
+        List<MobDropData> drops = dropByMobsId.get(mobID);
+        return drops != null ? new ArrayList<>(drops) : Collections.emptyList();
     }
 
     private static void loadCosmicAndBmsDefaultDrops(Set<MobDropData> fullListOfMobDrops) {
@@ -100,7 +101,7 @@ public class MobDropHandler {
                 logger.error("Error occurred while trying to load the file: " + file.getName());
                 e.printStackTrace();
             }
-            logger.serverNotice("~ Finished loading " + dropByMobsId.size() +" Mobs drops JSON file! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.serverNotice("~ Finished loading " + dropByMobsId.size() + " Mobs drops JSON file! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
         } else {
             logger.error("Didn't found FullMobDrops JSON to load!");
         }

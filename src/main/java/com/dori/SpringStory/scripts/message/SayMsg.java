@@ -15,6 +15,7 @@ public class SayMsg implements NpcMessageData {
     private NpcMessageType type;
     private byte speakerType;
     private int speakerTemplateID;
+    private Runnable action;
 
     @Override
     public void encode(OutPacket outPacket) {
@@ -24,5 +25,12 @@ public class SayMsg implements NpcMessageData {
         outPacket.encodeString(msg); // sMsg
         outPacket.encodeBool(type.isPrevPossible());
         outPacket.encodeBool(type.isNextPossible());
+    }
+
+    public void applyAction() {
+        if (this.action != null) {
+            this.action.run();
+            this.action = null;
+        }
     }
 }
