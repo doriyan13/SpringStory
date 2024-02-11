@@ -237,7 +237,7 @@ public class UserHandler {
         inPacket.decodeInt(); // timestamp
         int mesoAmountToDrop = inPacket.decodeInt();
         // Modify the meso quantity -
-        chr.modifyMeso(-mesoAmountToDrop);
+        chr.modifyMeso(-mesoAmountToDrop, false);
         // Drop the meso -
         Drop drop = new Drop(mesoAmountToDrop);
         chr.getField().spawnDrop(drop, chr.getPosition());

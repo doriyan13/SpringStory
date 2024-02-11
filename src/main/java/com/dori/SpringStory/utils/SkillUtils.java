@@ -165,7 +165,7 @@ public interface SkillUtils {
         if (skillData.getSkillStatInfo().get(moneyCon) != null) {
             // Basically Shadow Meso
             int amountToConsume = FormulaCalcUtils.calcValueFromFormula(skillData.getSkillStatInfo().get(moneyCon), slv);
-            chr.modifyMeso(-amountToConsume);
+            chr.modifyMeso(-amountToConsume, false);
         } else if (skillData.getSkillStatInfo().get(itemCon) != null && skillData.getSkillStatInfo().get(itemConNo) != null) {
             int itemIdToConsume = Integer.parseInt(skillData.getSkillStatInfo().get(itemCon));
             int amountToConsume = Integer.parseInt(skillData.getSkillStatInfo().get(itemConNo));

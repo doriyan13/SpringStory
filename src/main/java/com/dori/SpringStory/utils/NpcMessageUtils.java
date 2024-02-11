@@ -99,6 +99,6 @@ public interface NpcMessageUtils {
     }
 
     static String menuLine(int index, String val) {
-        return "\\r\\n#L" + index + '#' + val + "#l";
+        return "\r\n#L" + index + '#' + val + "#l";
     }
 }

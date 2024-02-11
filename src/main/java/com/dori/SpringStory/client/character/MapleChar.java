@@ -941,7 +941,7 @@ public class MapleChar {
         return dropItem(item, 0);
     }
 
-    public void modifyMeso(int amount) {
+    public void modifyMeso(int amount, boolean showInChat) {
         int newMoneyAmount;
         if (amount > 0) {
             newMoneyAmount = Math.min(amount + getMeso(), MAX_MESO);
@@ -952,6 +952,8 @@ public class MapleChar {
             setMeso(newMoneyAmount);
             updateStat(Money, newMoneyAmount);
         }
+
+        if (showInChat) write(CWvsContext.incMoneyMessage(amount));
     }
 
     public void pickupItem(Drop drop) {
