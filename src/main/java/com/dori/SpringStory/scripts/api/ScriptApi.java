@@ -27,7 +27,7 @@ public class ScriptApi {
     private int index;
     private NpcMessageType currMsgType;
 
-    private void addSayMsg(String msg,
+    private void addSayMsg(@NotNull String msg,
                            NpcMessageType type) {
         SayMsg npcMsg = new SayMsg(msg, type, (byte) 0/*in swordie they put always 4*/, npcID);
         npcMessages.add(new NpcMessage(type, npcMsg));
@@ -38,13 +38,13 @@ public class ScriptApi {
         npcMessages.add(new NpcMessage(SayImage, npcMsg));
     }
 
-    private void addBaseAskMsg(String msg,
+    private void addBaseAskMsg(@NotNull String msg,
                                NpcMessageType type) {
         BaseAskMsg npcMsg = new BaseAskMsg(msg);
         npcMessages.add(new NpcMessage(type, npcMsg));
     }
 
-    private void addAskTextMsg(String msg,
+    private void addAskTextMsg(@NotNull String msg,
                                String defaultText,
                                int min,
                                int max) {
@@ -52,7 +52,7 @@ public class ScriptApi {
         npcMessages.add(new NpcMessage(AskText, askTextMsg));
     }
 
-    private void addAskNumberMsg(String msg,
+    private void addAskNumberMsg(@NotNull String msg,
                                  int defaultNum,
                                  int min,
                                  int max) {
@@ -60,20 +60,20 @@ public class ScriptApi {
         npcMessages.add(new NpcMessage(AskNumber, askTextMsg));
     }
 
-    public void sayOK(String msg) {
+    public void sayOK(@NotNull String msg) {
         addSayMsg(msg, SayOk);
     }
 
-    public ScriptApi sayNext(String msg) {
+    public ScriptApi sayNext(@NotNull String msg) {
         addSayMsg(msg, SayNext);
         return this;
     }
 
-    public void sayPrev(String msg) {
+    public void sayPrev(@NotNull String msg) {
         addSayMsg(msg, SayPrev);
     }
 
-    public ScriptApi say(String msg) {
+    public ScriptApi say(@NotNull String msg) {
         addSayMsg(msg, Say);
         return this;
     }
@@ -82,16 +82,16 @@ public class ScriptApi {
         addImageMsg(images);
     }
 
-    public void sayImageMsg(String image) {
+    public void sayImageMsg(@NotNull String image) {
         addImageMsg(new String[]{image});
     }
 
-    public void askYesNo(String msg, @NotNull Consumer<Boolean> responseAction) {
+    public void askYesNo(@NotNull String msg, @NotNull Consumer<Boolean> responseAction) {
         addBaseAskMsg(msg, AskYesNo);
         this.askResponseAction = responseAction;
     }
 
-    public void askText(String msg,
+    public void askText(@NotNull String msg,
                         String defaultText,
                         int min,
                         int max,
@@ -100,7 +100,7 @@ public class ScriptApi {
         this.askResponseAction = responseAction;
     }
 
-    public void askText(String msg,
+    public void askText(@NotNull String msg,
                         int min,
                         int max,
                         @NotNull Consumer<String> responseAction) {
@@ -108,7 +108,7 @@ public class ScriptApi {
         this.askResponseAction = responseAction;
     }
 
-    public void askNumber(String msg,
+    public void askNumber(@NotNull String msg,
                           int defaultNum,
                           int min,
                           int max,
@@ -117,7 +117,7 @@ public class ScriptApi {
         this.askResponseAction = responseAction;
     }
 
-    public void askNumber(String msg,
+    public void askNumber(@NotNull String msg,
                           int min,
                           int max,
                           @NotNull Consumer<Integer> responseAction) {
@@ -125,12 +125,12 @@ public class ScriptApi {
         this.askResponseAction = responseAction;
     }
 
-    public void askMenu(@NotNull MenuOption... menuOptions) {
-        addBaseAskMsg("", AskMenu);
+    public void askMenu(@NotNull String msg, @NotNull MenuOption... menuOptions) {
+        addBaseAskMsg(msg, AskMenu);
         addMenuItems(menuOptions);
     }
 
-    public void askAccept(String msg) {
+    public void askAccept(@NotNull String msg) {
         addBaseAskMsg(msg, AskAccept);
     }
 
@@ -140,17 +140,21 @@ public class ScriptApi {
         return this;
     }
 
-    private ScriptApi applyInputToMsg(String additionalMsg) {
+    private ScriptApi applyInputToMsg(@NotNull String additionalMsg) {
         return applyActionToMsg(msg -> msg.setMsg(msg.getMsg() + " " + additionalMsg));
     }
 
-    public ScriptApi addMsg(String msg) {
-        //TODO: need to add handling if this is the first msg (didn't create a npcMsg yet?)
+    public ScriptApi addMsg(@NotNull String msg) {
+        if (npcMessages.isEmpty()) {
+            return sayNext(msg);
+        }
         return applyInputToMsg(msg);
     }
 
-    public ScriptApi addMsg(Integer msg) {
-        //TODO: need to add handling if this is the first msg (didn't create a npcMsg yet?)
+    public ScriptApi addMsg(@NotNull Integer msg) {
+        if (npcMessages.isEmpty()) {
+            return sayNext(String.valueOf(msg));
+        }
         return addMsg(msg.toString());
     }
 
@@ -158,11 +162,11 @@ public class ScriptApi {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.blue(msg.getMsg())));
     }
 
-    public ScriptApi blue(String msg) {
+    public ScriptApi blue(@NotNull String msg) {
         return addMsg(NpcMessageUtils.blue(msg));
     }
 
-    public ScriptApi blue(Integer msg) {
+    public ScriptApi blue(@NotNull Integer msg) {
         return addMsg(NpcMessageUtils.blue(msg));
     }
 
@@ -170,11 +174,11 @@ public class ScriptApi {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.red(msg.getMsg())));
     }
 
-    public ScriptApi red(String msg) {
+    public ScriptApi red(@NotNull String msg) {
         return addMsg(NpcMessageUtils.red(msg));
     }
 
-    public ScriptApi red(Integer msg) {
+    public ScriptApi red(@NotNull Integer msg) {
         return addMsg(NpcMessageUtils.red(msg));
     }
 
@@ -182,11 +186,11 @@ public class ScriptApi {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.green(msg.getMsg())));
     }
 
-    public ScriptApi green(String msg) {
+    public ScriptApi green(@NotNull String msg) {
         return addMsg(NpcMessageUtils.green(msg));
     }
 
-    public ScriptApi green(Integer msg) {
+    public ScriptApi green(@NotNull Integer msg) {
         return addMsg(NpcMessageUtils.green(msg));
     }
 
@@ -194,11 +198,11 @@ public class ScriptApi {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.purple(msg.getMsg())));
     }
 
-    public ScriptApi purple(String msg) {
+    public ScriptApi purple(@NotNull String msg) {
         return addMsg(NpcMessageUtils.purple(msg));
     }
 
-    public ScriptApi purple(Integer msg) {
+    public ScriptApi purple(@NotNull Integer msg) {
         return addMsg(NpcMessageUtils.purple(msg));
     }
 
@@ -206,7 +210,7 @@ public class ScriptApi {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.black(msg.getMsg())));
     }
 
-    public ScriptApi black(String msg) {
+    public ScriptApi black(@NotNull String msg) {
         return addMsg(NpcMessageUtils.black(msg));
     }
 
@@ -218,11 +222,11 @@ public class ScriptApi {
         return applyActionToMsg(msg -> msg.setMsg(NpcMessageUtils.bold(msg.getMsg())));
     }
 
-    public ScriptApi bold(String msg) {
+    public ScriptApi bold(@NotNull String msg) {
         return addMsg(NpcMessageUtils.bold(msg));
     }
 
-    public ScriptApi bold(Integer msg) {
+    public ScriptApi bold(@NotNull Integer msg) {
         return addMsg(NpcMessageUtils.bold(msg));
     }
 
@@ -242,7 +246,7 @@ public class ScriptApi {
         return applyInputToMsg(NpcMessageUtils.itemDetails(itemID));
     }
 
-    public ScriptApi wzImage(String input) {
+    public ScriptApi wzImage(@NotNull String input) {
         return applyInputToMsg(NpcMessageUtils.wzImage(input));
     }
 
@@ -270,7 +274,7 @@ public class ScriptApi {
         return applyInputToMsg(NpcMessageUtils.toProgressBar(progressInNum));
     }
 
-    private void menuLine(int index, String val) {
+    private void menuLine(int index, @NotNull String val) {
         applyInputToMsg(NpcMessageUtils.menuLine(index, val));
     }
 
@@ -288,7 +292,7 @@ public class ScriptApi {
         }
     }
 
-    public MenuOption addMenuOption(String msg, Runnable action) {
+    public MenuOption addMenuOption(@NotNull String msg, Runnable action) {
         return new MenuOption(msg, action);
     }
 
@@ -296,7 +300,6 @@ public class ScriptApi {
         if (index < this.npcMessages.size()) {
             NpcMessage msg = this.npcMessages.get(index);
             this.currMsgType = msg.getType();
-            index++;
             return msg;
         }
         return null;

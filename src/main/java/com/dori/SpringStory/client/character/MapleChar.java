@@ -556,6 +556,16 @@ public class MapleChar {
         to.spawnPlayer(this, false);
     }
 
+    public void warp(int mapID) {
+        Field toField = getMapleClient().getMapleChannelInstance().getField(mapID);
+        if (toField != null) {
+            Portal targetPortal = toField.findDefaultPortal();
+            warp(toField, targetPortal);
+        } else {
+            message("Un-valid Map ID!", ChatType.SpeakerChannel);
+        }
+    }
+
     public Inventory getInventoryByType(InventoryType invType) {
         return switch (invType) {
             case EQUIPPED -> getEquippedInventory();
