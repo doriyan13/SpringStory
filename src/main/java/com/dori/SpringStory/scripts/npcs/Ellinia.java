@@ -11,6 +11,9 @@ import com.dori.SpringStory.scripts.api.ScriptApi;
 import com.dori.SpringStory.utils.JobUtils;
 import com.dori.SpringStory.utils.NpcMessageUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Ellinia {
 
     // Grendel the Really Old
@@ -27,8 +30,7 @@ public class Ellinia {
 
             // If the character is not yet level 8, they cannot become a magician
             if (chr.getLevel() < 8) {
-                script.sayOK("You need more training to be a Magician. In order to be one, you need to train yourself " +
-                        "to be more powerful than you are right now. Please come back when you are much stronger.");
+                script.sayOK("You need more training to be a Magician. In order to be one, you need to train yourself to be more powerful than you are right now. Please come back when you are much stronger.");
                 return script;
             }
 
@@ -42,13 +44,11 @@ public class Ellinia {
 
                         // If the player cannot hold the Beginner equipment, let them know and return
                         if (chr.getInventoryByType(InventoryType.EQUIP).isFull()) {
-                            script.sayOK("Please make sure that you have an empty slot in your Equip. inventory and then " +
-                                    "talk to me again.");
+                            script.sayOK("Please make sure that you have an empty slot in your Equip. inventory and then talk to me again.");
                             return;
                         }
 
-                        // Change their job to Magician
-                        chr.setJob(200);
+                        chr.setJob(Job.Magician.getId());
 
                         // Provide beginner equipment
                         Equip equip = ItemDataHandler.getEquipByID(1372043);
@@ -57,27 +57,29 @@ public class Ellinia {
                             chr.addEquip(equip);
                         }
 
+                        Map<Stat, Object> statsToUpdate = new HashMap<>();
+
                         // Change stats to 4/4/20/4
                         chr.setNStr(4);
                         chr.setNDex(4);
                         chr.setNInt(20);
                         chr.setNLuk(4);
-                        chr.updateStat(Stat.Str, 4);
-                        chr.updateStat(Stat.Dex, 4);
-                        chr.updateStat(Stat.Inte, 20);
-                        chr.updateStat(Stat.Luk, 4);
+                        statsToUpdate.put(Stat.Str, 4);
+                        statsToUpdate.put(Stat.Dex, 4);
+                        statsToUpdate.put(Stat.Inte, 20);
+                        statsToUpdate.put(Stat.Luk, 4);
 
                         // Provide them with their remaining AP to distribute themselves
                         // Characters should have 60 AP by level 8 (5 each level up + 25 base stats)
-                        int bonusAp = Math.max(0, (chr.getLevel() - 8) * 5);
-                        chr.setAp(28 + bonusAp);
-                        chr.updateStat(Stat.AbilityPoint, chr.getAp());
+                        chr.setAp(28 + Math.max(0, (chr.getLevel() - 8) * 5));
+                        statsToUpdate.put(Stat.AbilityPoint, chr.getAp());
 
                         // Provide them with their remaining SP to distribute themselves
                         // Characters should have 1 SP by level 8 (+3 per level beyond that)
-                        int bonusSp = Math.max(0, (chr.getLevel() - 8) * 3);
-                        chr.setSp(1 + bonusSp);
-                        chr.updateStat(Stat.SkillPoint, chr.getSp());
+                        chr.setSp(1 + Math.max(0, (chr.getLevel() - 8) * 3));
+                        statsToUpdate.put(Stat.SkillPoint, chr.getSp());
+
+                        chr.changeStats(statsToUpdate);
 
                         if (chr.getLevel() > 8) {
                             script.say("I think you are a bit late with making a job advancement. But don't worry, I have ")
@@ -86,7 +88,7 @@ public class Ellinia {
                         }
                         script.say("You have just equipped yourself with more magical power. Please continue training and ")
                                 .addMsg("improving. I'll be watching you here and there.");
-                        script.say("I just gave you a little bit of #bSP#k. When you open up the #bSkill menu#k on the ")
+                        script.say("I just gave you a little bit of ").blue("SP").addMsg(". When you open up the #bSkill menu#k on the ")
                                 .addMsg("lower right corner of the screen, there are skills you can learn by using your SP. One ")
                                 .addMsg("warning, though: You can't raise them all at once. There are also skills you can ")
                                 .addMsg("acquire only after having learned a couple of skills first.");
@@ -100,8 +102,7 @@ public class Ellinia {
                                 .addMsg("farewell...");
                     });
                 } else {
-                    script.sayOK("Really? Have to give more thought to it, huh? Take your time, take your time. This " +
-                            "is not something you should take lightly... come talk to me once you have made your decision.");
+                    script.sayOK("Really? Have to give more thought to it, huh? Take your time, take your time. This is not something you should take lightly... come talk to me once you have made your decision.");
                 }
             });
         }
