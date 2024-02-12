@@ -88,7 +88,7 @@ public class Ellinia {
                         }
                         script.say("You have just equipped yourself with more magical power. Please continue training and ")
                                 .addMsg("improving. I'll be watching you here and there.");
-                        script.say("I just gave you a little bit of ").blue("SP").addMsg(". When you open up the #bSkill menu#k on the ")
+                        script.say("I just gave you a little bit of ").blue("SP").addMsg(". When you open up the ").blue("Skill menu").addMsg(" on the ")
                                 .addMsg("lower right corner of the screen, there are skills you can learn by using your SP. One ")
                                 .addMsg("warning, though: You can't raise them all at once. There are also skills you can ")
                                 .addMsg("acquire only after having learned a couple of skills first.");
