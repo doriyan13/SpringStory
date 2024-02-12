@@ -1,28 +1,30 @@
 package com.dori.SpringStory.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 @SuppressWarnings("unused")
 public interface NpcMessageUtils {
-    static String blue(String input) {
+    static String blue(@NotNull String input) {
         return "#b" + input + "#k";
     }
 
-    static String red(String input) {
+    static String red(@NotNull String input) {
         return "#r" + input + "#k";
     }
 
-    static String green(String input) {
+    static String green(@NotNull String input) {
         return "#g" + input + "#k";
     }
 
-    static String purple(String input) {
+    static String purple(@NotNull String input) {
         return "#d" + input + "#k";
     }
 
-    static String black(String input) {
+    static String black(@NotNull String input) {
         return "#k" + input + "#k";
     }
 
-    static String bold(String input) {
+    static String bold(@NotNull String input) {
         return "#e" + input + "#n";
     }
 
@@ -66,7 +68,7 @@ public interface NpcMessageUtils {
         return "#z" + input + "#";
     }
 
-    static String wzImage(String input) {
+    static String wzImage(@NotNull String input) {
         return "#f" + input + "#";
     }
 
@@ -98,7 +100,11 @@ public interface NpcMessageUtils {
         return "#B" + input + "#";
     }
 
-    static String menuLine(int index, String val) {
+    static String menuLine(int index, @NotNull String val) {
         return "\r\n#L" + index + '#' + val + "#l";
+    }
+
+    static String newLine(@NotNull String val) {
+        return "\r\n" + val;
     }
 }

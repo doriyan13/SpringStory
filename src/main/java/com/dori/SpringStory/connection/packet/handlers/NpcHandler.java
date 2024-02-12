@@ -66,6 +66,9 @@ public class NpcHandler {
     private static NpcMessageData getAskMenuMsgData(MapleChar chr,
                                                     InPacket inPacket,
                                                     byte action) {
+        if (inPacket.getUnreadAmount() == 0) {
+            return null;
+        }
         int selection = inPacket.decodeInt();
         NpcMessage message = null;
         if (action == 0) {
@@ -75,9 +78,6 @@ public class NpcHandler {
             // handle the API selection action!
             chr.getScript().applyResponseAction(selection);
             message = chr.getScript().getNextMsg();
-        } else {
-            // close dialog!
-            chr.clearScript();
         }
         if (message != null) {
             return message.getData();
@@ -142,7 +142,6 @@ public class NpcHandler {
             chr.write(CScriptMan.scriptMessage((byte) 0, chr.getScript().getNpcID(), chr.getScript().getCurrMsgType(), messageData));
         } else {
             chr.clearScript();
-            logger.error("No message to handle in the ScriptApi for the player - " + chr.getId());
         }
     }
 }

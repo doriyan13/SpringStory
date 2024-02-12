@@ -71,8 +71,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
         MapleClient c = (MapleClient) ctx.channel().attr(CLIENT_KEY).get();
         if (c != null && c.getChr() != null) {
             c.logout();
-        }
-        else {
+        } else if (c != null) {
+            logger.warning("Migration (login/out) with a client that don't have a chr attach! | IP: " + c.getIP());
+        } else {
             logger.warning("Was not able to save character, data inconsistency may have occurred.");
         }
         NettyClient o = ctx.channel().attr(CLIENT_KEY).get();

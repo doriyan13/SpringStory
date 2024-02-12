@@ -26,10 +26,11 @@ public class MobDropData {
     private double chance;
 
     public MobDropData(int mobID, int amount) {
+        // Meso Drop constructor -
         this.mobId = mobID;
         this.minQ = amount;
         this.maxQ = amount;
-        this.chance = 1f;
+        this.chance = 0.6f; // More GMS like rate for meso drop
     }
 
     public MobDropData(int mobID, int itemID, int amount, double chance) {
