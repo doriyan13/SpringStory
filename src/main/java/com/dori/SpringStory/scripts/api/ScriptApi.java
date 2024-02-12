@@ -67,13 +67,15 @@ public class ScriptApi {
         npcMessages.add(new NpcMessage(AskNumber, askTextMsg));
     }
 
-    public void sayOK(@NotNull String msg) {
+    public ScriptApi sayOK(@NotNull String msg) {
         addSayMsg(msg, SayOk);
+        return this;
     }
 
-    public void sayOK(@NotNull String msg,
+    public ScriptApi sayOK(@NotNull String msg,
                       Runnable action) {
         addSayMsg(msg, SayOk, action);
+        return this;
     }
 
     public ScriptApi sayNext(@NotNull String msg) {
@@ -189,6 +191,13 @@ public class ScriptApi {
             return sayNext(String.valueOf(msg));
         }
         return addMsg(msg.toString());
+    }
+
+    public ScriptApi addNewLine(@NotNull String msg) {
+        if (npcMessages.isEmpty()) {
+            return sayNext(msg);
+        }
+        return applyInputToMsg(NpcMessageUtils.newLine(msg));
     }
 
     public ScriptApi blue() {
