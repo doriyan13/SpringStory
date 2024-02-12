@@ -132,7 +132,7 @@ public class Inventory {
         }
     }
 
-    private boolean isFull() {
+    public boolean isFull() {
         return getItems().size() >= getSlots();
     }
 

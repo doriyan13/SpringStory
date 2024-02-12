@@ -59,6 +59,9 @@ public class AdminCommands {
             chr.updateStat(Stat.Level, lvl);
             chr.fullHeal();
         }
+
+        chr.setExp(0);
+        chr.updateStat(Stat.Exp, 0);
     }
 
     @Command(names = {"goto"}, requiredPermission = AccountType.GameMaster)
