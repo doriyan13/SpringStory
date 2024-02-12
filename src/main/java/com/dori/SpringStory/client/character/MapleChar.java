@@ -756,10 +756,6 @@ public class MapleChar {
         return getSkills().get(skillID);
     }
 
-    public boolean hasSkill(int skillID) {
-        return getSkill(skillID) != null;
-    }
-
     private void applyPassiveSkillDataStats(SkillData skillData, int slv) {
         for (Map.Entry<SkillStat, String> entry : skillData.getSkillStatInfo().entrySet()) {
             PassiveBuffStat stat = Stat.getStatBySkillStat(entry.getKey());
@@ -941,10 +937,6 @@ public class MapleChar {
         return dropItem(item, 0);
     }
 
-    public void modifyMeso(int amount) {
-        modifyMeso(amount, false);
-    }
-
     public void modifyMeso(int amount, boolean showInChat) {
         int newMoneyAmount;
         if (amount > 0) {
@@ -960,6 +952,10 @@ public class MapleChar {
         if (showInChat) {
             write(CWvsContext.incMoneyMessage(amount));
         }
+    }
+
+    public void modifyMeso(int amount) {
+        modifyMeso(amount, false);
     }
 
     public void pickupItem(Drop drop) {

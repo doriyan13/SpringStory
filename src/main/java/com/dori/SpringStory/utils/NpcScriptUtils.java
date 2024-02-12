@@ -1,7 +1,6 @@
 package com.dori.SpringStory.utils;
 
 import com.dori.SpringStory.client.character.MapleChar;
-import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.scripts.api.MenuOption;
 import com.dori.SpringStory.scripts.api.ScriptApi;
 
