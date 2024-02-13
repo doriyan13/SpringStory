@@ -39,6 +39,7 @@ public enum AdminCommandTypes {
     PSD_SET(0x3D), // /psdset | String(),int()
     PSD_UPDATE(0x3E), // /psdupdate
     GET_COOLDOWN(0x3F), // /getcooltime | int()
+    // '/m' -> <MapID> transfer you to another map | it calls UserTransferFieldRequest packet!
     ;
 
     private final int cmdFlag;

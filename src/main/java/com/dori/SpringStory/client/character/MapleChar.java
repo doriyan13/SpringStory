@@ -812,10 +812,30 @@ public class MapleChar {
         }
     }
 
+    private void validateHp() {
+        int maxHp = getStat(MaxHp);
+        if (getHp() > maxHp) {
+            modifyHp(maxHp);
+        }
+    }
+
+    private void validateMp() {
+        int maxMp = getStat(MaxMp);
+        if (getHp() > maxMp) {
+            modifyMp(maxMp);
+        }
+    }
+
+    public void validateHpAndMp() {
+        validateHp();
+        validateMp();
+    }
+
     public void resetTemporaryStats() {
         getTsm().validateStats();
         write(CWvsContext.temporaryStatReset(getTsm()));
         getTsm().cleanDeletedStats();
+        validateHpAndMp();
     }
 
     public void applyTemporaryStats() {
