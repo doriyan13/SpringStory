@@ -9,6 +9,7 @@ import com.dori.SpringStory.connection.packet.headers.InHeader;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.ServiceManager;
+import com.dori.SpringStory.utils.FieldUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
@@ -31,18 +32,7 @@ public class StageHandler {
             // Handle adding a new user online -
             Server.addNewOnlineUser(chr, c);
             // Set the field for the character to spawn in -
-            Field field = c.getMapleChannelInstance().getField(chr.getMapId());
-            if (field != null) {
-                Portal currPortal = field.getPortalByName("sp");
-                // Set char position in field -
-                c.getChr().setPosition(new Position(currPortal.getPosition().getX(), currPortal.getPosition().getY()));
-                // Add player to the field -
-                field.spawnPlayer(chr, true);
-                //TODO: need to handle controller for npcs!!
-            } else {
-                logger.error("got un-valid mapID for a char that cause a null field!, closing session for: " + chr.getName());
-                c.close();
-            }
+            FieldUtils.transferChrToField(chr, chr.getMapId());
         } else {
             logger.error("try to logg-in with invalid playerID?" + playerID);
         }
@@ -56,7 +46,7 @@ public class StageHandler {
             c.close();
         }
         inPacket.decodeByte(); // fieldKey | 1 = from dying 0 = regular portals
-        inPacket.decodeInt(); // targetField
+        int targetFieldID = inPacket.decodeInt(); // targetField
         String portalName = inPacket.decodeString();
         MapleChar chr = c.getChr();
         Portal currentPortal = chr.getField().getPortalByName(portalName);
@@ -83,8 +73,17 @@ public class StageHandler {
                 c.close();
             }
         } else {
-            logger.error("Got an invalid portal name while trying to transfer between maps - " + portalName);
-            c.close();
+            // Happens when you use the /m command -
+            Field field = c.getMapleChannelInstance().getField(targetFieldID);
+            currentPortal = chr.getField().findDefaultPortal();
+            if (field != null) {
+                // Update the field and chr instances & warp -
+                Portal targetPortal = field.getPortalByName(currentPortal.getTargetPortalName());
+                chr.warp(field, targetPortal != null ? targetPortal : chr.getField().findDefaultPortal());
+            } else {
+                logger.error("Got an invalid field ID while trying to transfer between maps - " + currentPortal.getTargetMapId());
+                c.close();
+            }
         }
     }
 
