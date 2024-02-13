@@ -78,6 +78,7 @@ public class AdminHandler {
                 }
                 case GET_USERS_IN_FIELD -> {
                     inPacket.decodeByte(); // seems to be sent always as 0 ? | IDK
+                    //TODO: maybe show to GM list of chrs in field for GM
                 }
                 case U_CLIP -> {
                     inPacket.decodeByte(); // seems to be always 0xF ?

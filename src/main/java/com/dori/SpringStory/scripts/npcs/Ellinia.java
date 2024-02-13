@@ -25,7 +25,8 @@ public class Ellinia {
         // If the character is a beginner, move forward with the job advancement script
         if (chr.getJob() == Job.Beginner.getId()) {
             script.sayNext("Do you want to be a Magician? You need to meet some requirements in order to do so. ")
-                    .addMsg("You need to be at least at").addNewLine("").blue("Level 8 ").addMsg(". Let's see if you have what it ")
+                    .addMsg("You need to be at least at")
+                    .addNewLine("").blue("Level 8 ").addMsg(". Let's see if you have what it ")
                     .addMsg("takes to become a Magician.");
 
             // If the character is not yet level 8, they cannot become a magician
