@@ -800,7 +800,6 @@ public class MapleChar {
     public void setJob(int jobID) {
         Job job = Job.getJobById(jobID);
         if (job != null) {
-            message("Change " + getName() + " to the Job: " + job.name(), ChatType.GameDesc);
             Set<Skill> skills = SkillDataHandler.getSkillsByJobID(job.getId());
             if (!skills.isEmpty()) {
                 skills.forEach(this::addSkill);

@@ -14,6 +14,26 @@ public interface JobUtils {
         return job / 10 == 43;
     }
 
+    static boolean isWarrior(int job) {
+        return job / 100 == 1;
+    }
+
+    static boolean isMagician(int job) {
+        return job / 100 == 2;
+    }
+
+    static boolean isBowman(int job) {
+        return job / 100 == 3;
+    }
+
+    static boolean isThief(int job) {
+        return job / 100 == 4;
+    }
+
+    static boolean isPirate(int job) {
+        return job / 100 == 5;
+    }
+
     static boolean isHero(int job) {
         return job / 10 == 11;
     }
