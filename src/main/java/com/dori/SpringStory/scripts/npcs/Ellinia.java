@@ -94,13 +94,10 @@ public class Ellinia {
                                 .addMsg("warning, though: You can't raise them all at once. There are also skills you can ")
                                 .addMsg("acquire only after having learned a couple of skills first.");
                         script.say("One more warning, though it's kind of obvious. Once you have chosen your job, try your ")
-                                .addMsg("best to stay alive. Every death will cost you a certain amouint of experience points, ")
+                                .addMsg("best to stay alive. Every death will cost you a certain amount of experience points, ")
                                 .addMsg("and you don't want to lose those, do you?");
                         script.say("Okay! This is all I can teach you. Go explore, train and better yourself. Find me when ")
                                 .addMsg("you feel like you've done all you can. I'll be waiting for you.");
-                        script.say("Oh, and... if you have any questions about being the Magician, feel free to ask. I don't ")
-                                .addMsg("know EVERYTHING, per se, but I'll help you out with all that I know of. Til then... ")
-                                .addMsg("farewell...");
                     });
                 } else {
                     script.sayOK("Really? Have to give more thought to it, huh? Take your time, take your time. This is not something you should take lightly... come talk to me once you have made your decision.");
