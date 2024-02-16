@@ -240,6 +240,34 @@ public class AdminCommands {
         }
     }
 
+    @Command(names = {"setap", "setAp", "ap"}, requiredPermission = AccountType.GameMaster)
+    public static void setAp(MapleChar chr, List<String> args) {
+        if (!args.isEmpty()) {
+            String amountToSet = args.getFirst();
+            if (MapleUtils.isNumber(amountToSet)) {
+                int desiredAmount = Integer.parseInt(amountToSet);
+                int finalAmount = Math.min(desiredAmount, Short.MAX_VALUE);
+                chr.setAp(finalAmount);
+                chr.updateStat(Stat.AbilityPoint, finalAmount);
+                chr.message("Update AP to: " + finalAmount, ChatType.GameDesc);
+            }
+        }
+    }
+
+    @Command(names = {"setsp", "setSp", "sp"}, requiredPermission = AccountType.GameMaster)
+    public static void setSp(MapleChar chr, List<String> args) {
+        if (!args.isEmpty()) {
+            String amountToSet = args.getFirst();
+            if (MapleUtils.isNumber(amountToSet)) {
+                int desiredAmount = Integer.parseInt(amountToSet);
+                int finalAmount = Math.min(desiredAmount, Short.MAX_VALUE);
+                chr.setSp(finalAmount);
+                chr.updateStat(Stat.SkillPoint, finalAmount);
+                chr.message("Update SP to: " + finalAmount, ChatType.GameDesc);
+            }
+        }
+    }
+
     @Command(names = {"maxStats", "maxstat", "max"}, requiredPermission = AccountType.GameMaster)
     public static void MaxStats(MapleChar chr, List<String> args) {
         Map<Stat, Object> stats = new HashMap<>();
