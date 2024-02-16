@@ -78,7 +78,7 @@ public interface BuffsDataLoader {
         add(Job.DragonKnight, DRAGONKNIGHT_DRAGON_BLOOD, DragonBlood, "100 - 3 * x", "10 * x", 1, true);
         add(Job.DragonKnight, DRAGONKNIGHT_DRAGON_BLOOD, Pad, "5 + x", "10 * x");
         // Magician
-        add(Job.Magician, MAGICIAN_MAGIC_GUARD, MagicGuard, "5 + 5 * x", "75 +35 * x");
+        add(Job.Magician, MAGICIAN_MAGIC_GUARD, MagicGuard, "5 + 5 * x", "75 + 35 * x");
         // Rogue
         add(Job.Thief, ROGUE_DARK_SIGHT, DarkSight, "1", "20 * x");
         // Assassin
