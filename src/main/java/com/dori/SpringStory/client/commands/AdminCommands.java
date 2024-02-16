@@ -233,7 +233,7 @@ public class AdminCommands {
             if (MapleUtils.isNumber(amountToSet)) {
                 int desiredAmount = Integer.parseInt(amountToSet);
                 int finalAmount = Math.min(desiredAmount, GameConstants.MAX_MP);
-                chr.setMaxHp(finalAmount);
+                chr.setMaxMp(finalAmount);
                 chr.updateStat(Stat.MaxMp, finalAmount);
                 chr.message("Update Max MP to: " + finalAmount, ChatType.GameDesc);
             }

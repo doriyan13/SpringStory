@@ -11,6 +11,7 @@ import com.dori.SpringStory.connection.packet.headers.InHeader;
 import com.dori.SpringStory.connection.packet.packets.CUserRemote;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.enums.*;
+import com.dori.SpringStory.jobs.handlers.MagicianHandler;
 import com.dori.SpringStory.jobs.handlers.WarriorHandler;
 import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
 import com.dori.SpringStory.utils.FormulaCalcUtils;
@@ -122,16 +123,11 @@ public class UserHandler {
         }
         if (JobUtils.isMagician(chr.getJob())) {
             Skill magicGuard = chr.getSkill(MAGICIAN_MAGIC_GUARD.getId());
-            if (magicGuard != null && magicGuard.getCurrentLevel() > 0 && chr.getTsm().getCTS(CharacterTemporaryStat.MagicGuard) > 0) {
+            if (magicGuard != null && magicGuard.getCurrentLevel() > 0 && chr.getTsm().hasCTS(CharacterTemporaryStat.MagicGuard)) {
                 SkillData skillData = SkillDataHandler.getSkillDataByID(MAGICIAN_MAGIC_GUARD.getId());
-                float mpToReducePercent = FormulaCalcUtils.calcValueFromFormula(skillData.getSkillStatInfo().get(SkillStat.x), magicGuard.getCurrentLevel()) / 100.0f;
-                int mpToReduce = (int)(dmg * mpToReducePercent);
-                chr.modifyMp(-mpToReduce);
-
-                // If the characters MP is above 0 after taking the hit, then the damage dealt to their HP is reduced
-                // If the hit takes the player to 0 MP, then HP takes a full hit (as per the skill desc)
-                if (chr.getMp() > 0) {
-                    dmg = (int) (dmg * (1.0f - mpToReducePercent));
+                Integer reducedDmg = MagicianHandler.getInstance().getDmgAfterMagicGuardReduction(chr, skillData, magicGuard, dmg);
+                if (reducedDmg != null) {
+                    dmg = reducedDmg;
                 }
             }
         }
