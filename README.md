@@ -10,6 +10,7 @@
 2. Download MySQL server and set the password to be `admin` (if you want to set different password you just need to update the `application.properties`).
 3. Open your favorite mySQL workbench (I use intellJ ultimate to connect to the DB).
 4. Add new Schema called `SpringStory` (in the DB).
+5. Create in the src a new Dir called `wz` and dump all the wz files into `img` files (you can use [WzDumper](https://github.com/Xterminatorz/WZ-Dumper)).
 5. Run InitServer and let the server start generate the json folder with all the jsons data files.
 6. Download the v95 client files ([Download Link](https://archive.org/download/GMSSetup93-133/GMS0095/)).
 7. Open the Hendi v95 localhost ([Download Link](https://mega.nz/file/dWIgyR4I#6cDN_ycLLiFtad07Eby3UfjdY3TqGI65g6X-xEqlmds)).
