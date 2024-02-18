@@ -246,11 +246,9 @@ public class Mob extends Life {
         long newHp = oldHp - totalDamage;
         setHp(newHp);
         double percentageDamage = ((double) newHp / maxHP);
-
+        getField().broadcastPacket(CMobPool.hpIndicator(getObjectId(), (byte) (percentageDamage > 0 ? (percentageDamage * 100) : 0)));
         if (oldHp > 0 && newHp <= 0) {
             die(true);
-        } else {
-            getField().broadcastPacket(CMobPool.hpIndicator(getObjectId(), (byte) (percentageDamage * 100)));
         }
     }
 
