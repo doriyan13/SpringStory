@@ -11,6 +11,8 @@ import com.dori.SpringStory.enums.MobSummonType;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ReviveMobEvent;
 import com.dori.SpringStory.temporaryStats.mobs.MobTemporaryStat;
+import com.dori.SpringStory.utils.FieldUtils;
+import com.dori.SpringStory.utils.utilEntities.PositionData;
 import com.dori.SpringStory.world.fieldEntities.Foothold;
 import com.dori.SpringStory.world.fieldEntities.Life;
 import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
@@ -235,6 +237,11 @@ public class Mob extends Life {
         this.setController(null);
         getDamageDone().clear();
         long delay = getStatsData().getRespawnDelay() > 0 ? getStatsData().getRespawnDelay() : DEFAULT_MOB_RESPAWN_DELAY;
+        // update mob position data -
+        PositionData posData = FieldUtils.generateRandomPositionFromList(getField().getMobsSpawnPoints());
+        setPosition(posData.getPosition());
+        setFh(posData.getFoothold());
+        //TODO: keep original spawn point / randomize from list - need to test all the options and see what is most clean
         EventManager.addEvent(getRandomUuidInLong(), REVIVE_MOB, new ReviveMobEvent(this, chr), delay);
     }
 
@@ -246,11 +253,9 @@ public class Mob extends Life {
         long newHp = oldHp - totalDamage;
         setHp(newHp);
         double percentageDamage = ((double) newHp / maxHP);
-
+        getField().broadcastPacket(CMobPool.hpIndicator(getObjectId(), (byte) (percentageDamage > 0 ? (percentageDamage * 100) : 0)));
         if (oldHp > 0 && newHp <= 0) {
             die(true);
-        } else {
-            getField().broadcastPacket(CMobPool.hpIndicator(getObjectId(), (byte) (percentageDamage * 100)));
         }
     }
 

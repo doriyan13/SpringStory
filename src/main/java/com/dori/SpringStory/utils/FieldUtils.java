@@ -5,12 +5,17 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.utilEntities.Position;
+import com.dori.SpringStory.utils.utilEntities.PositionData;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import org.jetbrains.annotations.NotNull;
 
+import java.security.SecureRandom;
+import java.util.List;
+
 public interface FieldUtils {
     Logger logger = new Logger(FieldUtils.class);
+    SecureRandom random = new SecureRandom();
 
     static int getStartingFieldByJob(int jobID) {
         int startingField = 10_000; // Maple Road - Mushroom Park
@@ -39,5 +44,9 @@ public interface FieldUtils {
             logger.error("Got un-valid mapID for a char that cause a null field!, closing session for: " + chr.getName());
             c.close();
         }
+    }
+
+    static PositionData generateRandomPositionFromList(List<PositionData> positions) {
+        return positions.get(random.nextInt(positions.size()));
     }
 }

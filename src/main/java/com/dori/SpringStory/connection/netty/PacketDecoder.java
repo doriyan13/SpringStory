@@ -26,6 +26,8 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 
 import java.util.List;
 
+import static com.dori.SpringStory.constants.ServerConstants.ENABLE_ENCRYPTION;
+
 /**
  * Implementation of a Netty decoder pattern so that decryption of MapleStory
  * packets is possible. Follows steps using the special MapleAES as well as
@@ -44,7 +46,7 @@ public class PacketDecoder extends ByteToMessageDecoder {
             if (c.getStoredLength() == -1) {
                 if (in.readableBytes() >= 4) {
                     int h = in.readInt();
-                    if (!mCr.checkInPacket(h)) {
+                    if (ENABLE_ENCRYPTION && !mCr.checkInPacket(h)) {
                         log.error(String.format("[PacketDecoder] | Incorrect packet seq! Dropping client %s.", c.getIP()));
                         c.close();
                         return;
@@ -55,12 +57,15 @@ public class PacketDecoder extends ByteToMessageDecoder {
                 }
             }
             if (in.readableBytes() >= c.getStoredLength()) {
+                // don't need to create a byte[] and just use is a byteBuffer -
                 byte[] dec = new byte[c.getStoredLength()];
                 in.readBytes(dec);
                 c.setStoredLength(-1);
                 
                 dec = mCr.cryptInPacket(dec);
-                MapleCrypto.decryptData(dec);
+                if (ENABLE_ENCRYPTION) {
+                    MapleCrypto.decryptData(dec);
+                }
 
                 InPacket inPacket = new InPacket(dec);
                 out.add(inPacket);

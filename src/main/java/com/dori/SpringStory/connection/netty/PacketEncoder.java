@@ -8,6 +8,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.dori.SpringStory.constants.ServerConstants.ENABLE_ENCRYPTION;
+
 /**
  * Implementation of a Netty encoder pattern so that encryption of MapleStory
  * packets is possible.
@@ -17,6 +23,11 @@ import io.netty.handler.codec.MessageToByteEncoder;
  */
 public final class PacketEncoder extends MessageToByteEncoder<Packet> {
     private static final Logger logger = new Logger(PacketEncoder.class);
+    private static final Map<Integer,OutHeader> outPacketHeaders = new HashMap<>();
+
+    public static void initOutPacketOpcodesHandling() {
+        Arrays.stream(OutHeader.values()).forEach(opcode -> outPacketHeaders.put(opcode.getValue(),opcode));
+    }
 
     @Override
     protected void encode(ChannelHandlerContext chc, Packet outPacket, ByteBuf bb) {
@@ -25,12 +36,14 @@ public final class PacketEncoder extends MessageToByteEncoder<Packet> {
         MapleCrypto mCr = chc.channel().attr(NettyClient.CRYPTO_KEY).get();
 
         if (c != null) {
-            OutHeader outHeader = OutHeader.getOutHeaderByOp(outPacket.getHeader());
+            OutHeader outHeader = outPacketHeaders.get(outPacket.getHeader());
             if(!OutHeader.isSpamHeader(outHeader)) {
                 logger.sent(String.valueOf(outPacket.getHeader()), "0x" + Integer.toHexString(outPacket.getHeader()).toUpperCase(), outHeader.name(), outPacket.toString());
             }
             byte[] head = mCr.getOutPacketHeader(data.length);
-            MapleCrypto.encryptData(data);
+            if (ENABLE_ENCRYPTION) {
+                MapleCrypto.encryptData(data);
+            }
 
             c.acquireEncoderState();
             try {

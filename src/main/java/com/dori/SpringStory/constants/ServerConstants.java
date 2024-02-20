@@ -10,6 +10,8 @@ public interface ServerConstants {
     // Ports -
     int LOGIN_PORT = 8484;
     int CHAT_PORT = 8483;
+    // Encryption -
+    boolean ENABLE_ENCRYPTION = Boolean.parseBoolean(System.getenv().getOrDefault("ENABLE_ENCRYPTION", "true"));
     // Maple Version stuff -
     short VERSION = 95;
     String MINOR_VERSION = "1";
@@ -35,7 +37,7 @@ public interface ServerConstants {
     // WZ reading stuff -
     int AMOUNT_OF_LOADERS = 7;
     int MAX_LOADING_TIME_IN_MIN = 1;
-    boolean PRINT_WZ_UNK = System.getenv("PRINT_WZ_UNK") != null && Boolean.getBoolean(System.getenv("PRINT_WZ_UNK"));
+    boolean PRINT_WZ_UNK = Boolean.getBoolean(System.getenv().getOrDefault("PRINT_WZ_UNK","true"));
     String MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/Map";
     String WORLD_MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/WorldMap";
     String EQUIP_BASE_WZ_DIR = ServerConstants.WZ_DIR + "/Character.wz";

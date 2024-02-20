@@ -22,7 +22,7 @@ public class MobDropHandler {
 
     public static List<MobDropData> getDropsByMobID(int mobID) {
         List<MobDropData> drops = dropByMobsId.get(mobID);
-        return drops != null ? new ArrayList<>(drops) : Collections.emptyList();
+        return drops != null ? new ArrayList<>(drops) : new ArrayList<>();
     }
 
     private static void loadCosmicAndBmsDefaultDrops(Set<MobDropData> fullListOfMobDrops) {

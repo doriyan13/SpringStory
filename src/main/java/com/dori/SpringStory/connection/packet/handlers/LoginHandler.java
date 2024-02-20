@@ -8,25 +8,20 @@ import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.CLogin;
+import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.enums.JobType;
+import com.dori.SpringStory.enums.LoginType;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.services.MapleCharService;
 import com.dori.SpringStory.services.ServiceManager;
 import com.dori.SpringStory.utils.FuncKeyMapUtils;
 import com.dori.SpringStory.world.MapleWorld;
-import com.dori.SpringStory.constants.ServerConstants;
-import com.dori.SpringStory.enums.LoginType;
-import com.dori.SpringStory.services.MapleCharService;
-import com.dori.SpringStory.world.MigrateInUser;
-import org.springframework.core.CoroutinesUtils;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
-import static com.dori.SpringStory.constants.GameConstants.AMOUNT_OF_CREATION_EQUIPS_FOR_CHAR;
 import static com.dori.SpringStory.constants.ServerConstants.*;
 
 public class LoginHandler {
