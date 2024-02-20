@@ -44,6 +44,8 @@ public interface BaseAcceptor {
                 protected void initChannel(SocketChannel ch) {
                     // Set Decoder/Handler/Encoder -
                     ch.pipeline().addLast(new PacketDecoder(), new ChannelHandler(), new PacketEncoder());
+                    // Init Encoder outPacketMapping -
+                    PacketEncoder.initOutPacketOpcodesHandling();
                     // Updated to v95 -
                     byte[] siv = new byte[]{82, 48, 120, getFinalRandomByteForIV()};
                     byte[] riv = new byte[]{70, 114, 122, getFinalRandomByteForIV()};

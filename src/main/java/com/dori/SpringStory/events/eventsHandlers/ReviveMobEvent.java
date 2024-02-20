@@ -1,6 +1,8 @@
 package com.dori.SpringStory.events.eventsHandlers;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.enums.ChatType;
+import com.dori.SpringStory.utils.FieldUtils;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 

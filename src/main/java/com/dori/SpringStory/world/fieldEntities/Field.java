@@ -13,6 +13,7 @@ import com.dori.SpringStory.events.eventsHandlers.RemoveDropFromField;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
+import com.dori.SpringStory.utils.utilEntities.PositionData;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
 import com.dori.SpringStory.dataHandlers.MobDataHandler;
 import com.dori.SpringStory.dataHandlers.dataEntities.MapData;
@@ -20,8 +21,8 @@ import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
 import lombok.*;
 
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_CAPACITY;
 import static com.dori.SpringStory.constants.ServerConstants.*;
@@ -37,9 +38,10 @@ public class Field extends MapData {
     private Map<Integer, Npc> npcs = new ConcurrentHashMap<>();
     private Map<Integer, Mob> mobs = new ConcurrentHashMap<>();
     private Map<Integer, Drop> drops = new ConcurrentHashMap<>();
-    private Queue<Integer> objIdAllocator = new ArrayBlockingQueue<>(MAX_OBJECT_ID_ALLOCATED_TO_FIELD);
+    private Queue<Integer> objIdAllocator = new PriorityBlockingQueue<>(MAX_OBJECT_ID_ALLOCATED_TO_FIELD);
     private long creationTime;
     private long deprecationStartTime;
+    private List<PositionData> mobsSpawnPoints = new ArrayList<>();
 
     public Field(int id) {
         super(id);
@@ -91,6 +93,8 @@ public class Field extends MapData {
                     mob.applyMobData(mobData);
                     mob.setRespawnable(true);
                     this.addMob(mob);
+                    // Add spawn point -
+                    mobsSpawnPoints.add(new PositionData(mob.getPosition(), mob.getFh()));
                 }
             } else {
                 //TODO: see what lifes i've missed
@@ -235,6 +239,8 @@ public class Field extends MapData {
             getMobs().remove(mob.getObjectId());
             // return the allocated objectId -
             objIdAllocator.offer(mob.getObjectId());
+            // Clear the mob objectId -
+            mob.setObjectId(0);
             // broadcast the remove of the mob from the field -
             broadcastPacket(CMobPool.mobLeaveField(objId));
         }

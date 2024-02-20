@@ -571,19 +571,10 @@ public enum OutHeader {
             MobChangeController
     );
 
-    private final short value;
+    private final int value;
 
     OutHeader(int value) {
-        this.value = (short) value;
-    }
-
-    public static OutHeader getOutHeaderByOp(int op) {
-        for (OutHeader outHeader : OutHeader.values()) {
-            if (outHeader.getValue() == op) {
-                return outHeader;
-            }
-        }
-        return null;
+        this.value = value;
     }
 
     public static boolean isSpamHeader(OutHeader outHeader) {
