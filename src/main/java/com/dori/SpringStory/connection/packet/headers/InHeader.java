@@ -331,7 +331,8 @@ public enum InHeader {
             UserMove,
             MobMove,
             PassiveskillInfoUpdate,
-            UserQuestRequest //TODO: still need to properly handle it someday!!!
+            UserQuestRequest, //TODO: still need to properly handle it someday!!!
+            NpcMove
     );
 
     private final short value;

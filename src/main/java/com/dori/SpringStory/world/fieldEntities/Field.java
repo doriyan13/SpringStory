@@ -6,7 +6,9 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.*;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.dataHandlers.ItemDataHandler;
+import com.dori.SpringStory.dataHandlers.NpcDataHandler;
 import com.dori.SpringStory.dataHandlers.dataEntities.MobDropData;
+import com.dori.SpringStory.dataHandlers.dataEntities.NpcData;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.RemoveDropFromField;
@@ -85,7 +87,12 @@ public class Field extends MapData {
         initObjIdAllocated();
         for (Life life : mapData.getLifes()) {
             if (life.getLifeType().equalsIgnoreCase("n")) {
-                this.addNPC(new Npc(life));
+                Npc npc = new Npc(life);
+                NpcData npcData = NpcDataHandler.getMobDataByID(life.getTemplateId());
+                if (npcData != null) {
+                    npc.setMove(npcData.isMove());
+                }
+                this.addNPC(npc);
             } else if (life.getLifeType().equalsIgnoreCase("m")) {
                 Mob mob = new Mob(life);
                 MobData mobData = MobDataHandler.getMobDataByID(life.getTemplateId());
@@ -151,6 +158,7 @@ public class Field extends MapData {
         if (firstPlayerInField) {
             // Assign Controllers For life -
             this.assignControllerToMobs(chr);
+            this.assignControllerToNpcs(chr);
         }
         // Init the player passive stats -
         chr.initPassiveStats();
@@ -207,6 +215,16 @@ public class Field extends MapData {
         mobs.values().forEach(mob -> {
             mob.setController(chr);
             chr.write(CMobPool.mobChangeController(mob, MobControllerType.ActiveInit));
+        });
+    }
+
+    public void assignControllerToNpcs(MapleChar chr) {
+        //TODO: assigning a char suppose to be random and not the new char that enter the map each time!
+
+        // Assign Controller to Mobs for the client -
+        npcs.values().forEach(npc -> {
+            npc.setController(chr);
+            chr.write(CNpcPool.npcChangeController(npc, true, false));
         });
     }
 

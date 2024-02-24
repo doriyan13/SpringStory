@@ -44,7 +44,6 @@ public class Mob extends Life {
     private MobSummonType appearType;
     private int option;
     private byte teamForMCarnival;
-    private MapleChar controller;
     @JsonIgnore
     private Map<Integer, Long> damageDone = new ConcurrentHashMap<>();
     @JsonIgnore

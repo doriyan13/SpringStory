@@ -187,7 +187,7 @@ public class MobDataHandler {
                     e.printStackTrace();
                 }
             }
-            logger.serverNotice("~ Finished loading " + files.length + " mobs JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.serverNotice("~ Finished loading " + files.length + " Mobs JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
         } else {
             logger.error("Didn't found mobs JSONs to load!");
         }

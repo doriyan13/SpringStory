@@ -88,6 +88,7 @@ public class Server {
         executorService.submit(SkillDataHandler::load);
         executorService.submit(StringDataHandler::load);
         executorService.submit(MobDataHandler::load);
+        executorService.submit(NpcDataHandler::load);
         // Custom buffs load data -
         executorService.submit(BuffDataHandler::loadBuffsData);
         // Load custom json data -
@@ -199,6 +200,6 @@ public class Server {
     }
 
     public static MapleClient getFirstConnectedClient(){
-        return connectedClients.get(0);
+        return connectedClients.getFirst();
     }
 }

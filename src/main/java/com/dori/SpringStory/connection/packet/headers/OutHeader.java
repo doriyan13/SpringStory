@@ -154,6 +154,10 @@ public enum OutHeader {
     NpcEnterField(311),
     NpcLeaveField(312),
     NpcChangeController(313),
+    // CNpcPool::OnNpcPacket
+    NpcMove(314),
+    NPcUpdateLimitedInfo(315),
+    NPcSetSpecialAction(316),
     // CMobPool::OnPacket -
     MobEnterField(284),
     MobLeaveField(285),
@@ -568,7 +572,9 @@ public enum OutHeader {
             MobMove,
             NpcEnterField,
             MobEnterField,
-            MobChangeController
+            MobChangeController,
+            NpcMove,
+            NpcChangeController
     );
 
     private final int value;

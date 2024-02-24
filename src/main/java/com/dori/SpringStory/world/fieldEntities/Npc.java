@@ -20,6 +20,7 @@ public class Npc extends Life{
 
     public Npc(int templateId) {
         super(templateId);
+        this.controller = null;
     }
 
     public Npc(Life life){
@@ -38,6 +39,7 @@ public class Npc extends Life{
         this.setNoFoothold(life.isNoFoothold());
         this.setDummy(life.isDummy());
         this.setSpine(life.isSpine());
+        this.controller = null;
     }
 
     public void encode(OutPacket outPacket){

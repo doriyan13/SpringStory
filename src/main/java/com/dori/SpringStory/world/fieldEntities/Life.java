@@ -1,5 +1,6 @@
 package com.dori.SpringStory.world.fieldEntities;
 
+import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -7,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -41,6 +41,8 @@ public class Life {
     private Position homePosition;
     private Position vPosition;
     private  byte team;
+    @JsonIgnore
+    protected MapleChar controller;
 
     public Life(int templateId) {
         this.templateId = templateId;

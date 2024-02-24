@@ -47,7 +47,11 @@ public interface CMobPool {
         return outPacket;
     }
 
-    static OutPacket mobMove(int mobID, boolean mobMoveStartResult, byte actionAndDir, int skillData, MovementData movementData){
+    static OutPacket mobMove(int mobID,
+                             boolean mobMoveStartResult,
+                             byte actionAndDir,
+                             int skillData,
+                             MovementData movementData){
         // CMob::OnMove
         OutPacket outPacket = new OutPacket(OutHeader.MobMove);
 
