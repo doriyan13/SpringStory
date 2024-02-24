@@ -39,16 +39,8 @@ public class Item {
     protected int quantity;
     protected String owner = "";
     protected long serialNumber;
-
-    public Item(int itemId, int bagIndex, long cashItemSerialNumber, FileTime dateExpire, InventoryType invType,
-                boolean cash, ItemType type) {
-        this.itemId = itemId;
-        this.bagIndex = bagIndex;
-        this.dateExpire = dateExpire;
-        this.invType = invType;
-        this.cash = cash;
-        this.type = type;
-    }
+    @Column(name = "is_only")
+    protected boolean only;
 
     public Item(ItemData itemData) {
         this.itemId = itemData.getItemId();
@@ -57,6 +49,7 @@ public class Item {
         this.quantity = 1;
         this.bagIndex = 0;
         this.type = ItemType.BUNDLE; // ITEM
+        this.only = itemData.isOnly();
     }
 
     public void encodeItemSlotBase(OutPacket outPacket){

@@ -38,9 +38,7 @@ public class MapleAccount {
     private Set<MapleChar> characters = new HashSet<>();
     private int votePoints;
     private int donationPoints;
-
     private byte gender;
-
     @Convert(converter = FileTimeConverter.class)
     private FileTime creationDate;
     @Convert(converter = FileTimeConverter.class)

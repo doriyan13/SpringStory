@@ -85,8 +85,6 @@ public class Equip extends Item {
     private boolean fixedPotential;
     private boolean noPotential;
     private boolean tradeBlock;
-    @Column(name = "is_only")
-    private boolean only;
     private boolean notSale;
     private int attackSpeed;
     private int price;

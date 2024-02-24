@@ -1,5 +1,8 @@
 package com.dori.SpringStory.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum MobControllerType {
     Reset((byte) 0),
     ActiveInit((byte) 1),
@@ -16,7 +19,4 @@ public enum MobControllerType {
         this.val = val;
     }
 
-    public byte getVal() {
-        return val;
-    }
 }

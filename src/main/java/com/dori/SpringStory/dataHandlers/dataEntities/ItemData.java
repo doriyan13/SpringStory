@@ -57,6 +57,7 @@ public class ItemData {
     private int skillId;
     private int grade;
     private Set<Integer> reqItemIds = new HashSet<>();
+    private boolean only;
 
     public void addSkill(int skill) {
         skills.add(skill);

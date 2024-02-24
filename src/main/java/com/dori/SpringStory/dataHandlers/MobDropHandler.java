@@ -101,7 +101,7 @@ public class MobDropHandler {
                 logger.error("Error occurred while trying to load the file: " + file.getName());
                 e.printStackTrace();
             }
-            logger.serverNotice("~ Finished loading " + dropByMobsId.size() + " Mobs drops JSON file! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.serverNotice("~ Finished loading " + dropByMobsId.size() + " MobsDrops JSON file! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
         } else {
             logger.error("Didn't found FullMobDrops JSON to load!");
         }

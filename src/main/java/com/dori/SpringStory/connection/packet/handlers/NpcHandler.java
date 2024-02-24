@@ -4,6 +4,7 @@ import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
+import com.dori.SpringStory.connection.packet.packets.CNpcPool;
 import com.dori.SpringStory.connection.packet.packets.CScriptMan;
 import com.dori.SpringStory.enums.NpcMessageType;
 import com.dori.SpringStory.logger.Logger;
@@ -11,7 +12,9 @@ import com.dori.SpringStory.scripts.api.NpcMessage;
 import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
 import com.dori.SpringStory.scripts.message.NpcMessageData;
 import com.dori.SpringStory.scripts.message.SayMsg;
+import com.dori.SpringStory.world.fieldEntities.Life;
 import com.dori.SpringStory.world.fieldEntities.Npc;
+import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
 
@@ -32,6 +35,20 @@ public class NpcHandler {
         // - OR -
         // second if it not a script it can be a shop!
 
+    }
+
+    @Handler(op = NpcMove)
+    public static void handleNpcMove(MapleClient c, InPacket inPacket) {
+        MapleChar chr = c.getChr();
+        int objectID = inPacket.decodeInt();
+        byte oneTimeAction = inPacket.decodeByte();
+        byte chatIdx = inPacket.decodeByte();
+        Npc npc = chr.getField().getNpcs().get(objectID);
+        if (npc.isMove()) {
+            // Encode the mob movement data -
+            MovementData movementData = new MovementData(inPacket);
+            chr.getField().broadcastPacket(CNpcPool.npcMove(objectID, oneTimeAction, chatIdx, true, movementData));
+        }
     }
 
     private static NpcMessageData getSayMsgData(MapleChar chr,
