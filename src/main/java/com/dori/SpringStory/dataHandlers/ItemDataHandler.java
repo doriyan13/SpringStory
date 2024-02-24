@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.dori.SpringStory.constants.ServerConstants.*;
 import static com.dori.SpringStory.enums.ScrollStat.*;
@@ -123,6 +120,7 @@ public class ItemDataHandler {
                     case "setItemCategory" -> item.putScrollStat(setItemCategory, intValue);
                     case "create" -> item.setCreateID(intValue);
                     case "mobHP" -> item.setMobHP(intValue);
+                    case "only" -> item.setOnly(Integer.parseInt(value) != 0); //TODO: need to test with ID - 3994126
                     // info not currently interesting. May be interested in the future.
                     /*case "icon", "iconRaw", "iconD", "iconReward", "iconShop", "recoveryHP", "recoveryMP", "sitAction",
                             "bodyRelMove", "only", "noDrop", "timeLimited", "accountSharable", "nickTag", "nickSkill", "endLotteryDate", "noFlip",

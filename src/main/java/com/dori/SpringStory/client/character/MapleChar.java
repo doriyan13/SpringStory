@@ -977,6 +977,17 @@ public class MapleChar {
         modifyMeso(amount, false);
     }
 
+    public boolean haveEquip(int equipID) {
+        return getEquipInventory().getItemByItemID(equipID) != null
+                || getEquippedInventory().getItemByItemID(equipID) != null;
+    }
+
+    public boolean haveItem(int itemID) {
+        return getEtcInventory().getItemByItemID(itemID) != null
+                || getInstallInventory().getItemByItemID(itemID) != null
+                || getConsumeInventory().getItemByItemID(itemID) != null;
+    }
+
     public void pickupItem(Drop drop) {
         getField().removeDrop(drop.getId(), getId(), -1);
         EventManager.cancelEvent(MapleUtils.concat((long) getField().getId(), drop.getId()), EventType.REMOVE_DROP_FROM_FIELD);
