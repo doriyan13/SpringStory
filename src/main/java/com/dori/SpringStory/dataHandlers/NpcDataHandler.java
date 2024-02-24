@@ -105,16 +105,11 @@ public class NpcDataHandler {
     }
 
     public static void load() {
-        try {
-            if (isJsonDataExist()) {
-                loadJsonNpcsData();
-            } else {
-                loadNpcsData();
-                exportNpcsDataToJson();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println();
+        if (isJsonDataExist()) {
+            loadJsonNpcsData();
+        } else {
+            loadNpcsData();
+            exportNpcsDataToJson();
         }
     }
 }
