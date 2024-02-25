@@ -157,10 +157,10 @@ public class MobDataHandler {
     }
 
     public static void loadMobData() {
-        logger.serverNotice("Start loading Mob WZ data...");
+        logger.startLoad("WZ","Mob Data");
         long startTime = System.currentTimeMillis();
         loadMobsFromWZ();
-        logger.serverNotice("~ Finished loading " + mobs.size() + " Mob WZ data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.finishLoad(mobs.size(), "WZ", "Mob Data",((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
     private static void exportMobsToJson() {
@@ -175,7 +175,7 @@ public class MobDataHandler {
         long startTime = System.currentTimeMillis();
         File dir = new File(MOB_JSON_DIR);
         File[] files = dir.listFiles();
-        logger.serverNotice("Start loading the JSONs for mobs..");
+        logger.startLoad("JSON","Mob");
         if (files != null) {
             for (File file : files) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -187,7 +187,7 @@ public class MobDataHandler {
                     e.printStackTrace();
                 }
             }
-            logger.serverNotice("~ Finished loading " + files.length + " Mobs JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.finishLoad(files.length, "JSON", "Mob",((System.currentTimeMillis() - startTime) / 1000.0));
         } else {
             logger.error("Didn't found mobs JSONs to load!");
         }

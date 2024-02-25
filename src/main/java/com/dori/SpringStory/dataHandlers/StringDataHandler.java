@@ -103,7 +103,7 @@ public class StringDataHandler {
     }
 
     public static void load() {
-        logger.serverNotice("Start loading Skill data...");
+        logger.startLoad("WZ","Strings Data");
         long startTime = System.currentTimeMillis();
         Set<StringData> allStringData = new HashSet<>();
         // Load all the String Data -
@@ -114,6 +114,6 @@ public class StringDataHandler {
         loadMapsStringData(allStringData);
         // Save all the Strings to The DB -
         StringDataService.getInstance().saveAll(new ArrayList<>(allStringData));
-        logger.serverNotice("~ Finished loading " + allStringData.size() + " Strings Data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.finishLoad(allStringData.size(), "WZ", "Strings Data",((System.currentTimeMillis() - startTime) / 1000.0));
     }
 }

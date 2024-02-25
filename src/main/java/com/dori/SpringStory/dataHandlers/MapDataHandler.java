@@ -399,17 +399,17 @@ public class MapDataHandler {
     }
 
     public static void loadMapData() {
-        logger.serverNotice("Start loading Map WZ data...");
+        logger.startLoad("WZ","Map Data");
         long startTime = System.currentTimeMillis();
         loadMapsFromWZ();
-        logger.serverNotice("~ Finished loading " + fields.size() + " Map WZ data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.finishLoad(fields.size(), "WZ", "Map Data",((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
     public static void loadWorldMapData() {
-        logger.serverNotice("Start Loading WorldMap WZ...");
+        logger.startLoad("WZ","WorldMap Data");
         long startTime = System.currentTimeMillis();
         loadWorldMapFromWz();
-        logger.serverNotice("~ Finished loading " + worldMapFields.getMaps().size() + " WorldMaps WZ in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.finishLoad(worldMapFields.getMaps().size(), "WZ", "WorldMaps Data",((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
     private static void exportFieldsToJson() {
@@ -436,7 +436,7 @@ public class MapDataHandler {
         long startTime = System.currentTimeMillis();
         File dir = new File(MAP_JSON_DIR);
         File[] files = dir.listFiles();
-        logger.serverNotice("Start loading the JSONs for maps..");
+        logger.startLoad("JSON","Map");
         if (files != null) {
             for (File file : files) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -448,7 +448,7 @@ public class MapDataHandler {
                     e.printStackTrace();
                 }
             }
-            logger.serverNotice("~ Finished loading " + files.length + " maps JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.finishLoad(files.length, "JSON", "Map",((System.currentTimeMillis() - startTime) / 1000.0));
         } else {
             logger.error("Didn't found maps JSONs to load!");
         }
@@ -459,7 +459,7 @@ public class MapDataHandler {
         File file = new File(WORLD_MAP_JSON_DIR + WORLD_MAP_JSON_FILE);
         if (file.exists()) {
             ObjectMapper mapper = new ObjectMapper();
-            logger.serverNotice("Start loading the JSON for worlds map..");
+            logger.startLoad("JSON","World Map");
             try {
                 WorldMapData worldMaps = mapper.readValue(file, WorldMapData.class);
                 worldMapFields.setMaps(worldMaps.getMaps());
@@ -467,7 +467,7 @@ public class MapDataHandler {
                 logger.error("Error occurred while trying to load the file: " + file.getName());
                 e.printStackTrace();
             }
-            logger.serverNotice("~ Finished loading " + 1 + " worlds map JSON file! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.finishLoad(1, "JSON", "World Map",((System.currentTimeMillis() - startTime) / 1000.0));
         }
     }
 

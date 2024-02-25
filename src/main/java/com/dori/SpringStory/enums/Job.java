@@ -96,10 +96,16 @@ public enum Job {
     Citizen(3000),
     BattleMage1(3200),
     BattleMage2(3210),
+    BattleMage3(3211),
+    BattleMage4(3212),
     WildHunter1(3300),
     WildHunter2(3310),
+    WildHunter3(3311),
+    WildHunter4(3312),
     Mechanic1(3500),
     Mechanic2(3510),
+    Mechanic3(3511),
+    Mechanic4(3512),
     AdditionalSkills(9000)
     ;
 

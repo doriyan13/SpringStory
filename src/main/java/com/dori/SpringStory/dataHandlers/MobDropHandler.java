@@ -28,7 +28,7 @@ public class MobDropHandler {
     private static void loadCosmicAndBmsDefaultDrops(Set<MobDropData> fullListOfMobDrops) {
         MapleUtils.makeDirIfAbsent(MOB_DROP_JSON_DIR);
         File file = new File(MOB_DROP_JSON_DIR + "mobDrops.json");
-        logger.serverNotice("Start loading the JSON of mob drops..");
+        logger.startLoad("JSON","mobDrops");
         if (file.exists()) {
             ObjectMapper mapper = new ObjectMapper();
             try {
@@ -56,8 +56,8 @@ public class MobDropHandler {
         long startTime = System.currentTimeMillis();
         loadCosmicAndBmsDefaultDrops(fullListOfMobDrops);
         loadMonsterBookMobsDropData(fullListOfMobDrops);
-        exportSkillsToJson(fullListOfMobDrops);
-        logger.serverNotice("~ Finished loading MobDrops JSON file! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        exportMobDropsToJson(fullListOfMobDrops);
+        logger.finishLoad(fullListOfMobDrops.size(), "JSON", "mobDrops",((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
     private static void handleMonsterBookNode(Node mainNode, Set<MobDropData> mobDropsData) {
@@ -84,7 +84,7 @@ public class MobDropHandler {
         long startTime = System.currentTimeMillis();
         MapleUtils.makeDirIfAbsent(MOB_DROP_JSON_DIR);
         File file = new File(MOB_DROP_JSON_DIR + "fullMobDrops.json");
-        logger.serverNotice("Start loading the full JSON of mob drops..");
+        logger.startLoad("JSON","Full MobDrops");
         if (file.exists()) {
             ObjectMapper mapper = new ObjectMapper();
             try {
@@ -101,13 +101,13 @@ public class MobDropHandler {
                 logger.error("Error occurred while trying to load the file: " + file.getName());
                 e.printStackTrace();
             }
-            logger.serverNotice("~ Finished loading " + dropByMobsId.size() + " MobsDrops JSON file! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.finishLoad(dropByMobsId.size(), "JSON", "mobDrops",((System.currentTimeMillis() - startTime) / 1000.0));
         } else {
             logger.error("Didn't found FullMobDrops JSON to load!");
         }
     }
 
-    private static void exportSkillsToJson(Set<MobDropData> fullListOfMobDrops) {
+    private static void exportMobDropsToJson(Set<MobDropData> fullListOfMobDrops) {
         logger.serverNotice("Start creating the JSON for Mob Drops..");
         MapleUtils.makeDirIfAbsent(JSON_DIR);
         MapleUtils.makeDirIfAbsent(MOB_DROP_JSON_DIR);

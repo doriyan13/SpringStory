@@ -63,10 +63,10 @@ public class NpcDataHandler {
     }
 
     public static void loadNpcsData() {
-        logger.serverNotice("Start loading Npcs data...");
+        logger.startLoad("WZ","Npcs Data");
         long startTime = System.currentTimeMillis();
         loadNpcsDataFromWZ();
-        logger.serverNotice("~ Finished loading " + npcsData.size() + " Npcs in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.finishLoad(npcsData.size(), "WZ", "Npcs Data",((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
     private static void exportNpcsDataToJson() {
@@ -81,7 +81,7 @@ public class NpcDataHandler {
         long startTime = System.currentTimeMillis();
         File dir = new File(NPC_JSON_DIR);
         File[] files = dir.listFiles();
-        logger.serverNotice("Start loading the JSONs for Npcs..");
+        logger.startLoad("JSON","Npcs Data");
         if (files != null) {
             for (File file : files) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -93,7 +93,7 @@ public class NpcDataHandler {
                     e.printStackTrace();
                 }
             }
-            logger.serverNotice("~ Finished loading " + files.length + " Npcs JSON files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.finishLoad(files.length, "JSON", "Npcs Data",((System.currentTimeMillis() - startTime) / 1000.0));
         } else {
             logger.error("Didn't found Npcs JSONs to load!");
         }

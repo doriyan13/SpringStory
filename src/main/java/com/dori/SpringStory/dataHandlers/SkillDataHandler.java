@@ -177,10 +177,10 @@ public class SkillDataHandler {
     }
 
     public static void loadSkillData() {
-        logger.serverNotice("Start loading Skill data...");
+        logger.startLoad("WZ","Skill Data");
         long startTime = System.currentTimeMillis();
         loadSkillsFromWZ();
-        logger.serverNotice("~ Finished loading " + skills.size() + " Skills in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.finishLoad(skills.size(), "WZ", "Skills Data",((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
     private static void exportSkillsToJson() {
@@ -195,7 +195,7 @@ public class SkillDataHandler {
         long startTime = System.currentTimeMillis();
         File dir = new File(SKILL_JSON_DIR);
         File[] files = dir.listFiles();
-        logger.serverNotice("Start loading the JSONs for skills..");
+        logger.startLoad("JSON","Skill");
         if (files != null) {
             for (File file : files) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -207,7 +207,7 @@ public class SkillDataHandler {
                     e.printStackTrace();
                 }
             }
-            logger.serverNotice("~ Finished loading " + files.length + " skills JSON files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.finishLoad(files.length, "JSON", "Skills Data",((System.currentTimeMillis() - startTime) / 1000.0));
         } else {
             logger.error("Didn't found skills JSONs to load!");
         }

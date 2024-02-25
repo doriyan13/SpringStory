@@ -52,7 +52,7 @@ public interface BaseAcceptor {
                     // Create new client for the connection -
                     MapleClient c = new MapleClient(ch);
                     // Init connection for the client -
-                    logger.serverNotice(String.format("[CHAT] Opened session with %s in ChatAcceptor", c.getIP()));
+                    logger.serverNotice(String.format("[CHAT] Opened session with %s in Acceptor", c.getIP()));
                     c.write(CLogin.sendConnect(siv,riv));
                     // If we get a ChannelPool, then it will add the IP to the pool -
                     if(channelPool != null){

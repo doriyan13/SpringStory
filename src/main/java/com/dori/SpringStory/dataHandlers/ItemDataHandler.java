@@ -357,17 +357,18 @@ public class ItemDataHandler {
     }
 
     public static void loadItemData() {
-        logger.serverNotice("Start loading Item data...");
+        logger.startLoad("WZ","Item Data");
         long startTime = System.currentTimeMillis();
         loadItemsFromWZ();
-        logger.serverNotice("~ Finished loading " + items.size() + " Items data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.finishLoad(items.size(), "WZ", "Items Data",((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
     public static void loadEquipData() {
         logger.serverNotice("Start loading Equip data...");
+        logger.startLoad("WZ","Equip Data");
         long startTime = System.currentTimeMillis();
         loadEquipsFromWZ();
-        logger.serverNotice("~ Finished loading " + equips.size() + " Equips data in : " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+        logger.finishLoad(equips.size(), "WZ", "Equip Data",((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
     private static void exportItemsToJson() {
@@ -395,7 +396,7 @@ public class ItemDataHandler {
         long startTime = System.currentTimeMillis();
         File dir = new File(ITEM_JSON_DIR);
         File[] files = dir.listFiles();
-        logger.serverNotice("Start loading the JSONs for items..");
+        logger.startLoad("JSON","Item Data");
         if (files != null) {
             for (File file : files) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -407,7 +408,7 @@ public class ItemDataHandler {
                     e.printStackTrace();
                 }
             }
-            logger.serverNotice("~ Finished loading " + files.length + " items JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.finishLoad(files.length, "JSON", "Item Data",((System.currentTimeMillis() - startTime) / 1000.0));
         } else {
             logger.error("Didn't found items JSONs to load!");
         }
@@ -417,7 +418,7 @@ public class ItemDataHandler {
         long startTime = System.currentTimeMillis();
         File dir = new File(EQUIP_JSON_DIR);
         File[] files = dir.listFiles();
-        logger.serverNotice("Start loading the JSONs for equips..");
+        logger.startLoad("JSON","Equip Data");
         if (files != null) {
             for (File file : files) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -429,7 +430,7 @@ public class ItemDataHandler {
                     e.printStackTrace();
                 }
             }
-            logger.serverNotice("~ Finished loading " + files.length + " equips JSONs files! in: " + ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds");
+            logger.finishLoad(files.length, "JSON", "Equip Data",((System.currentTimeMillis() - startTime) / 1000.0));
         } else {
             logger.error("Didn't found equips JSONs to load!");
         }

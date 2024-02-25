@@ -1,12 +1,12 @@
 package com.dori.SpringStory.client.commands;
 
 import com.dori.SpringStory.client.character.MapleChar;
-import com.dori.SpringStory.connection.packet.packets.CField;
-import com.dori.SpringStory.connection.packet.packets.COpenGatePool;
 import com.dori.SpringStory.connection.packet.packets.CTownPortalPool;
+import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
+import com.dori.SpringStory.inventory.Inventory;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.services.StringDataService;
@@ -23,8 +23,11 @@ import com.dori.SpringStory.dataHandlers.dataEntities.StringData;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.dori.SpringStory.constants.GameConstants.MAX_MESO;
+import static com.dori.SpringStory.enums.InventoryOperation.Add;
+import static com.dori.SpringStory.enums.InventoryOperation.Remove;
 
 @NoArgsConstructor
 public class AdminCommands {
@@ -383,6 +386,22 @@ public class AdminCommands {
         if (balancedFury != null) {
             balancedFury.setQuantity(200);
             chr.addItem(balancedFury);
+        }
+    }
+
+    @Command(names = {"clearinv", "clearInv", "clearInventory"}, requiredPermission = AccountType.GameMaster)
+    public static void clearInventory(MapleChar chr, List<String> args) {
+        if (!args.isEmpty() && args.getFirst() instanceof String inventoryType && !inventoryType.isEmpty()) {
+            Inventory chosenInventory = chr.getInventoryByType(InventoryType.getInvTypeByString(inventoryType));
+            if (chosenInventory != null && !chosenInventory.getItems().isEmpty()) {
+                List<Item> itemsToRemove = new ArrayList<>(chosenInventory.getItems());
+                // First clear server side the items -
+                chosenInventory.getItems().clear();
+                // Update the remove in the client -
+                itemsToRemove.forEach(item -> chr.write(CWvsContext.inventoryOperation(true, Remove, (short) item.getBagIndex(), (short) 0, item)));
+                // Clear the ref anyway -
+                itemsToRemove.clear();
+            }
         }
     }
 }

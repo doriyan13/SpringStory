@@ -6,12 +6,15 @@ import com.dori.SpringStory.enums.EquipPrefix;
 import com.dori.SpringStory.enums.EquipType;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Item;
+import com.dori.SpringStory.world.fieldEntities.Drop;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 @Component
 public interface ItemUtils {
 
@@ -217,7 +220,8 @@ public interface ItemUtils {
                 isCape(itemId);
     }
 
-    static boolean shouldEncodeEquipByType(EquipType type, Equip equip) {
+    static boolean shouldEncodeEquipByType(EquipType type,
+                                           Equip equip) {
         boolean result = true;
         switch (type) {
             case Equipped ->
@@ -236,7 +240,36 @@ public interface ItemUtils {
         return getItemPrefix(itemId) == 500;
     }
 
-    static boolean isFullItemConsume(@NotNull Item item, int quantity) {
+    static boolean isFullItemConsume(@NotNull Item item,
+                                     int quantity) {
         return item.getQuantity() + quantity <= 0 && !ItemUtils.isThrowingItem(item.getItemId());
+    }
+
+    static boolean isDropMeso(@NotNull Drop drop) {
+        return drop.getItem() == null && drop.getQuantity() > 0;
+    }
+
+    static boolean isOneOfAKindItem(@Nullable Item item) {
+        return item != null && item.isOnly();
+    }
+
+    static boolean isChrCanObtainOneOfAKindItem(@NotNull MapleChar chr,
+                                                @Nullable Item item) {
+        if (item == null) {
+            return false;
+        }
+        return switch (item.getType()) {
+            case EQUIP -> !chr.haveEquip(item.getItemId());
+            case BUNDLE -> !chr.haveItem(item.getItemId());
+            case null, default -> false;
+        };
+    }
+
+    static boolean isChrCanObtainItem(@NotNull MapleChar chr,
+                                      @NotNull Drop drop) {
+        Item droppedItem = drop.getItem();
+        return ItemUtils.isDropMeso(drop)
+                || !ItemUtils.isOneOfAKindItem(droppedItem)
+                || isChrCanObtainOneOfAKindItem(chr, droppedItem);
     }
 }
