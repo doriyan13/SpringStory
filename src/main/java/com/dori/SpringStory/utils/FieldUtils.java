@@ -47,6 +47,6 @@ public interface FieldUtils {
     }
 
     static PositionData generateRandomPositionFromList(List<PositionData> positions) {
-        return positions.get(random.nextInt(positions.size()));
+        return !positions.isEmpty() ? positions.get(random.nextInt(positions.size())) : null;
     }
 }

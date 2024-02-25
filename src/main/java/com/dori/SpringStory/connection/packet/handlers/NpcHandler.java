@@ -44,11 +44,7 @@ public class NpcHandler {
         byte oneTimeAction = inPacket.decodeByte();
         byte chatIdx = inPacket.decodeByte();
         Npc npc = chr.getField().getNpcs().get(objectID);
-        if (npc.isMove()) {
-            // Encode the mob movement data -
-            MovementData movementData = new MovementData(inPacket);
-            chr.getField().broadcastPacket(CNpcPool.npcMove(objectID, oneTimeAction, chatIdx, true, movementData));
-        }
+        chr.getField().broadcastPacket(CNpcPool.npcMove(objectID, oneTimeAction, chatIdx, npc.isMove(), npc.isMove() ? new MovementData(inPacket) : null));
     }
 
     private static NpcMessageData getSayMsgData(MapleChar chr,

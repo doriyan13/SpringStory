@@ -227,8 +227,10 @@ public class Mob extends Life {
         getField().removeMob(getObjectId());
         // Distribute exp -
         distributeExp();
-        // Drops -
-        applyDrops();
+        if (drops) {
+            // Drops -
+            applyDrops();
+        }
         // Clear the damaged Mob data -
         MapleChar chr = this.getController();
         this.setHp(getMaxHp());
@@ -238,9 +240,11 @@ public class Mob extends Life {
         long delay = getStatsData().getRespawnDelay() > 0 ? getStatsData().getRespawnDelay() : DEFAULT_MOB_RESPAWN_DELAY;
         // update mob position data -
         PositionData posData = FieldUtils.generateRandomPositionFromList(getField().getMobsSpawnPoints());
+        if (posData == null) {
+            posData = new PositionData(getPosition(), getFh());
+        }
         setPosition(posData.getPosition());
         setFh(posData.getFoothold());
-        //TODO: keep original spawn point / randomize from list - need to test all the options and see what is most clean
         EventManager.addEvent(getRandomUuidInLong(), REVIVE_MOB, new ReviveMobEvent(this, chr), delay);
     }
 

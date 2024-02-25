@@ -1,5 +1,7 @@
 package com.dori.SpringStory.logger;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -10,7 +12,8 @@ public class Logger {
     private final String className;
 
     // Executioner (ThreadPool)
-    private static final ExecutorService loggerExecutor = Executors.newCachedThreadPool();
+    private static final ExecutorService loggerExecutor = Executors.newSingleThreadScheduledExecutor();
+    private static final ExecutorService worker = Executors.newVirtualThreadPerTaskExecutor();
     // Constructor -
     public Logger(Class<?> currentClass){
         this.className = currentClass.getName();
@@ -86,22 +89,38 @@ public class Logger {
         System.out.println(LogggerColor.ANSI_GREEN + arrBytes + LogggerColor.ANSI_RESET);
     }
 
+    public void startLoad(@NotNull String fileType,
+                          @NotNull String dataToLoad){
+        serverNotice(LogggerColor.ANSI_CYAN + "Start loading the "
+                + LogggerColor.ANSI_YELLOW + fileType + "s" + LogggerColor.ANSI_CYAN
+                + " for " + LogggerColor.ANSI_YELLOW + dataToLoad + LogggerColor.ANSI_CYAN + "..." + LogggerColor.ANSI_RESET);
+    }
+
+    public void finishLoad(int amountOfFiles,
+                           @NotNull String fileType,
+                           @NotNull String dataToLoad,
+                           double amountOfSeconds){
+        serverNotice(LogggerColor.ANSI_CYAN + "~ Finished loading "
+                + LogggerColor.ANSI_PURPLE + amountOfFiles + LogggerColor.ANSI_RESET
+                + " " + LogggerColor.ANSI_RED + dataToLoad + LogggerColor.ANSI_RESET
+                + " " + LogggerColor.ANSI_YELLOW + fileType + "s" + LogggerColor.ANSI_CYAN
+                + " files! in: " + LogggerColor.ANSI_YELLOW + amountOfSeconds + LogggerColor.ANSI_CYAN + " seconds" + LogggerColor.ANSI_RESET);
+    }
+
     /**
      * getting the matching logger color base on the logger level.
      * @param currLvl - the level we need the color for.
      * @return - return the relevant color.
      */
     private static LogggerColor getColorByLevel(LoggerLevels currLvl){
-        LogggerColor retVal = LogggerColor.ANSI_RESET;
-        switch (currLvl) {
-            case INFO -> retVal = LogggerColor.ANSI_RESET;
-            case DEBUG -> retVal =  LogggerColor.ANSI_GREEN;
-            case WARNING -> retVal =  LogggerColor.ANSI_YELLOW;
-            case ERROR -> retVal =  LogggerColor.ANSI_RED;
-            case SERVER_NOTICE -> retVal =  LogggerColor.ANSI_CYAN;
-            case NOTICE -> retVal =  LogggerColor.ANSI_PURPLE;
-        }
-        return retVal;
+        return switch (currLvl) {
+            case DEBUG -> LogggerColor.ANSI_GREEN;
+            case WARNING -> LogggerColor.ANSI_YELLOW;
+            case ERROR -> LogggerColor.ANSI_RED;
+            case SERVER_NOTICE -> LogggerColor.ANSI_CYAN;
+            case NOTICE -> LogggerColor.ANSI_PURPLE;
+            case null, default -> LogggerColor.ANSI_RESET;
+        };
     }
 
     /**
@@ -121,16 +140,15 @@ public class Logger {
         // Check if defined log level allow to print that log -
         if(currLvl.getLvl() >= LOG_LVL) {
             // Invoke an event for the loggerExecutor -
-            loggerExecutor.submit(() -> {
+            loggerExecutor.submit(() ->
+            worker.execute(() ->{
                 // Print the base message -
                 System.out.println(getColorByLevel(currLvl) + TimeFormatter.defaultTimeFormat() + threadAndClassString + data + LogggerColor.ANSI_RESET);
                 // Print additional data -
-                if (moreData.length != 0) {
-                    for (Object currDataObj : moreData) {
-                        System.out.println(getColorByLevel(currLvl) + currDataObj.toString() + LogggerColor.ANSI_RESET);
-                    }
+                for (Object currDataObj : moreData) {
+                    System.out.println(getColorByLevel(currLvl) + currDataObj.toString() + LogggerColor.ANSI_RESET);
                 }
-            });
+            }));
         }
     }
 }
