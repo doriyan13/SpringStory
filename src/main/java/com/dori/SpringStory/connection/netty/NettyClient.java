@@ -21,6 +21,7 @@ import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.Packet;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -112,7 +113,7 @@ public class NettyClient {
      * pipeline.
      * @param msg the message to be sent.
      */
-    public void write(Packet msg) {
+    public void write(@NotNull Packet msg) {
         ch.writeAndFlush(msg);
     }
     

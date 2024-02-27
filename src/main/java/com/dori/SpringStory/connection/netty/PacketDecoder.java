@@ -37,7 +37,6 @@ public class PacketDecoder extends ReplayingDecoder<Integer> {
                 throw new EncoderException("Packet length out of limits");
             packetLength = packetLen;
         }
-
         ByteBuf pktBuf = inPacketData.readRetainedSlice(packetLength);
         this.checkpoint(-1);
         receiveCypher.crypt(pktBuf, 0, packetLength);

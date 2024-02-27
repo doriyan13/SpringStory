@@ -265,7 +265,7 @@ public class Field extends MapData {
     }
 
     public void broadcastPacket(OutPacket outPacket) {
-        getPlayers().values().forEach(chr -> chr.write(outPacket));
+        getPlayers().values().forEach(chr -> chr.write((OutPacket) outPacket.clone()));
     }
 
     public void broadcastPacket(OutPacket outPacket, MapleChar exceptChr) {
