@@ -1,8 +1,9 @@
 package com.dori.SpringStory.connection.netty;
 
 import com.dori.SpringStory.client.MapleClient;
-import com.dori.SpringStory.connection.crypto.MapleCrypto;
+import com.dori.SpringStory.connection.crypto.ShroomAESCipher;
 import com.dori.SpringStory.connection.packet.packets.CLogin;
+import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.world.MapleChannel;
 import com.dori.SpringStory.logger.Logger;
 import io.netty.bootstrap.ServerBootstrap;
@@ -42,13 +43,13 @@ public interface BaseAcceptor {
 
                 @Override
                 protected void initChannel(SocketChannel ch) {
-                    // Set Decoder/Handler/Encoder -
-                    ch.pipeline().addLast(new PacketDecoder(), new ChannelHandler(), new PacketEncoder());
-                    // Init Encoder outPacketMapping -
-                    PacketEncoder.initOutPacketOpcodesHandling();
                     // Updated to v95 -
                     byte[] siv = new byte[]{82, 48, 120, getFinalRandomByteForIV()};
                     byte[] riv = new byte[]{70, 114, 122, getFinalRandomByteForIV()};
+                    // Set Decoder/Handler/Encoder -
+                    ch.pipeline().addLast(new PacketDecoder(new ShroomAESCipher(riv, ServerConstants.VERSION)), new ChannelHandler(), new PacketEncoder(new ShroomAESCipher(siv, (short) ~ServerConstants.VERSION)));
+                    // Init Encoder outPacketMapping -
+                    PacketEncoder.initOutPacketOpcodesHandling();
                     // Create new client for the connection -
                     MapleClient c = new MapleClient(ch);
                     // Init connection for the client -
@@ -61,7 +62,6 @@ public interface BaseAcceptor {
                     }
                     // ChannelInitializer attributes -
                     ch.attr(CLIENT_KEY).set(c);
-                    ch.attr(MapleClient.CRYPTO_KEY).set(new MapleCrypto(siv, riv));
 
                     //EventManager.addFixedRateEvent(c::sendPing, 0, 10000);
                 }

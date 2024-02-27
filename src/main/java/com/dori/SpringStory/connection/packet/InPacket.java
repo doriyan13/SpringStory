@@ -15,8 +15,10 @@ public class InPacket extends Packet {
      * @param byteBuf The buffer this InPacket has to be initialized with.
      */
     public InPacket(ByteBuf byteBuf) {
-        super(byteBuf.array());
-        this.byteBuf = byteBuf.copy();
+        super(byteBuf);
+//        super(byteBuf.array());
+//        this.byteBuf = byteBuf.copy();
+        this.byteBuf = byteBuf;
     }
 
     /**
@@ -41,7 +43,9 @@ public class InPacket extends Packet {
 
     @Override
     public byte[] getData() {
-        return byteBuf.array();
+        byte[] bytes = new byte[byteBuf.readableBytes()];
+        byteBuf.duplicate().readBytes(bytes);
+        return bytes;
     }
 
     @Override

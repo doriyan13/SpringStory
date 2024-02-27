@@ -1,7 +1,8 @@
 package com.dori.SpringStory.connection.netty;
 
-import com.dori.SpringStory.connection.crypto.MapleCrypto;
-import com.dori.SpringStory.connection.packet.Packet;
+import com.dori.SpringStory.connection.crypto.ShandaCipher;
+import com.dori.SpringStory.connection.crypto.ShroomAESCipher;
+import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import com.dori.SpringStory.logger.Logger;
 import io.netty.buffer.ByteBuf;
@@ -21,43 +22,43 @@ import static com.dori.SpringStory.constants.ServerConstants.ENABLE_ENCRYPTION;
  * @author Zygon
  * @author Dori.
  */
-public final class PacketEncoder extends MessageToByteEncoder<Packet> {
+public final class PacketEncoder extends MessageToByteEncoder<OutPacket> {
     private static final Logger logger = new Logger(PacketEncoder.class);
-    private static final Map<Integer,OutHeader> outPacketHeaders = new HashMap<>();
+    private static final Map<Integer, OutHeader> outPacketHeaders = new HashMap<>();
+    private final ShroomAESCipher sendCypher;
+
+    public PacketEncoder(ShroomAESCipher sendCypher) {
+        this.sendCypher = sendCypher;
+    }
 
     public static void initOutPacketOpcodesHandling() {
-        Arrays.stream(OutHeader.values()).forEach(opcode -> outPacketHeaders.put(opcode.getValue(),opcode));
+        Arrays.stream(OutHeader.values()).forEach(opcode -> outPacketHeaders.put(opcode.getValue(), opcode));
     }
 
     @Override
-    protected void encode(ChannelHandlerContext chc, Packet outPacket, ByteBuf bb) {
-        byte[] data = outPacket.getData();
+    protected void encode(ChannelHandlerContext chc, OutPacket outPacket, ByteBuf bb) {
+        ByteBuf bufferData = outPacket.getBufferData();
+        int len = bufferData.readableBytes();
         NettyClient c = chc.channel().attr(NettyClient.CLIENT_KEY).get();
-        MapleCrypto mCr = chc.channel().attr(NettyClient.CRYPTO_KEY).get();
-
         if (c != null) {
             OutHeader outHeader = outPacketHeaders.get(outPacket.getHeader());
-            if(!OutHeader.isSpamHeader(outHeader)) {
+            if (!OutHeader.isSpamHeader(outHeader)) {
                 logger.sent(String.valueOf(outPacket.getHeader()), "0x" + Integer.toHexString(outPacket.getHeader()).toUpperCase(), outHeader.name(), outPacket.toString());
             }
-            byte[] head = mCr.getOutPacketHeader(data.length);
+            bb.writeIntLE(sendCypher.encodeHeader(len));
             if (ENABLE_ENCRYPTION) {
-                MapleCrypto.encryptData(data);
+                ShandaCipher.encryptData(bufferData, len);
             }
-
+            sendCypher.crypt(bufferData, 0, len);
             c.acquireEncoderState();
             try {
-                mCr.cryptOutPacket(data);
+                bb.writeBytes(bufferData);
             } finally {
                 c.releaseEncodeState();
             }
-            
-            bb.writeBytes(head);
-            bb.writeBytes(data);
-            
         } else {
             logger.debug("Plain sending packet: " + outPacket);
-            bb.writeBytes(data);
+            bb.writeBytes(bufferData);
         }
     }
 }

@@ -18,6 +18,10 @@
 package com.dori.SpringStory.connection.packet;
 
 import com.dori.SpringStory.utils.MapleUtils;
+import io.netty.buffer.ByteBuf;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Represents a packet to be sent over a TCP socket for MapleStory.
@@ -28,10 +32,16 @@ import com.dori.SpringStory.utils.MapleUtils;
 public class Packet implements Cloneable {
 
     private byte[] data;
+    protected static final Charset CHARSET = StandardCharsets.ISO_8859_1;
 
     public Packet(byte[] data) {
         this.data = new byte[data.length];
         System.arraycopy(data, 0, this.data, 0, data.length);
+    }
+
+    public Packet(ByteBuf data) {
+        //this.data = new byte[data.readableBytes()];
+        //System.arraycopy(data, 0, this.data, 0, data.length);
     }
 
     public int getLength() {
