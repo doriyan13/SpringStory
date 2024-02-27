@@ -186,7 +186,7 @@ public class OutPacket extends Packet {
             return;
         }
         encodeShort((short) s.length());
-        encodeString(s, (short) s.length());
+        baos.writeCharSequence(s, CHARSET);
     }
 
     /**
@@ -221,9 +221,13 @@ public class OutPacket extends Packet {
     public byte[] getData() {
         if(super.getLength() == 0) {
             super.setData(ByteBufUtil.getBytes(baos));
-            baos.release();
+//            baos.release();
         }
         return super.getData();
+    }
+
+    public ByteBuf getBufferData() {
+        return this.baos;
     }
 
     @Override

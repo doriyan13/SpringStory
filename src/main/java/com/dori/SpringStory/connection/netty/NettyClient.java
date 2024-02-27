@@ -17,7 +17,6 @@
 */
 package com.dori.SpringStory.connection.netty;
 
-import com.dori.SpringStory.connection.crypto.MapleCrypto;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.Packet;
 import io.netty.channel.Channel;
@@ -35,11 +34,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Zygon
  */
 public class NettyClient {
-    
-    /**
-     * Attribute key for MapleCrypto related to this Client.
-     */
-    public static final AttributeKey<MapleCrypto> CRYPTO_KEY = AttributeKey.valueOf("A");
     /**
      * Attribute key for this NettyClient object.
      */
@@ -69,6 +63,12 @@ public class NettyClient {
      * scaling compared to keeping OutPacket for each session.
      */
     private final InPacket r;
+
+    public NettyClient() {
+        ch = null;
+        r = new InPacket();
+        lock = new ReentrantLock(true); // note: lock is fair to ensure logical sequence is maintained server-side
+    }
 
     /**
      * Construct a new NettyClient with the corresponding Channel that

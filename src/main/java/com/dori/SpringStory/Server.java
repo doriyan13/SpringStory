@@ -2,7 +2,6 @@ package com.dori.SpringStory;
 
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
-import com.dori.SpringStory.connection.crypto.MapleCrypto;
 import com.dori.SpringStory.connection.netty.ChannelAcceptor;
 import com.dori.SpringStory.connection.netty.ChannelHandler;
 import com.dori.SpringStory.connection.netty.ChatAcceptor;
@@ -122,8 +121,6 @@ public class Server {
         ExecutorService executorService = Executors.newFixedThreadPool(AMOUNT_OF_LOADERS);
 
         logger.serverNotice("Start Loading Server...");
-        // Init the server crypto handling -
-        MapleCrypto.initialize();
         // Register all the Packet handlers -
         ChannelHandler.initHandlers(false);
         // Register all the Npc scripts -

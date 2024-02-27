@@ -1,75 +1,49 @@
-/*
-    This file is part of Desu: MapleStory v62 Server Emulator
-    Copyright (C) 2014  Zygon <watchmystarz@hotmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 package com.dori.SpringStory.connection.netty;
 
-import com.dori.SpringStory.connection.crypto.MapleCrypto;
+import com.dori.SpringStory.connection.crypto.ShandaCipher;
+import com.dori.SpringStory.connection.crypto.ShroomAESCipher;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.logger.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.EncoderException;
+import io.netty.handler.codec.ReplayingDecoder;
 
 import java.util.List;
 
 import static com.dori.SpringStory.constants.ServerConstants.ENABLE_ENCRYPTION;
 
-/**
- * Implementation of a Netty decoder pattern so that decryption of MapleStory
- * packets is possible. Follows steps using the special MapleAES as well as
- * ShandaCrypto (which became non-used after v149.2 in GMS).
- *
- * @author Zygon
- */
-public class PacketDecoder extends ByteToMessageDecoder {
+public class PacketDecoder extends ReplayingDecoder<Integer> {
     private static final Logger log = new Logger(PacketDecoder.class);
+    public static final int MAX_PACKET_LEN = 2 * 4096;
+
+    private final ShroomAESCipher receiveCypher;
+
+    public PacketDecoder(ShroomAESCipher receiveCypher) {
+        super(-1);
+
+        this.receiveCypher = receiveCypher;
+    }
 
     @Override
-    protected void decode(ChannelHandlerContext chc, ByteBuf in, List<Object> out) {
-        NettyClient c = chc.channel().attr(NettyClient.CLIENT_KEY).get();
-        MapleCrypto mCr = chc.channel().attr(NettyClient.CRYPTO_KEY).get();
-        if (c != null) {
-            if (c.getStoredLength() == -1) {
-                if (in.readableBytes() >= 4) {
-                    int h = in.readInt();
-                    if (ENABLE_ENCRYPTION && !mCr.checkInPacket(h)) {
-                        log.error(String.format("[PacketDecoder] | Incorrect packet seq! Dropping client %s.", c.getIP()));
-                        c.close();
-                        return;
-                    }
-                    c.setStoredLength(MapleCrypto.getPacketLength(h));
-                } else {
-                    return;
-                }
-            }
-            if (in.readableBytes() >= c.getStoredLength()) {
-                // don't need to create a byte[] and just use is a byteBuffer -
-                byte[] dec = new byte[c.getStoredLength()];
-                in.readBytes(dec);
-                c.setStoredLength(-1);
-                
-                dec = mCr.cryptInPacket(dec);
-                if (ENABLE_ENCRYPTION) {
-                    MapleCrypto.decryptData(dec);
-                }
-
-                InPacket inPacket = new InPacket(dec);
-                out.add(inPacket);
-            }
+    protected void decode(ChannelHandlerContext chc,
+                          ByteBuf inPacketData,
+                          List<Object> out) {
+        int packetLength = state();
+        if(packetLength == -1) {
+            final int packetLen = receiveCypher.decodeHeader(inPacketData.readIntLE());
+            checkpoint(packetLen);
+            if(packetLen < 0 || packetLen > MAX_PACKET_LEN)
+                throw new EncoderException("Packet length out of limits");
+            packetLength = packetLen;
         }
+
+        ByteBuf pktBuf = inPacketData.readRetainedSlice(packetLength);
+        this.checkpoint(-1);
+        receiveCypher.crypt(pktBuf, 0, packetLength);
+        if (ENABLE_ENCRYPTION) {
+            ShandaCipher.decryptData(pktBuf, packetLength);
+        }
+        out.add(new InPacket(pktBuf));
     }
 }
