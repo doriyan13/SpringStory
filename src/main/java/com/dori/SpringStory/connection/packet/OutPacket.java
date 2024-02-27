@@ -52,8 +52,9 @@ public class OutPacket extends Packet {
      *
      * @param data The data this net.swordie.ms.connection.packet has to be initialized with.
      */
-    public OutPacket(byte[] data) {
+    public OutPacket(byte[] data, short opcode) {
         super(data);
+        op = opcode;
         baos = Unpooled.buffer();
         encodeArr(data);
     }
@@ -219,7 +220,7 @@ public class OutPacket extends Packet {
 
     @Override
     public byte[] getData() {
-        if(super.getLength() == 0) {
+        if (super.getLength() == 0) {
             super.setData(ByteBufUtil.getBytes(baos));
 //            baos.release();
         }
@@ -232,7 +233,7 @@ public class OutPacket extends Packet {
 
     @Override
     public Packet clone() {
-        return new OutPacket(getData());
+        return new OutPacket(getData(), op);
     }
 
     /**
@@ -316,5 +317,12 @@ public class OutPacket extends Packet {
 
     public void encode(Encodable encodable) {
         encodable.encode(this);
+    }
+
+    @Override
+    public void release() {
+        super.release();
+        this.baos.release();
+        this.baos = null;
     }
 }

@@ -188,10 +188,13 @@ public class Mob extends Life {
                 .getPlayers()
                 .values()
                 .forEach(chr -> {
-                    double dmgPercentage = getDamageDone().get(chr.getId()) / (double) totalDamage;
+                    long playerDmg = getDamageDone().get(chr.getId()) != null ? getDamageDone().get(chr.getId()) : 0;
+                    double dmgPercentage = playerDmg / (double) totalDamage;
                     int mobExpRate = chr.getLevel() < 10 ? 1 : GameConstants.EXP_RATE;
                     int expForChr = (int) (exp * dmgPercentage * mobExpRate);
-                    chr.gainExp(expForChr);
+                    if (expForChr > 0) {
+                        chr.gainExp(expForChr);
+                    }
                 });
     }
 

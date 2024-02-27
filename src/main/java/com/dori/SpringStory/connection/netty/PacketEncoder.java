@@ -37,28 +37,34 @@ public final class PacketEncoder extends MessageToByteEncoder<OutPacket> {
 
     @Override
     protected void encode(ChannelHandlerContext chc, OutPacket outPacket, ByteBuf bb) {
-        ByteBuf bufferData = outPacket.getBufferData();
-        int len = bufferData.readableBytes();
-        NettyClient c = chc.channel().attr(NettyClient.CLIENT_KEY).get();
-        if (c != null) {
-            OutHeader outHeader = outPacketHeaders.get(outPacket.getHeader());
-            if (!OutHeader.isSpamHeader(outHeader)) {
-                logger.sent(String.valueOf(outPacket.getHeader()), "0x" + Integer.toHexString(outPacket.getHeader()).toUpperCase(), outHeader.name(), outPacket.toString());
-            }
-            bb.writeIntLE(sendCypher.encodeHeader(len));
-            if (ENABLE_ENCRYPTION) {
-                ShandaCipher.encryptData(bufferData, len);
-            }
-            sendCypher.crypt(bufferData, 0, len);
-            c.acquireEncoderState();
-            try {
+        try {
+            ByteBuf bufferData = outPacket.getBufferData();
+            int len = bufferData.readableBytes();
+            NettyClient c = chc.channel().attr(NettyClient.CLIENT_KEY).get();
+            if (c != null) {
+                OutHeader outHeader = outPacketHeaders.get(outPacket.getHeader());
+                if (!OutHeader.isSpamHeader(outHeader)) {
+                    logger.sent(String.valueOf(outPacket.getHeader()), "0x" + Integer.toHexString(outPacket.getHeader()).toUpperCase(), outHeader.name(), outPacket.toString());
+                }
+                bb.writeIntLE(sendCypher.encodeHeader(len));
+                if (ENABLE_ENCRYPTION) {
+                    ShandaCipher.encryptData(bufferData, len);
+                }
+                sendCypher.crypt(bufferData, 0, len);
+                c.acquireEncoderState();
+                try {
+                    bb.writeBytes(bufferData);
+                } finally {
+                    c.releaseEncodeState();
+                }
+            } else {
+                logger.debug("Plain sending packet: " + outPacket);
                 bb.writeBytes(bufferData);
-            } finally {
-                c.releaseEncodeState();
             }
-        } else {
-            logger.debug("Plain sending packet: " + outPacket);
-            bb.writeBytes(bufferData);
+        } catch (Exception e) {
+            logger.error("Error occurred while parsing OutPacket!! ", e);
+        } finally {
+            outPacket.release();
         }
     }
 }

@@ -84,19 +84,20 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, InPacket inPacket) {
-        MapleClient c = (MapleClient) ctx.channel().attr(CLIENT_KEY).get();
-        MapleChar chr = c.getChr();
-        short op = inPacket.decodeShort();
-        InHeader inHeader = InHeader.getInHeaderByOp(op);
-        if (inHeader == null) {
-            handleUnknown(inPacket, op);
-            return;
-        }
-        if (!InHeader.isSpamHeader(InHeader.getInHeaderByOp(op))) {
-            logger.receive(String.valueOf(op), "0x" + Integer.toHexString(op).toUpperCase(), InHeader.getInHeaderByOp(op).name(), inPacket.toString());
-        }
-        Method method = handlers.get(inHeader);
         try {
+            MapleClient c = (MapleClient) ctx.channel().attr(CLIENT_KEY).get();
+            MapleChar chr = c.getChr();
+            short op = inPacket.decodeShort();
+            InHeader inHeader = InHeader.getInHeaderByOp(op);
+            if (inHeader == null) {
+                handleUnknown(inPacket, op);
+                return;
+            }
+            if (!InHeader.isSpamHeader(InHeader.getInHeaderByOp(op))) {
+                logger.receive(String.valueOf(op), "0x" + Integer.toHexString(op).toUpperCase(), InHeader.getInHeaderByOp(op).name(), inPacket.toString());
+            }
+            Method method = handlers.get(inHeader);
+
             if (method == null) {
                 handleUnknown(inPacket, op);
             } else {
@@ -112,7 +113,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                         logger.error("Unhandled first param type of handler " + method.getName() + ", type = " + clazz);
                     }
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
+                    logger.error("Error occurred while trying to handle InPacket!", e);
                 }
             }
         } finally {
