@@ -40,6 +40,10 @@ public class AttackInfo {
     public void decode(AttackType type, InPacket inPacket) {
         // FieldKey -
         this.fieldKey = inPacket.decodeByte();
+        // Reactor Melee attack extra handling -
+        if (type == AttackType.Melee && inPacket.getUnreadAmount() == 60) {
+            inPacket.decodeByte(); // Reactors extra byte
+        }
         // Type -
         this.type = type;
 

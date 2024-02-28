@@ -20,6 +20,7 @@ import static com.dori.SpringStory.constants.ServerConstants.ENABLE_ENCRYPTION;
  * packets is possible.
  *
  * @author Zygon
+ * @author Joo
  * @author Dori.
  */
 public final class PacketEncoder extends MessageToByteEncoder<OutPacket> {
