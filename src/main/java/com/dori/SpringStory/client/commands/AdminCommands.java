@@ -13,6 +13,7 @@ import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
+import com.dori.SpringStory.world.fieldEntities.Drop;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.dataHandlers.ItemDataHandler;
@@ -24,6 +25,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.dori.SpringStory.constants.GameConstants.MAX_MESO;
 import static com.dori.SpringStory.enums.InventoryOperation.Add;
@@ -362,10 +364,6 @@ public class AdminCommands {
 //                chr.write(CField.adminResult(cmdTypeFlag, false));
 //            }
         }
-        Position pos = new Position(chr.getPosition());
-        pos.setX(pos.getX() + 10);
-        pos.setY(pos.getY() + 10);
-        chr.write(CTownPortalPool.townPortalCreated(chr.getId(), true, pos));
     }
 
     @Command(names = {"invdata"}, requiredPermission = AccountType.GameMaster)
@@ -403,5 +401,16 @@ public class AdminCommands {
                 itemsToRemove.clear();
             }
         }
+    }
+
+    @Command(names = {"vac", "cleardrops", "clearDrops"}, requiredPermission = AccountType.GameMaster)
+    public static void vac(MapleChar chr, List<String> args) {
+        Field field = chr.getField();
+        field.getDrops().values().removeIf(drop -> {
+            field.removeDrop(drop.getId(), chr.getId(), 0);
+            chr.pickupItem(drop);
+            return true;
+        });
+        field.getDrops().clear();
     }
 }

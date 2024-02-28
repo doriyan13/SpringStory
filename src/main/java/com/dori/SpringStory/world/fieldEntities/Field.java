@@ -274,7 +274,7 @@ public class Field extends MapData {
             getPlayers().values().forEach(
                     chr -> {
                         if (chr.getId() != exceptChr.getId()) {
-                            chr.write(outPacket);
+                            chr.write((OutPacket) outPacket.clone());
                         }
                     }
             );
