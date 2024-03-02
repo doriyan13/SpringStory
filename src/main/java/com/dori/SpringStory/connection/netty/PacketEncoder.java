@@ -1,5 +1,6 @@
 package com.dori.SpringStory.connection.netty;
 
+import com.dori.SpringStory.connection.crypto.InitializationVector;
 import com.dori.SpringStory.connection.crypto.ShandaCipher;
 import com.dori.SpringStory.connection.crypto.ShroomAESCipher;
 import com.dori.SpringStory.connection.packet.OutPacket;
@@ -26,46 +27,58 @@ import static com.dori.SpringStory.constants.ServerConstants.ENABLE_ENCRYPTION;
 public final class PacketEncoder extends MessageToByteEncoder<OutPacket> {
     private static final Logger logger = new Logger(PacketEncoder.class);
     private static final Map<Integer, OutHeader> outPacketHeaders = new HashMap<>();
-    private final ShroomAESCipher sendCypher;
+    private final ShroomAESCipher cipher;
+    private boolean first;
+
+    public PacketEncoder(InitializationVector iv, short version) {
+        this(new ShroomAESCipher(iv, version));
+    }
 
     public PacketEncoder(ShroomAESCipher sendCypher) {
-        this.sendCypher = sendCypher;
+        this.cipher = sendCypher;
+        this.first = true;
     }
 
     public static void initOutPacketOpcodesHandling() {
         Arrays.stream(OutHeader.values()).forEach(opcode -> outPacketHeaders.put(opcode.getValue(), opcode));
     }
 
+    void encodeToBuffer(OutPacket pkt, ByteBuf out) {
+        int len = pkt.getLength();
+        out.writeIntLE(cipher.encodeHeader(len));
+        int ix = out.writerIndex();
+        out.writeBytes(pkt.content());
+
+        // Encrypt shanda
+        if (ENABLE_ENCRYPTION) {
+            ShandaCipher.encryptData(out, ix, len);
+        }
+
+        // Encrypt aes
+        cipher.crypt(out, ix, len);
+    }
+
     @Override
-    protected void encode(ChannelHandlerContext chc, OutPacket outPacket, ByteBuf bb) {
+    protected void encode(ChannelHandlerContext chc, OutPacket pkt, ByteBuf out) {
         try {
-            ByteBuf bufferData = outPacket.getBufferData();
-            int len = bufferData.readableBytes();
-            NettyClient c = chc.channel().attr(NettyClient.CLIENT_KEY).get();
-            if (c != null) {
-                OutHeader outHeader = outPacketHeaders.get(outPacket.getHeader());
+            // Skip encryption for the first packet(Handshake)
+            if (!first) {
+                OutHeader outHeader = outPacketHeaders.get(pkt.getHeader());
                 if (!OutHeader.isSpamHeader(outHeader)) {
-                    logger.sent(String.valueOf(outPacket.getHeader()), "0x" + Integer.toHexString(outPacket.getHeader()).toUpperCase(), outHeader.name(), outPacket.toString());
+                    logger.sent(String.valueOf(pkt.getHeader()),
+                            "0x" + Integer.toHexString(pkt.getHeader()).toUpperCase(), outHeader.name(),
+                            pkt.toString());
                 }
-                bb.writeIntLE(sendCypher.encodeHeader(len));
-                if (ENABLE_ENCRYPTION) {
-                    ShandaCipher.encryptData(bufferData, len);
-                }
-                sendCypher.crypt(bufferData, 0, len);
-                c.acquireEncoderState();
-                try {
-                    bb.writeBytes(bufferData);
-                } finally {
-                    c.releaseEncodeState();
-                }
+                this.encodeToBuffer(pkt, out);
             } else {
-                logger.debug("Plain sending packet: " + outPacket);
-                bb.writeBytes(bufferData);
+                logger.debug("Plain sending packet: " + pkt);
+                out.writeBytes(pkt.content());
+                this.first = false;
             }
         } catch (Exception e) {
-            logger.error("Error occurred while parsing OutPacket!! ", e);
+            logger.error("Error occurred while enncoding OutPacket!", e);
         } finally {
-            outPacket.release();
+            pkt.release();
         }
     }
 }

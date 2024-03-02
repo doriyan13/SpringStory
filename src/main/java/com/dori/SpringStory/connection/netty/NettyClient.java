@@ -23,7 +23,6 @@ import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Abstraction for Netty channels that contains some attribute keys
@@ -54,12 +53,6 @@ public class NettyClient {
     protected final Channel ch;
     
     /**
-     * Lock regarding the encoding of packets to be sent to remote 
-     * sessions.
-     */
-    private final ReentrantLock lock;
-    
-    /**
      * InPacket object for this specific session since this can help
      * scaling compared to keeping OutPacket for each session.
      */
@@ -68,7 +61,6 @@ public class NettyClient {
     public NettyClient() {
         ch = null;
         r = new InPacket();
-        lock = new ReentrantLock(true); // note: lock is fair to ensure logical sequence is maintained server-side
     }
 
     /**
@@ -79,7 +71,6 @@ public class NettyClient {
     public NettyClient(Channel c) {
         ch = c;
         r = new InPacket();
-        lock = new ReentrantLock(true); // note: lock is fair to ensure logical sequence is maintained server-side
     }
     
     /**
@@ -130,22 +121,5 @@ public class NettyClient {
      */
     public String getIP() {
         return ch.remoteAddress().toString().split(":")[0].substring(1);
-    }
-    
-    /**
-     * Acquires the encoding state for this specific send IV. This is to
-     * prevent multiple encoding states to be possible at the same time. If 
-     * allowed, the send IV would mutate to an unusable IV and the session would
-     * be dropped as a result.
-     */
-    public final void acquireEncoderState() {
-        lock.lock();
-    }
-    
-    /**
-     * Releases the encoding state for this specific send IV.
-     */
-    public final void releaseEncodeState() {
-        lock.unlock();
     }
 }

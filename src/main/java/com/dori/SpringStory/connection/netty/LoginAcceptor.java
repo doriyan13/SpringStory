@@ -8,7 +8,7 @@ import java.util.Map;
 import static com.dori.SpringStory.constants.ServerConstants.LOGIN_PORT;
 
 // Taken from http://netty.io/wiki/user-guide-for-4.x.html
-public class LoginAcceptor implements Runnable{
+public class LoginAcceptor implements Runnable {
     // Channel pool -
     public static Map<String, Channel> channelPool = new HashMap<>();
     // Logger -

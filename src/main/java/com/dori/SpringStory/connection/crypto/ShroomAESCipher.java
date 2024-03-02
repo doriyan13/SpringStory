@@ -57,32 +57,29 @@ public class ShroomAESCipher {
             (byte) 0x84, (byte) 0x7F, (byte) 0x61, (byte) 0x1E, (byte) 0xCF, (byte) 0xC5, (byte) 0xD1, (byte) 0x56,
             (byte) 0x3D, (byte) 0xCA, (byte) 0xF4, (byte) 0x05, (byte) 0xC6, (byte) 0xE5, (byte) 0x08, (byte) 0x49};
 
-    public static final byte[] IG_SEED = {(byte) 0xf2, 0x53, (byte) 0x50, (byte) 0xc6};
+    public static final byte[] IG_SEED = { (byte) 0xf2, 0x53, (byte) 0x50, (byte) 0xc6 };
+    
+    private static Cipher cipher = initCipher();
 
-    private final short mapleVersion;
-    private final Cipher cipher;
-    private byte[] iv;
-
-    public ShroomAESCipher(InitializationVector iv, short mapleVersion) {
+    private static Cipher initCipher() {
         try {
-            cipher = Cipher.getInstance("AES");
+            Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.ENCRYPT_MODE, AES_KEY);
+            return cipher;
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    private final short mapleVersion;
+    private byte[] iv;
+
+    public ShroomAESCipher(InitializationVector iv, short mapleVersion) {
         this.iv = iv.getBytes();
         this.mapleVersion = mapleVersion;
     }
 
     public ShroomAESCipher(byte[] iv, short mapleVersion) {
-        try {
-            cipher = Cipher.getInstance("AES");
-            cipher.init(Cipher.ENCRYPT_MODE, AES_KEY);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
-            throw new RuntimeException(e);
-        }
-
         this.iv = iv;
         this.mapleVersion = mapleVersion;
     }

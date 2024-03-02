@@ -1,11 +1,8 @@
 package com.dori.SpringStory.connection.packet;
 
-import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.utils.utilEntities.Rect;
 import io.netty.buffer.*;
-
-import java.util.Arrays;
 
 public class InPacket extends Packet {
     private final ByteBuf byteBuf;
@@ -34,23 +31,6 @@ public class InPacket extends Packet {
      */
     public InPacket(byte[] data) {
         this(Unpooled.copiedBuffer(data));
-    }
-
-    @Override
-    public int getLength() {
-        return byteBuf.readableBytes();
-    }
-
-    @Override
-    public byte[] getData() {
-        byte[] bytes = new byte[byteBuf.readableBytes()];
-        byteBuf.duplicate().readBytes(bytes);
-        return bytes;
-    }
-
-    @Override
-    public InPacket clone() {
-        return new InPacket(byteBuf);
     }
 
     /**
@@ -119,7 +99,8 @@ public class InPacket extends Packet {
 
     @Override
     public String toString() {
-        return MapleUtils.readableByteArray(Arrays.copyOfRange(getData(), getData().length - getUnreadAmount(), getData().length)); // Substring after copy of range xd
+        return super.toString();
+        //return MapleUtils.readableByteArray(Arrays.copyOfRange(getData(), getData().length - getUnreadAmount(), getData().length)); // Substring after copy of range xd
     }
 
 
@@ -163,10 +144,6 @@ public class InPacket extends Packet {
         return byteBuf.readableBytes();
     }
 
-    public void release() {
-        byteBuf.release();
-    }
-
     /**
      * Reads a rectangle (int l, int t, int r, int b) and returns this.
      * @return The rectangle that has been read.
@@ -176,6 +153,6 @@ public class InPacket extends Packet {
     }
 
     public boolean decodeBool(){
-        return decodeByte() > 0;
+        return decodeByte() != 0;
     }
 }

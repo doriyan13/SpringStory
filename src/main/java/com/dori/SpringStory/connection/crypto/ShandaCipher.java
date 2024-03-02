@@ -6,8 +6,8 @@ import io.netty.buffer.ByteBuf;
 public interface ShandaCipher {
 
     static void encryptData(ByteBuf buf,
+                            int offset,
                             int length) {
-        int offset = 0;
         for (int j = 0; j < 6; j++) {
             byte remember = 0;
             byte dataLength = (byte) (length & 0xFF);
@@ -43,8 +43,8 @@ public interface ShandaCipher {
     }
 
     static void decryptData(ByteBuf buf,
+                            int offset,
                             int length) {
-        int offset = 0;
         for (int j = 1; j <= 6; j++) {
             byte remember = 0;
             byte dataLength = (byte) (length & 0xFF);

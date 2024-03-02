@@ -2,6 +2,7 @@ package com.dori.SpringStory.world.fieldEntities;
 
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.connection.netty.BroadcastSet;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.*;
 import com.dori.SpringStory.constants.GameConstants;
@@ -44,6 +45,7 @@ public class Field extends MapData {
     private long creationTime;
     private long deprecationStartTime;
     private List<PositionData> mobsSpawnPoints = new ArrayList<>();
+    private BroadcastSet<MapleClient> tx = new BroadcastSet<>();
 
     public Field(int id) {
         super(id);
@@ -67,7 +69,8 @@ public class Field extends MapData {
         this.partyOnly = mapData.isPartyOnly();
         this.expeditionOnly = mapData.isExpeditionOnly();
         this.needSkillForFly = mapData.isNeedSkillForFly();
-        this.fixedMobCapacity = mapData.getFixedMobCapacity() != 0 ? mapData.getFixedMobCapacity() : DEFAULT_FIELD_MOB_CAPACITY;
+        this.fixedMobCapacity = mapData.getFixedMobCapacity() != 0 ? mapData.getFixedMobCapacity()
+                : DEFAULT_FIELD_MOB_CAPACITY;
         this.createMobInterval = mapData.getCreateMobInterval();
         this.timeOut = mapData.getTimeOut();
         this.timeLimit = mapData.getTimeLimit();
@@ -104,8 +107,8 @@ public class Field extends MapData {
                     mobsSpawnPoints.add(new PositionData(mob.getPosition(), mob.getFh()));
                 }
             } else {
-                //TODO: see what lifes i've missed
-                //this.addLife(life.deepCopy());
+                // TODO: see what lifes i've missed
+                // this.addLife(life.deepCopy());
             }
         }
         this.dropsDisabled = mapData.isDropsDisabled();
@@ -147,12 +150,13 @@ public class Field extends MapData {
         MapleClient c = chr.getMapleClient();
         // Add player to the field -
         players.putIfAbsent(chr.getId(), chr);
+        tx.addClient(chr.getId(), c);
         // Update for the char instance the field data -
         chr.setField(this);
         chr.setMapId(getId());
         c.write(CStage.onSetField(c.getChr(), c.getChr().getField(), (short) 0, c.getChannel(),
                 0, characterData, (byte) 1, (short) 0,
-                "", new String[]{""}));
+                "", new String[] { "" }));
         // Spawn lifes for the client -
         this.spawnLifesForCharacter(chr);
         if (firstPlayerInField) {
@@ -170,6 +174,7 @@ public class Field extends MapData {
 
     public void removePlayer(MapleChar chr) {
         players.remove(chr.getId());
+        tx.removeClient(chr.getId());
     }
 
     private void addNPC(Npc npc) {
@@ -205,11 +210,13 @@ public class Field extends MapData {
         // Spawn Mobs for the client -
         mobs.values().forEach(mob -> chr.write(CMobPool.mobEnterField(mob)));
         // Spawn Drops for the client -
-        drops.values().forEach(drop -> chr.write(CDropPool.dropEnterField(drop, DropEnterType.INSTANT, DropOwnType.USER_OWN, drop.getOwnerID(), drop.getPosition(), (short) 0, true)));
+        drops.values().forEach(drop -> chr.write(CDropPool.dropEnterField(drop, DropEnterType.INSTANT,
+                DropOwnType.USER_OWN, drop.getOwnerID(), drop.getPosition(), (short) 0, true)));
     }
 
     public void assignControllerToMobs(MapleChar chr) {
-        //TODO: assigning a char suppose to be random and not the new char that enter the map each time!
+        // TODO: assigning a char suppose to be random and not the new char that enter
+        // the map each time!
 
         // Assign Controller to Mobs for the client -
         mobs.values().forEach(mob -> {
@@ -219,7 +226,8 @@ public class Field extends MapData {
     }
 
     public void assignControllerToNpcs(MapleChar chr) {
-        //TODO: assigning a char suppose to be random and not the new char that enter the map each time!
+        // TODO: assigning a char suppose to be random and not the new char that enter
+        // the map each time!
 
         // Assign Controller to Mobs for the client -
         npcs.values().forEach(npc -> {
@@ -231,7 +239,8 @@ public class Field extends MapData {
     public void spawnMobById(int mobId, MapleChar controller) {
         Mob mob = MobDataHandler.getMobByID(mobId);
         if (mob != null) {
-            //TODO: i want to redo the position concept - randomize it on the initial spawn points a map have
+            // TODO: i want to redo the position concept - randomize it on the initial spawn
+            // points a map have
             Position pos = controller.getPosition();
             mob.setPosition(pos.deepCopy());
             mob.setVPosition(pos.deepCopy());
@@ -264,21 +273,12 @@ public class Field extends MapData {
         }
     }
 
-    public void broadcastPacket(OutPacket outPacket) {
-        getPlayers().values().forEach(chr -> chr.write((OutPacket) outPacket.clone()));
+    public void broadcastPacket(OutPacket packet) {
+        tx.broadcast(packet);
     }
 
     public void broadcastPacket(OutPacket outPacket, MapleChar exceptChr) {
-        // No point broadcast a packet when you're alone in the map -
-        if (getPlayers().size() > 1) {
-            getPlayers().values().forEach(
-                    chr -> {
-                        if (chr.getId() != exceptChr.getId()) {
-                            chr.write((OutPacket) outPacket.clone());
-                        }
-                    }
-            );
-        }
+        tx.broadcastFilter(outPacket, id);
     }
 
     private Drop generateDropByMobDropData(MobDropData dropData, int ownerID, float mesoRate) {
@@ -302,7 +302,8 @@ public class Field extends MapData {
         return drop;
     }
 
-    public void drop(List<MobDropData> dropsData, int srcID, int ownerID, Foothold fh, Position position, float mesoRate, float dropRate) {
+    public void drop(List<MobDropData> dropsData, int srcID, int ownerID, Foothold fh, Position position,
+            float mesoRate, float dropRate) {
         int x = position.getX();
         int diff = 0;
         int minX = position.getX();
@@ -353,8 +354,10 @@ public class Field extends MapData {
         Position fromPos = new Position(drop.getPosition());
         fromPos.setY(fromPos.getY() - 20);
 
-        broadcastPacket(CDropPool.dropEnterField(drop, dropEnterType, DropOwnType.USER_OWN, srcID, fromPos, replay, true));
-        EventManager.addEvent(getRandomUuidInLong(), EventType.REMOVE_DROP_FROM_FIELD, new RemoveDropFromField(drop, this), DROP_REMAIN_ON_GROUND_TIME);
+        broadcastPacket(
+                CDropPool.dropEnterField(drop, dropEnterType, DropOwnType.USER_OWN, srcID, fromPos, replay, true));
+        EventManager.addEvent(getRandomUuidInLong(), EventType.REMOVE_DROP_FROM_FIELD,
+                new RemoveDropFromField(drop, this), DROP_REMAIN_ON_GROUND_TIME);
     }
 
     public void spawnDrop(Drop drop, Position fromPos) {
@@ -386,7 +389,8 @@ public class Field extends MapData {
         getNpcs().values().forEach(npc -> npc.setField(null));
         getNpcs().clear();
         // Clear Drops -
-        getDrops().keySet().forEach(dropObjID -> EventManager.cancelEvent(MapleUtils.concat((long) getId(), dropObjID), EventType.REMOVE_DROP_FROM_FIELD));
+        getDrops().keySet().forEach(dropObjID -> EventManager.cancelEvent(MapleUtils.concat((long) getId(), dropObjID),
+                EventType.REMOVE_DROP_FROM_FIELD));
         getDrops().clear();
     }
 }
