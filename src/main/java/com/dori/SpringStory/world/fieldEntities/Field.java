@@ -265,7 +265,7 @@ public class Field extends MapData {
     }
 
     public void broadcastPacket(OutPacket outPacket) {
-        getPlayers().values().forEach(chr -> chr.write((OutPacket) outPacket.clone()));
+        getPlayers().values().forEach(chr -> chr.write((OutPacket) outPacket.retainedDuplicate()));
     }
 
     public void broadcastPacket(OutPacket outPacket, MapleChar exceptChr) {
@@ -274,7 +274,7 @@ public class Field extends MapData {
             getPlayers().values().forEach(
                     chr -> {
                         if (chr.getId() != exceptChr.getId()) {
-                            chr.write((OutPacket) outPacket.clone());
+                            chr.write((OutPacket) outPacket.retainedDuplicate());
                         }
                     }
             );

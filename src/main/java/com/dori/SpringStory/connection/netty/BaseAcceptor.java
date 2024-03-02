@@ -1,6 +1,7 @@
 package com.dori.SpringStory.connection.netty;
 
 import com.dori.SpringStory.client.MapleClient;
+import com.dori.SpringStory.connection.crypto.InitializationVector;
 import com.dori.SpringStory.connection.crypto.ShroomAESCipher;
 import com.dori.SpringStory.connection.packet.packets.CLogin;
 import com.dori.SpringStory.constants.ServerConstants;
@@ -19,20 +20,17 @@ import java.util.Map;
 import static com.dori.SpringStory.connection.netty.NettyClient.CLIENT_KEY;
 
 public interface BaseAcceptor {
-
-    private static byte getFinalRandomByteForIV(){
-        return (byte) Math.abs(Math.random() * 255);
-    }
-
     /**
      * Creating an acceptor based on ServerBootstrap.
-     * @param port - server port.
-     * @param channelPool - The pool of the server (if needed - login / chat acceptor).
-     * @param channel - The current channel if it's a channel acceptor.
-     * @param logger - The acceptor logger.
+     * 
+     * @param port        - server port.
+     * @param channelPool - The pool of the server (if needed - login / chat
+     *                    acceptor).
+     * @param channel     - The current channel if it's a channel acceptor.
+     * @param logger      - The acceptor logger.
      */
     static void createAcceptor(int port, @Nullable Map<String, Channel> channelPool,
-                               @Nullable MapleChannel channel, @NonNull Logger logger){
+            @Nullable MapleChannel channel, @NonNull Logger logger) {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -44,26 +42,30 @@ public interface BaseAcceptor {
                 @Override
                 protected void initChannel(SocketChannel ch) {
                     // Updated to v95 -
-                    byte[] siv = new byte[]{82, 48, 120, getFinalRandomByteForIV()};
-                    byte[] riv = new byte[]{70, 114, 122, getFinalRandomByteForIV()};
+                    InitializationVector siv = InitializationVector.generateSend();
+                    InitializationVector riv = InitializationVector.generateReceive();
+                    short rver = ServerConstants.VERSION;
+                    short sver = (short) ~ServerConstants.VERSION;
                     // Set Decoder/Handler/Encoder -
-                    ch.pipeline().addLast(new PacketDecoder(new ShroomAESCipher(riv, ServerConstants.VERSION)), new ChannelHandler(), new PacketEncoder(new ShroomAESCipher(siv, (short) ~ServerConstants.VERSION)));
+                    ch.pipeline().addLast(new PacketDecoder(riv, rver),
+                            new ChannelHandler(),
+                            new PacketEncoder(siv, sver));
                     // Init Encoder outPacketMapping -
                     PacketEncoder.initOutPacketOpcodesHandling();
                     // Create new client for the connection -
                     MapleClient c = new MapleClient(ch);
                     // Init connection for the client -
                     logger.serverNotice(String.format("[CHAT] Opened session with %s in Acceptor", c.getIP()));
-                    c.write(CLogin.sendConnect(siv,riv));
+                    c.write(CLogin.sendConnect(siv.getBytes(), riv.getBytes()));
                     // If we get a ChannelPool, then it will add the IP to the pool -
-                    if(channelPool != null){
+                    if (channelPool != null) {
                         // Add to the channel pool -
                         channelPool.put(c.getIP(), ch);
                     }
                     // ChannelInitializer attributes -
                     ch.attr(CLIENT_KEY).set(c);
 
-                    //EventManager.addFixedRateEvent(c::sendPing, 0, 10000);
+                    // EventManager.addFixedRateEvent(c::sendPing, 0, 10000);
                 }
             });
             // Adding channel options -
@@ -72,8 +74,9 @@ public interface BaseAcceptor {
             // Bind and start to accept incoming connections.
             ChannelFuture f = b.bind(port).sync();
             // If we get a MapleChannel then print the listening to the channel and port -
-            if(channel != null){
-                logger.notice(String.format("Channel %d-%d listening on port %d", channel.getWorldId(), channel.getChannelId(), channel.getPort()));
+            if (channel != null) {
+                logger.notice(String.format("Channel %d-%d listening on port %d", channel.getWorldId(),
+                        channel.getChannelId(), channel.getPort()));
             }
             // Wait until the server socket is closed.
             // In this example, this does not happen, but you can do that to gracefully

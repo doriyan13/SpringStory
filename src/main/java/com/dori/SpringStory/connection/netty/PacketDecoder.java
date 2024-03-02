@@ -1,5 +1,6 @@
 package com.dori.SpringStory.connection.netty;
 
+import com.dori.SpringStory.connection.crypto.InitializationVector;
 import com.dori.SpringStory.connection.crypto.ShandaCipher;
 import com.dori.SpringStory.connection.crypto.ShroomAESCipher;
 import com.dori.SpringStory.connection.packet.InPacket;
@@ -15,13 +16,17 @@ import static com.dori.SpringStory.constants.ServerConstants.ENABLE_ENCRYPTION;
 
 public class PacketDecoder extends ReplayingDecoder<Integer> {
     private static final Logger log = new Logger(PacketDecoder.class);
+
     public static final int MAX_PACKET_LEN = 2 * 4096;
 
     private final ShroomAESCipher receiveCypher;
 
+    public PacketDecoder(InitializationVector iv, short version) {
+        this(new ShroomAESCipher(iv, version));
+    }
+
     public PacketDecoder(ShroomAESCipher receiveCypher) {
         super(-1);
-
         this.receiveCypher = receiveCypher;
     }
 
@@ -41,7 +46,7 @@ public class PacketDecoder extends ReplayingDecoder<Integer> {
         this.checkpoint(-1);
         receiveCypher.crypt(pktBuf, 0, packetLength);
         if (ENABLE_ENCRYPTION) {
-            ShandaCipher.decryptData(pktBuf, packetLength);
+            ShandaCipher.decryptData(pktBuf, 0, packetLength);
         }
         out.add(new InPacket(pktBuf));
     }

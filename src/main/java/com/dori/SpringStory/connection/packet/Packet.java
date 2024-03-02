@@ -17,8 +17,8 @@
 */
 package com.dori.SpringStory.connection.packet;
 
-import com.dori.SpringStory.utils.MapleUtils;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufHolder;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -29,54 +29,90 @@ import java.nio.charset.StandardCharsets;
  * functionality because it is a MapleStory packet.
  *
  */
-public class Packet implements Cloneable {
-
-    private byte[] data;
+public class Packet implements ByteBufHolder {
     protected static final Charset CHARSET = StandardCharsets.ISO_8859_1;
+    protected ByteBuf buf;
 
-    public Packet(byte[] data) {
-        this.data = new byte[data.length];
-        System.arraycopy(data, 0, this.data, 0, data.length);
-    }
-
-    public Packet(ByteBuf data) {
+    public Packet(ByteBuf buf) {
+        this.buf = buf;
         //this.data = new byte[data.readableBytes()];
         //System.arraycopy(data, 0, this.data, 0, data.length);
     }
 
     public int getLength() {
-        if (data != null) {
-            return data.length;
-        }
-        return 0;
+        return this.buf.readableBytes();
     }
 
     public int getHeader() {
-        if (data.length < 2) {
+        if (this.buf.readableBytes() < 2) {
             return 0xFFFF;
         }
-        return (data[0] + (data[1] << 8));
-    }
-
-    public void setData(byte[] nD) {
-        data = nD;
-    }
-
-    public byte[] getData() {
-        return data;
+        return this.buf.getShortLE(0);
     }
     
     @Override
     public String toString() {
-        if (data == null) return "";
-        return "[Pck] | " + MapleUtils.readableByteArray(data);
-    }
-    
-    @Override
-    public Packet clone() {
-        return new Packet(data);
+        return "[Pck] | " + this.buf.toString();
     }
 
-    public void release(){}
+    @Override
+    public int refCnt() {
+        return this.buf.refCnt();
+    }
+
+    @Override
+    public boolean release(int arg0) {
+        return this.buf.release(arg0);
+    }
+
+    @Override
+    public ByteBuf content() {
+        return this.buf;
+    }
+
+    @Override
+    public Packet copy() {
+        return new Packet(this.buf.copy());
+    }
+
+    @Override
+    public Packet duplicate() {
+        return new Packet(this.buf.duplicate());
+    }
+
+    @Override
+    public ByteBufHolder retainedDuplicate() {
+        return new Packet(this.buf.retainedDuplicate());
+    }
+
+    @Override
+    public ByteBufHolder replace(ByteBuf content) {
+        return new Packet(content);
+    }
+
+    @Override
+    public ByteBufHolder retain() {
+        return new Packet(this.buf.retain());
+    }
+
+    @Override
+    public ByteBufHolder retain(int increment) {
+        return new Packet(this.buf.retain(increment));
+    }
+
+    @Override
+    public ByteBufHolder touch() {      
+        return new Packet(this.buf.touch());
+    }
+
+    @Override
+    public ByteBufHolder touch(Object hint) {
+        return new Packet(this.buf.touch(hint));
+    }
+
+    @Override
+    public boolean release() {
+        return this.buf.release();
+    }
 
 }

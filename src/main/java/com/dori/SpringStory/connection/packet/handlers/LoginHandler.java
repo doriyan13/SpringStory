@@ -187,7 +187,7 @@ public class LoginHandler {
             outPacket.encodeString(AUTO_LOGIN_PASSWORD);
             outPacket.encodeArr(new byte[27]);
 
-            handleLoginPassword(c, new InPacket(outPacket.getData()));
+            handleLoginPassword(c, outPacket.toInPacket());
         }
     }
 }
