@@ -2,6 +2,7 @@ package com.dori.SpringStory.world.fieldEntities;
 
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.connection.netty.BroadcastSet;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.packets.*;
 import com.dori.SpringStory.constants.GameConstants;
@@ -44,6 +45,7 @@ public class Field extends MapData {
     private long creationTime;
     private long deprecationStartTime;
     private List<PositionData> mobsSpawnPoints = new ArrayList<>();
+    private BroadcastSet<MapleClient> tx = new BroadcastSet<>();
 
     public Field(int id) {
         super(id);
@@ -148,6 +150,7 @@ public class Field extends MapData {
         MapleClient c = chr.getMapleClient();
         // Add player to the field -
         players.putIfAbsent(chr.getId(), chr);
+        tx.addClient(chr.getId(), c);
         // Update for the char instance the field data -
         chr.setField(this);
         chr.setMapId(getId());
@@ -171,6 +174,7 @@ public class Field extends MapData {
 
     public void removePlayer(MapleChar chr) {
         players.remove(chr.getId());
+        tx.removeClient(chr.getId());
     }
 
     private void addNPC(Npc npc) {
@@ -269,30 +273,12 @@ public class Field extends MapData {
         }
     }
 
-    public void broadcastPacket(OutPacket outPacket) {
-        try {
-            getPlayers().values().forEach(chr -> chr.write((OutPacket) outPacket.retainedDuplicate()));
-        } finally {
-            // Release the local reference
-            outPacket.release();
-        }
+    public void broadcastPacket(OutPacket packet) {
+        tx.broadcast(packet);
     }
 
     public void broadcastPacket(OutPacket outPacket, MapleChar exceptChr) {
-        // No point broadcast a packet when you're alone in the map -
-        try {
-            if (getPlayers().size() > 1) {
-                getPlayers().values().forEach(
-                        chr -> {
-                            if (chr.getId() != exceptChr.getId()) {
-                                chr.write((OutPacket) outPacket.retainedDuplicate());
-                            }
-                        });
-            }
-        } finally {
-            // Release the local reference
-            outPacket.release();
-        }
+        tx.broadcastFilter(outPacket, id);
     }
 
     private Drop generateDropByMobDropData(MobDropData dropData, int ownerID, float mesoRate) {

@@ -3,7 +3,6 @@ package com.dori.SpringStory.connection.netty;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
@@ -44,6 +43,13 @@ public class BroadcastSet<T extends NettyClient> {
      */
     public void broadcastFilter(OutPacket packet, int excludeId) {
         ReadLock lock = this.lock.readLock();
+        // Atmost one client which would be filtered in theory
+        // TODO: check if that is a good idea, because that's not always
+        // if the exclude id is another char
+        if (clients.size() <= 1) {
+            packet.release();
+            return;
+        }
         try {
             for (Entry<Integer, T> e : clients.entrySet()) {
                 if (e.getKey() != excludeId) {
