@@ -182,12 +182,15 @@ public class LoginHandler {
     public static void handleCreateSecurityHandle(MapleClient c, InPacket inPacket) {
         // If it's true will auto login as admin -
         if (AUTO_LOGIN) {
-            OutPacket outPacket = new OutPacket();
+            OutPacket outPacket = new OutPacket(0);
             outPacket.encodeString(AUTO_LOGIN_USERNAME);
             outPacket.encodeString(AUTO_LOGIN_PASSWORD);
             outPacket.encodeArr(new byte[27]);
 
-            handleLoginPassword(c, outPacket.toInPacket());
+
+            InPacket pkt = outPacket.toInPacket();
+            pkt.decodeShort(); // Skip the header
+            handleLoginPassword(c, pkt);
         }
     }
 }

@@ -22,8 +22,7 @@ import static com.dori.SpringStory.connection.packet.headers.OutHeader.*;
 public interface CLogin {
 
     static OutPacket sendConnect(byte[] siv, byte[] riv) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.encodeShort((short) 14); // hand-shake packet size
+        OutPacket outPacket = new OutPacket(14);// hand-shake packet size
         outPacket.encodeShort(ServerConstants.VERSION);
         outPacket.encodeString(ServerConstants.MINOR_VERSION);
         outPacket.encodeArr(riv); // IV is an int

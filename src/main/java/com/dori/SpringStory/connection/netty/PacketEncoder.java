@@ -13,7 +13,6 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.dori.SpringStory.constants.ServerConstants.ENABLE_ENCRYPTION;
 
@@ -29,7 +28,6 @@ public final class PacketEncoder extends MessageToByteEncoder<OutPacket> {
     private static final Logger logger = new Logger(PacketEncoder.class);
     private static final Map<Integer, OutHeader> outPacketHeaders = new HashMap<>();
     private final ShroomAESCipher cipher;
-    private final ReentrantLock lock;
     private boolean first;
 
     public PacketEncoder(InitializationVector iv, short version) {
@@ -39,7 +37,6 @@ public final class PacketEncoder extends MessageToByteEncoder<OutPacket> {
     public PacketEncoder(ShroomAESCipher sendCypher) {
         this.cipher = sendCypher;
         this.first = true;
-        this.lock = new ReentrantLock(true);
     }
 
     public static void initOutPacketOpcodesHandling() {
@@ -68,21 +65,18 @@ public final class PacketEncoder extends MessageToByteEncoder<OutPacket> {
             if (!first) {
                 OutHeader outHeader = outPacketHeaders.get(pkt.getHeader());
                 if (!OutHeader.isSpamHeader(outHeader)) {
-                    logger.sent(String.valueOf(pkt.getHeader()), "0x" + Integer.toHexString(pkt.getHeader()).toUpperCase(), outHeader.name(), pkt.toString());
+                    logger.sent(String.valueOf(pkt.getHeader()),
+                            "0x" + Integer.toHexString(pkt.getHeader()).toUpperCase(), outHeader.name(),
+                            pkt.toString());
                 }
-                this.lock.lock();
-                try {
-                    this.encodeToBuffer(pkt, out);
-                } finally {
-                    this.lock.unlock();
-                }
+                this.encodeToBuffer(pkt, out);
             } else {
                 logger.debug("Plain sending packet: " + pkt);
                 out.writeBytes(pkt.content());
                 this.first = false;
             }
         } catch (Exception e) {
-            logger.error("Error occurred while parsing OutPacket!! ", e);
+            logger.error("Error occurred while enncoding OutPacket!", e);
         } finally {
             pkt.release();
         }

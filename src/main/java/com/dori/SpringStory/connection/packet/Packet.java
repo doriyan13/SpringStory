@@ -30,13 +30,13 @@ import java.nio.charset.StandardCharsets;
  *
  */
 public class Packet implements ByteBufHolder {
+    public static final int MAX_PKT_LEN = 4096 * 2;
+    protected static final int MAX_BUF_LEN = 2048;
     protected static final Charset CHARSET = StandardCharsets.ISO_8859_1;
     protected ByteBuf buf;
 
     public Packet(ByteBuf buf) {
         this.buf = buf;
-        //this.data = new byte[data.readableBytes()];
-        //System.arraycopy(data, 0, this.data, 0, data.length);
     }
 
     public int getLength() {

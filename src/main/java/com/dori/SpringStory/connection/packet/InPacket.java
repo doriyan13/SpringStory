@@ -1,11 +1,8 @@
 package com.dori.SpringStory.connection.packet;
 
-import com.dori.SpringStory.utils.MapleUtils;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.utils.utilEntities.Rect;
 import io.netty.buffer.*;
-
-import java.util.Arrays;
 
 public class InPacket extends Packet {
     private final ByteBuf byteBuf;

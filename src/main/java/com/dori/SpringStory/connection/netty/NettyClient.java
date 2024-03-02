@@ -23,7 +23,6 @@ import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Abstraction for Netty channels that contains some attribute keys

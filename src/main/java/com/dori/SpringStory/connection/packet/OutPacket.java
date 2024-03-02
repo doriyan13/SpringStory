@@ -11,11 +11,7 @@ import io.netty.buffer.*;
 import java.time.LocalDateTime;
 
 public class OutPacket extends Packet {
-    private boolean loopback = false;
-    private boolean encryptedByShanda = false;
-    private short op;
     private static final Logger log = new Logger(OutPacket.class);
-
     /**
      * Creates a new OutPacket with a given op. Immediately encodes the op.
      *
@@ -24,7 +20,6 @@ public class OutPacket extends Packet {
     public OutPacket(short op) {
         super(Unpooled.buffer());
         encodeShort(op);
-        this.op = op;
     }
 
     /**
@@ -37,23 +32,6 @@ public class OutPacket extends Packet {
     }
 
     /**
-     * Creates a new OutPacket, and initializes the data as empty.
-     */
-    public OutPacket() {
-        super(Unpooled.buffer());
-    }
-
-    /**
-     * Creates a new OutPacket with given data.
-     *
-     * @param data The data this net.swordie.ms.connection.packet has to be initialized with.
-     */
-    public OutPacket(byte[] data, short opcode) {
-        super(Unpooled.wrappedBuffer(data));
-        op = opcode;
-    }
-
-    /**
      * Creates a new OutPacket with a given header. Immediately encodes the header's short value.
      *
      * @param header The header of this OutPacket.
@@ -61,19 +39,9 @@ public class OutPacket extends Packet {
     public OutPacket(OutHeader header) {
         this(header.getValue());
     }
-    
+
     public InPacket toInPacket() {
         return new InPacket(buf);
-    }
-
-    /**
-     * Returns the header of this OutPacket.
-     *
-     * @return the header of this OutPacket.
-     */
-    @Override
-    public int getHeader() {
-        return op;
     }
 
     /**
@@ -144,14 +112,6 @@ public class OutPacket extends Packet {
         buf.writeShortLE(s);
     }
 
-    public void encodeShortBE(short s) {
-        buf.writeShort(s);
-    }
-
-    public void encodeIntBE(int i) {
-        buf.writeInt(i);
-    }
-
     /**
      * Encodes an integer to this OutPacket, in little endian.
      *
@@ -207,14 +167,6 @@ public class OutPacket extends Packet {
         for (int i = s.length(); i < length; i++) {
             encodeByte((byte) 0);
         }
-    }
-
-    public boolean isLoopback() {
-        return loopback;
-    }
-
-    public boolean isEncryptedByShanda() {
-        return encryptedByShanda;
     }
 
     @Override
