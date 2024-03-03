@@ -48,7 +48,7 @@ public interface ItemUtils {
                 case Bottom -> bodyPart = BodyPart.Bottom;
                 case Shoes -> bodyPart = BodyPart.Shoes;
                 case Gloves -> bodyPart = BodyPart.Gloves;
-                case Shield, Katana, SecondaryWeapon -> bodyPart = BodyPart.Shield;
+                case Shield, Katara, SecondaryWeapon -> bodyPart = BodyPart.Shield;
                 case Cape -> bodyPart = BodyPart.Cape;
                 case Ring -> bodyPart = BodyPart.Ring1;
                 case Pendant -> bodyPart = BodyPart.Pendant;
@@ -63,7 +63,7 @@ public interface ItemUtils {
                 case EvanWing -> bodyPart = BodyPart.EvanWing;
                 case EvanShoes -> bodyPart = BodyPart.EvanShoes;
                 case OneHandedAxe, OneHandedSword, OneHandedBluntWeapon, TwoHandedBluntWeapon, TwoHandedAxe, TwoHandedSword, PoleArm, Spear,
-                        Staff, Wand, Bow, Crossbow, Claw, Dagger, Gauntlet, Gun, Knuckle -> bodyPart = BodyPart.Weapon;
+                        Staff, Wand, Bow, Crossbow, Claw, Dagger, Gauntlet, Gun, Knuckle, Katana -> bodyPart = BodyPart.Weapon;
                 case CashWeapon -> bodyPart = BodyPart.CashWeapon;
                 default -> System.out.println("idk? " + prefix);
             }
