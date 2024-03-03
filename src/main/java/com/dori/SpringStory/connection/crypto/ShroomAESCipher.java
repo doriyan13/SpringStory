@@ -65,7 +65,7 @@ public class ShroomAESCipher {
 
     public ShroomAESCipher(InitializationVector iv, short mapleVersion) {
         try {
-            cipher = Cipher.getInstance("AES");
+            cipher = Cipher.getInstance("AES/ECB/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, AES_KEY);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
             throw new RuntimeException(e);
@@ -77,7 +77,7 @@ public class ShroomAESCipher {
 
     public ShroomAESCipher(byte[] iv, short mapleVersion) {
         try {
-            cipher = Cipher.getInstance("AES");
+            cipher = Cipher.getInstance("AES/ECB/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, AES_KEY);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
             throw new RuntimeException(e);
