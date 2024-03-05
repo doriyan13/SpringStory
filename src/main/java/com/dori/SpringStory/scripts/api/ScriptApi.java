@@ -169,6 +169,12 @@ public class ScriptApi {
         addBaseAskMsg(msg, AskAccept);
     }
 
+    public void askAvatarLook(@NotNull String msg,
+                              @NotNull List<Integer> options) {
+        AvatarMsg npcMsg = new AvatarMsg(msg,options);
+        npcMessages.add(new NpcMessage(AskAvatar, npcMsg));
+    }
+
     private ScriptApi applyActionToMsg(Consumer<NpcMessageData> action) {
         NpcMessageData msg = this.npcMessages.getLast().getData();
         action.accept(msg);

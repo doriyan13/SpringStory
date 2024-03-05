@@ -88,6 +88,7 @@ public class Server {
         executorService.submit(StringDataHandler::load);
         executorService.submit(MobDataHandler::load);
         executorService.submit(NpcDataHandler::load);
+        executorService.submit(CharacterCosmeticsDataHandler::load);
         // Custom buffs load data -
         executorService.submit(BuffDataHandler::loadBuffsData);
         // Load custom json data -

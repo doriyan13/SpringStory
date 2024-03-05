@@ -210,18 +210,19 @@ public class UserHandler {
         int skillID = inPacket.decodeInt();
         byte slv = inPacket.decodeByte();
         MapleChar chr = c.getChr();
+        int throwingStarItemID = 0;
         if (SkillUtils.isAntiRepeatBuffSkill(skillID)) {
             // Anti-repeat buff skill -
             Position chrPos = inPacket.decodePosition();
-            if (skillID == NIGHTLORD_SHADOW_STARS.getId()) {
-                int nSpiritJavelinItemID = inPacket.decodeInt();
-            }
-            // TODO: can be mapped by each skill in the WZ files!
-            if (false) { // dwAffectedMemberBitmap
-                byte dwAffectedMemberBitmap = inPacket.decodeByte(); // it's a byte map of the effected members from the party that will receive the buff
-                if (skillID == PRIEST_DISPEL.getId()) {
-                    short tDelay = inPacket.decodeShort();
-                }
+        }
+        if (skillID == NIGHTLORD_SHADOW_STARS.getId()) {
+            throwingStarItemID = inPacket.decodeInt();
+        }
+        // TODO: can be mapped by each skill in the WZ files!
+        if (false) { // dwAffectedMemberBitmap
+            byte dwAffectedMemberBitmap = inPacket.decodeByte(); // it's a byte map of the effected members from the party that will receive the buff
+            if (skillID == PRIEST_DISPEL.getId()) {
+                short tDelay = inPacket.decodeShort();
             }
         }
         if (false) { // inPacket.getUnreadAmount() > 2
@@ -232,7 +233,7 @@ public class UserHandler {
             inPacket.decodeShort(); // tDelay
         }
         // Handle the skill cts -
-        chr.handleSkill(skillID, slv);
+        chr.handleSkill(skillID, slv, throwingStarItemID);
     }
 
     @Handler(op = UserTransferChannelRequest)

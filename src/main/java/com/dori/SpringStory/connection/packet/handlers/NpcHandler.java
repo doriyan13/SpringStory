@@ -10,9 +10,9 @@ import com.dori.SpringStory.enums.NpcMessageType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.scripts.api.NpcMessage;
 import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
+import com.dori.SpringStory.scripts.message.AvatarMsg;
 import com.dori.SpringStory.scripts.message.NpcMessageData;
 import com.dori.SpringStory.scripts.message.SayMsg;
-import com.dori.SpringStory.world.fieldEntities.Life;
 import com.dori.SpringStory.world.fieldEntities.Npc;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
 
@@ -136,6 +136,36 @@ public class NpcHandler {
         return null;
     }
 
+    private static NpcMessageData getAvatarMsgData(MapleChar chr,
+                                                   InPacket inPacket,
+                                                   byte action) {
+        NpcMessage message = null;
+        if (action == 0) {
+            // Prev action -
+            message = chr.getScript().getPrevMsg();
+        } else if (action == 1) {
+            if (inPacket.getUnreadAmount() > 0) {
+                byte chosenCosmeticIndex = inPacket.decodeByte();
+                int chosenCosmeticId = ((AvatarMsg) chr.getScript().getCurrentMsg().getData()).getOptions().get(chosenCosmeticIndex);
+                boolean hair = true; // TODO: separate the avatarMsg / define a avatar modification type so i can choose what was changed?
+                if (hair) {
+                    chr.setHair(chosenCosmeticId);
+                    // TODO: update avatar look packet?
+                } else {
+                    chr.setFace(chosenCosmeticId);
+                }
+            }
+            message = chr.getScript().getNextMsg();
+        } else {
+            // close dialog!
+            chr.clearScript();
+        }
+        if (message != null) {
+            return message.getData();
+        }
+        return null;
+    }
+
     @Handler(op = UserScriptMessageAnswer)
     public static void handleUserScriptMessageAnswer(MapleClient c, InPacket inPacket) {
         MapleChar chr = c.getChr();
@@ -149,6 +179,7 @@ public class NpcHandler {
             case AskMenu -> messageData = getAskMenuMsgData(chr, inPacket, action);
             case AskNumber -> messageData = getAskNumberMsgData(chr, inPacket, action);
             case AskText, AskBoxText -> messageData = getAskTextMsgData(chr, inPacket, action);
+            case AskAvatar -> messageData = getAvatarMsgData(chr, inPacket, action);
             default -> logger.warning("Unsupported Npc message type!!! - " + msgType);
         }
         if (messageData != null) {
