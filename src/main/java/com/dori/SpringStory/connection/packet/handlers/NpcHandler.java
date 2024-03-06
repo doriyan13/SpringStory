@@ -145,14 +145,16 @@ public class NpcHandler {
             message = chr.getScript().getPrevMsg();
         } else if (action == 1) {
             if (inPacket.getUnreadAmount() > 0) {
-                byte chosenCosmeticIndex = inPacket.decodeByte();
-                int chosenCosmeticId = ((AvatarMsg) chr.getScript().getCurrentMsg().getData()).getOptions().get(chosenCosmeticIndex);
-                boolean hair = true; // TODO: separate the avatarMsg / define a avatar modification type so i can choose what was changed?
-                if (hair) {
-                    chr.setHair(chosenCosmeticId);
-                    // TODO: update avatar look packet?
-                } else {
-                    chr.setFace(chosenCosmeticId);
+                int chosenCosmeticIndex = inPacket.decodeByte();
+                if (chosenCosmeticIndex < 0) {
+                    chosenCosmeticIndex = chosenCosmeticIndex + 256;
+                }
+                AvatarMsg msg = (AvatarMsg) chr.getScript().getCurrentMsg().getData();
+                int chosenCosmeticId = msg.getOptions().get(chosenCosmeticIndex);
+                switch (msg.getType()) {
+                    case Hair -> chr.modifyHair(chosenCosmeticId);
+                    case Face -> chr.modifyFace(chosenCosmeticId);
+                    case Skin -> chr.modifySkin(chosenCosmeticId);
                 }
             }
             message = chr.getScript().getNextMsg();

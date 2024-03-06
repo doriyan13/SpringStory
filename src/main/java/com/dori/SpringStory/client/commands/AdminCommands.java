@@ -9,6 +9,7 @@ import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Inventory;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
 import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.utils.MapleUtils;
@@ -412,5 +413,10 @@ public class AdminCommands {
             return true;
         });
         field.getDrops().clear();
+    }
+
+    @Command(names = {"style"}, requiredPermission = AccountType.GameMaster)
+    public static void style(MapleChar chr, List<String> args) {
+        NpcScriptHandler.getInstance().handleNpcScript(chr, 9900001);
     }
 }

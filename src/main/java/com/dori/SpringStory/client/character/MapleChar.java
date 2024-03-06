@@ -1043,4 +1043,19 @@ public class MapleChar {
     public void clearScript() {
         this.script = null;
     }
+
+    public void modifyHair(int hairID) {
+        setHair(hairID);
+        updateStat(Hair, hairID);
+    }
+
+    public void modifyFace(int faceID) {
+        setFace(faceID);
+        updateStat(Face, faceID);
+    }
+
+    public void modifySkin(int skinID) {
+        setSkin(skinID);
+        updateStat(Skin, skinID);
+    }
 }

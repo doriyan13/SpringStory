@@ -65,13 +65,13 @@ public class NpcScriptHandler {
     }
 
     public void handleNpcScript(@NotNull MapleChar chr,
-                                @NotNull Npc npc) {
-        Method method = npcScripts.get(npc.getTemplateId());
+                                int npcID) {
+        Method method = npcScripts.get(npcID);
         ScriptApi script = null;
         if (method == null) {
             script = new ScriptApi();
             script.sayOK("The Npc ");
-            script.red(npc.getTemplateId())
+            script.red(npcID)
                     .addMsg(" wasn't handled!");
         } else {
             try {
@@ -81,9 +81,14 @@ public class NpcScriptHandler {
             }
         }
         if (script != null) {
-            chr.boundScript(script, npc.getTemplateId());
+            chr.boundScript(script, npcID);
             NpcMessage msg = script.getCurrentMsg();
-            chr.write(CScriptMan.scriptMessage((byte) 0, npc.getTemplateId(), msg.getType(), msg.getData()));
+            chr.write(CScriptMan.scriptMessage((byte) 0, npcID, msg.getType(), msg.getData()));
         }
+    }
+
+    public void handleNpcScript(@NotNull MapleChar chr,
+                                @NotNull Npc npc) {
+        handleNpcScript(chr, npc.getTemplateId());
     }
 }

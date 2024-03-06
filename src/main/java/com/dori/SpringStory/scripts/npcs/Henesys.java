@@ -10,7 +10,7 @@ public class Henesys {
     public static ScriptApi handleMrMoneybags(MapleChar chr) {
         ScriptApi script = new ScriptApi();
         script.sayNext("Test Hair:")
-                .askAvatarLook("Choose hair -", CharacterCosmeticsDataHandler.getAllUniqueHairs());
+                .askAvatarHair("Choose hair -", CharacterCosmeticsDataHandler.getAllUniqueHairs());
         return script;
     }
 }
