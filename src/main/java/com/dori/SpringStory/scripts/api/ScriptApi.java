@@ -1,5 +1,6 @@
 package com.dori.SpringStory.scripts.api;
 
+import com.dori.SpringStory.enums.AvatarMsgType;
 import com.dori.SpringStory.enums.NpcMessageType;
 import com.dori.SpringStory.scripts.message.*;
 import com.dori.SpringStory.utils.NpcMessageUtils;
@@ -67,13 +68,12 @@ public class ScriptApi {
         npcMessages.add(new NpcMessage(AskNumber, askTextMsg));
     }
 
-    public ScriptApi sayOK(@NotNull String msg) {
+    public void sayOK(@NotNull String msg) {
         addSayMsg(msg, SayOk);
-        return this;
     }
 
     public ScriptApi sayOK(@NotNull String msg,
-                      Runnable action) {
+                           Runnable action) {
         addSayMsg(msg, SayOk, action);
         return this;
     }
@@ -167,6 +167,28 @@ public class ScriptApi {
 
     public void askAccept(@NotNull String msg) {
         addBaseAskMsg(msg, AskAccept);
+    }
+
+    private void askAvatarLook(@NotNull String msg,
+                               @NotNull List<Integer> options,
+                               @NotNull AvatarMsgType type) {
+        AvatarMsg npcMsg = new AvatarMsg(msg, options, type);
+        npcMessages.add(new NpcMessage(AskAvatar, npcMsg));
+    }
+
+    public void askAvatarHair(@NotNull String msg,
+                              @NotNull List<Integer> options) {
+        askAvatarLook(msg, options, AvatarMsgType.Hair);
+    }
+
+    public void askAvatarFace(@NotNull String msg,
+                              @NotNull List<Integer> options) {
+        askAvatarLook(msg, options, AvatarMsgType.Face);
+    }
+
+    public void askAvatarSkin(@NotNull String msg,
+                              @NotNull List<Integer> options) {
+        askAvatarLook(msg, options, AvatarMsgType.Skin);
     }
 
     private ScriptApi applyActionToMsg(Consumer<NpcMessageData> action) {

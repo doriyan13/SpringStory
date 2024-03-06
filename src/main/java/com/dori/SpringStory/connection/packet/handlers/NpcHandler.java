@@ -10,9 +10,9 @@ import com.dori.SpringStory.enums.NpcMessageType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.scripts.api.NpcMessage;
 import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
+import com.dori.SpringStory.scripts.message.AvatarMsg;
 import com.dori.SpringStory.scripts.message.NpcMessageData;
 import com.dori.SpringStory.scripts.message.SayMsg;
-import com.dori.SpringStory.world.fieldEntities.Life;
 import com.dori.SpringStory.world.fieldEntities.Npc;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
 
@@ -136,6 +136,38 @@ public class NpcHandler {
         return null;
     }
 
+    private static NpcMessageData getAvatarMsgData(MapleChar chr,
+                                                   InPacket inPacket,
+                                                   byte action) {
+        NpcMessage message = null;
+        if (action == 0) {
+            // Prev action -
+            message = chr.getScript().getPrevMsg();
+        } else if (action == 1) {
+            if (inPacket.getUnreadAmount() > 0) {
+                int chosenCosmeticIndex = inPacket.decodeByte();
+                if (chosenCosmeticIndex < 0) {
+                    chosenCosmeticIndex = chosenCosmeticIndex + 256;
+                }
+                AvatarMsg msg = (AvatarMsg) chr.getScript().getCurrentMsg().getData();
+                int chosenCosmeticId = msg.getOptions().get(chosenCosmeticIndex);
+                switch (msg.getType()) {
+                    case Hair -> chr.modifyHair(chosenCosmeticId);
+                    case Face -> chr.modifyFace(chosenCosmeticId);
+                    case Skin -> chr.modifySkin(chosenCosmeticId);
+                }
+            }
+            message = chr.getScript().getNextMsg();
+        } else {
+            // close dialog!
+            chr.clearScript();
+        }
+        if (message != null) {
+            return message.getData();
+        }
+        return null;
+    }
+
     @Handler(op = UserScriptMessageAnswer)
     public static void handleUserScriptMessageAnswer(MapleClient c, InPacket inPacket) {
         MapleChar chr = c.getChr();
@@ -149,6 +181,7 @@ public class NpcHandler {
             case AskMenu -> messageData = getAskMenuMsgData(chr, inPacket, action);
             case AskNumber -> messageData = getAskNumberMsgData(chr, inPacket, action);
             case AskText, AskBoxText -> messageData = getAskTextMsgData(chr, inPacket, action);
+            case AskAvatar -> messageData = getAvatarMsgData(chr, inPacket, action);
             default -> logger.warning("Unsupported Npc message type!!! - " + msgType);
         }
         if (messageData != null) {

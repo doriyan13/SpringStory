@@ -15,6 +15,7 @@ import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -129,7 +130,10 @@ public class TemporaryStatManager {
         additionalStats.values().forEach(statData -> statData.setModified(false));
     }
 
-    private void handleSpecialBuffEffect(MapleChar chr, BuffData buffData, int value, int slv) {
+    private void handleSpecialBuffEffect(@NotNull MapleChar chr,
+                                         @NotNull BuffData buffData,
+                                         int value,
+                                         int slv) {
         int duration = FormulaCalcUtils.calcValueFromFormula(buffData.getDurationInSecFormula(), slv);
         switch (buffData.getTempStat()) {
             case Regen -> EventManager.addEvent(chr.getId(), REGEN_CHARACTER, new RegenChrEvent(chr, value, buffData.isHealth(), buffData.getIntervalInSec(), (duration / buffData.getIntervalInSec())), buffData.getIntervalInSec());
@@ -137,8 +141,12 @@ public class TemporaryStatManager {
         }
     }
 
-    private void handleCustomBuff(MapleChar chr, SkillData skillData, BuffData buffData, int slv) {
-        int value = FormulaCalcUtils.calcValueFromFormula(buffData.getCalcFormula(), slv);
+    private void handleCustomBuff(@NotNull MapleChar chr,
+                                  @NotNull SkillData skillData,
+                                  @NotNull BuffData buffData,
+                                  int slv,
+                                  int throwingStarItemID) {
+        int value = throwingStarItemID != 0 ? (throwingStarItemID % 10_000 + 1) : FormulaCalcUtils.calcValueFromFormula(buffData.getCalcFormula(), slv);
         if (value != 0) {
             addStat(buffData.getTempStat(), skillData.getSkillId(), value);
             skillsExpiration.put(skillData.getSkillId(), getExpirationTime(buffData.getDurationInSecFormula(), slv));
@@ -146,12 +154,15 @@ public class TemporaryStatManager {
         }
     }
 
-    public boolean attemptHandleCustomSkillsByID(MapleChar chr, SkillData skillData, int slv) {
+    public boolean attemptHandleCustomSkillsByID(@NotNull MapleChar chr,
+                                                 @NotNull SkillData skillData,
+                                                 int slv,
+                                                 int throwingStarItemID) {
         Job job = Job.getJobById(skillData.getRootId());
         if (job != null) {
             Set<BuffData> buffs = BuffDataHandler.getBuffsByJobAndSkillID(job, skillData.getSkillId());
             if (buffs != null) {
-                buffs.forEach(buffData -> handleCustomBuff(chr, skillData, buffData, slv));
+                buffs.forEach(buffData -> handleCustomBuff(chr, skillData, buffData, slv, throwingStarItemID));
                 return true;
             }
         }

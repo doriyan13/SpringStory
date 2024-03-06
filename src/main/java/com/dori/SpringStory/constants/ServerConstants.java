@@ -35,7 +35,7 @@ public interface ServerConstants {
     String NPC_SCRIPTS_DIR = DIR + "/src/main/java/com/dori/SpringStory/scripts/npcs";
     String WZ_DIR = DIR + "/wz";
     // WZ reading stuff -
-    int AMOUNT_OF_LOADERS = 8;
+    int AMOUNT_OF_LOADERS = 9;
     int MAX_LOADING_TIME_IN_MIN = 1;
     boolean PRINT_WZ_UNK = Boolean.getBoolean(System.getenv().getOrDefault("PRINT_WZ_UNK","true"));
     String MAP_WZ_DIR = ServerConstants.WZ_DIR + "/Map.wz/Map";
@@ -50,6 +50,9 @@ public interface ServerConstants {
     String STRING_WZ_DIR = WZ_DIR + "/String.wz/";
     String MOB_WZ_DIR = WZ_DIR + "/Mob.wz/";
     String NPC_WZ_DIR = WZ_DIR + "/Npc.wz/";
+    String CHARACTER_WZ_DIR = WZ_DIR + "/Character.wz/";
+    String HAIR_WZ_DIR = CHARACTER_WZ_DIR + "/Hair/";
+    String FACE_WZ_DIR = CHARACTER_WZ_DIR + "/Face/";
     String JSON_DIR = DIR + "/json";
     // Map Data -
     String MAP_JSON_DIR = JSON_DIR + "/Map/";
@@ -68,6 +71,8 @@ public interface ServerConstants {
     String MOB_DROP_JSON_DIR = JSON_DIR + "/MobDrops/";
     // Npc Data -
     String NPC_JSON_DIR = JSON_DIR + "/Npc/";
+    // Character Cosmetics Data -
+    String CHARACTER_COSMETICS_JSON_DIR = JSON_DIR + "/CharacterCosmetics/";
     int MOB_DROP_DEFAULT_MIN_QUANTITY = 1;
     int MOB_DROP_DEFAULT_MAX_QUANTITY = 1;
     double MOB_DROP_DEFAULT_CHANCE = 0.01;

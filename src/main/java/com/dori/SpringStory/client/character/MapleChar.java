@@ -854,11 +854,13 @@ public class MapleChar {
         return false;
     }
 
-    public void handleSkill(int skillID, int slv) {
+    public void handleSkill(int skillID,
+                            int slv,
+                            int throwingStarItemID) {
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData != null) {
             if (!attemptHandleActiveSkill(skillData, slv)) {
-                if (tsm.attemptHandleCustomSkillsByID(this, skillData, slv)
+                if (tsm.attemptHandleCustomSkillsByID(this, skillData, slv, throwingStarItemID)
                         || tsm.attemptToAutoHandleSkillByID(skillData, slv)) {
                     applyTemporaryStats();
                     EventManager.addEvent(MapleUtils.concat(getId(), skillID), VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
@@ -867,7 +869,8 @@ public class MapleChar {
                     enableAction();
                 }
             }
-            SkillUtils.applySkillConsumptionToChar(skillID, slv, this);
+            Item throwingStarToConsumeFrom = throwingStarItemID != 0 ? getConsumeInventory().getItemByItemID(throwingStarItemID) : null;
+            SkillUtils.applySkillConsumptionToChar(skillID, slv, this, throwingStarToConsumeFrom);
         }
     }
 
@@ -1039,5 +1042,20 @@ public class MapleChar {
 
     public void clearScript() {
         this.script = null;
+    }
+
+    public void modifyHair(int hairID) {
+        setHair(hairID);
+        updateStat(Hair, hairID);
+    }
+
+    public void modifyFace(int faceID) {
+        setFace(faceID);
+        updateStat(Face, faceID);
+    }
+
+    public void modifySkin(int skinID) {
+        setSkin(skinID);
+        updateStat(Skin, skinID);
     }
 }

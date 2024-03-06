@@ -91,7 +91,7 @@ public interface BuffsDataLoader {
         add(Job.Hermit, HERMIT_SHADOW_PARTNER, ShadowPartner, "10 + 2 * x", "60 + 40 * d(x/6)");
         // Night Lord
         add(Job.Nightlord, NIGHTLORD_MAPLE_HERO, BasicStatUp, "u (x / 2)", "30 * x");
-//        add(Job.Nightlord, NIGHTLORD_SHADOW_STARS, SpiritJavelin, "1", "90 + 3 * x"); TODO: need to make it a dynamic handling -> the value is the consumedItemId % 10_000 +1 | to let the client to know which star to use automaticlly ... MONKA
+        add(Job.Nightlord, NIGHTLORD_SHADOW_STARS, SpiritJavelin, "1", "90 + 3 * x"); //TODO: need to make it a dynamic handling -> the value is the consumedItemId % 10_000 +1 | to let the client to know which star to use automaticlly ... MONKA
 
         // Machanic 1st Job -
         add(Job.Mechanic1, MECHANIC_HN07, Mechanic, "x", "99999999");

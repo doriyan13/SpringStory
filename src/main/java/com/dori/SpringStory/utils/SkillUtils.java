@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import static com.dori.SpringStory.enums.SkillStat.*;
 import static com.dori.SpringStory.enums.Skills.*;
+import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat.SpiritJavelin;
 
 @Component
 public interface SkillUtils {
@@ -101,14 +102,8 @@ public interface SkillUtils {
 
     static void applySkillConsumptionToChar(int skillID,
                                             int slv,
-                                            @NotNull MapleChar chr) {
-        applySkillConsumptionToChar(skillID, slv, chr, null);
-    }
-
-    static void applySkillConsumptionToChar(int skillID,
-                                            int slv,
                                             @NotNull MapleChar chr,
-                                            @Nullable AttackInfo attackInfo) {
+                                            @Nullable Item throwingStarItem) {
         int amountToConsume = 0;
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData == null) {
@@ -125,9 +120,10 @@ public interface SkillUtils {
         }
         if (JobUtils.isDarkKnight(chr.getJob())) {
             WarriorHandler.getInstance().handleDarkKnightHpConsumption(skillData, skillID, slv, chr);
-        } else if (JobUtils.isNightLord(chr.getJob())) {
-            if (attackInfo != null) {
-                handleThiefThrowSkills(skillData, chr, attackInfo);
+        } else if (JobUtils.isNightLord(chr.getJob())
+                && (!chr.getTsm().hasCTS(SpiritJavelin) && skillID != NIGHTLORD_SHADOW_STARS.getId())) {
+            if (throwingStarItem != null) {
+                handleThiefThrowSkills(skillData, chr, throwingStarItem);
             } else {
                 handleThiefSkillConsume(skillData, slv, chr);
             }
@@ -173,13 +169,12 @@ public interface SkillUtils {
         }
     }
 
-    static void handleThiefThrowSkills(SkillData skillData,
-                                       MapleChar chr,
-                                       AttackInfo attackInfo) {
+    static void handleThiefThrowSkills(@NotNull SkillData skillData,
+                                       @NotNull MapleChar chr,
+                                       @NotNull Item throwingStarToConsumeFrom) {
         int amountOfStarsToConsume = getNumOfStarsToConsumeBySkillID(skillData.getSkillId());
         if (amountOfStarsToConsume != 0) {
-            Item stackToConsumeFrom = chr.getConsumeInventory().getItemByIndex(attackInfo.getBulletPos());
-            chr.consumeItem(InventoryType.CONSUME, stackToConsumeFrom.getItemId(), amountOfStarsToConsume);
+            chr.consumeItem(InventoryType.CONSUME, throwingStarToConsumeFrom.getItemId(), amountOfStarsToConsume);
         }
     }
 

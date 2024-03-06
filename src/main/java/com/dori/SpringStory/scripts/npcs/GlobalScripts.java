@@ -1,6 +1,7 @@
 package com.dori.SpringStory.scripts.npcs;
 
 import com.dori.SpringStory.client.character.MapleChar;
+import com.dori.SpringStory.dataHandlers.CharacterCosmeticsDataHandler;
 import com.dori.SpringStory.scripts.api.MenuOption;
 import com.dori.SpringStory.scripts.api.NpcScript;
 import com.dori.SpringStory.scripts.api.ScriptApi;
@@ -35,6 +36,29 @@ public class GlobalScripts {
         }
 
         script.askMenu("Please select your destination.\r\n", menuOptions);
+        return script;
+    }
+
+    private static List<Integer> getListOfColoredStyles(int cosmeticID) {
+        List<Integer> listOfAllColors = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            listOfAllColors.add(cosmeticID + i);
+        }
+        return listOfAllColors;
+    }
+
+    @NpcScript(id = 9900001)
+    public static ScriptApi handleNimaKIN(MapleChar chr) {
+        ScriptApi script = new ScriptApi();
+        script.sayNext("Hello! I'm NimaKIN, and i dream to be a ").blue("stylist ").addMsg(":D")
+                .askMenu("What do you want to do today?",
+                        script.addMenuOption("Change your hairstyle", () -> script.askAvatarHair("Choose new hair -", CharacterCosmeticsDataHandler.getAllUniqueHairs())),
+                        script.addMenuOption("Change your hairstyle color", () -> script.askAvatarHair("Choose new hair color -", getListOfColoredStyles(chr.getHair()))),
+                        script.addMenuOption("Change your eyes", () -> script.askAvatarFace("Choose new eyes -", CharacterCosmeticsDataHandler.getAllFaces())),
+                        script.addMenuOption("Change your eyes color", () -> script.askAvatarFace("Choose new eyes color -", getListOfColoredStyles(chr.getFace()))),
+                        script.addMenuOption("Change your skin color", () -> script.askAvatarSkin("Choose new skin -", List.of(0, 1, 2, 3, 4)))
+                        );
+        ;
         return script;
     }
 }

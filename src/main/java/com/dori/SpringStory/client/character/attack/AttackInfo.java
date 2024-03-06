@@ -3,7 +3,7 @@ package com.dori.SpringStory.client.character.attack;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.enums.AttackType;
-import com.dori.SpringStory.jobs.handlers.WarriorHandler;
+import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.JobUtils;
 import com.dori.SpringStory.utils.SkillUtils;
@@ -12,8 +12,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
 
 @Data
 @AllArgsConstructor
@@ -105,10 +105,11 @@ public class AttackInfo {
             this.bulletPos = inPacket.decodeShort();
             short pnCashItemPos = inPacket.decodeShort();
             byte nShootRange0a = inPacket.decodeByte();
-            if (false) {
-                //TODO: need to hook all the skills and handle this -
-                // is_shoot_skill_not_consuming_bullit -> Line 2331 | 0x006EEAF0
+            //TODO: need to hook all the skills and handle this - | need to handle it properly!!
+            // is_shoot_skill_not_consuming_bullit -> Line 2331 | 0x006EEAF0
+            if (true /*is_shoot_skill_not_consuming_bullet(skillId)*/) {
                 int pnItemID = inPacket.decodeInt();
+                System.out.println("pnItemID - " + pnItemID);
             }
         }
         for (int i = 0; i < this.mobCount; i++) {
@@ -121,8 +122,8 @@ public class AttackInfo {
 
     public void apply(MapleChar chr) {
         if (skillId != 0) {
-            // TODO: In the future i need to also handle other kind of consumption - meso and maybe more?
-            SkillUtils.applySkillConsumptionToChar(skillId, chr.getSkill(skillId).getCurrentLevel(), chr, this);
+            Item stackToConsumeFrom = chr.getConsumeInventory().getItemByIndex(getBulletPos());
+            SkillUtils.applySkillConsumptionToChar(skillId, chr.getSkill(skillId).getCurrentLevel(), chr, stackToConsumeFrom);
         }
         this.mobAttackInfo.forEach(mai -> mai.apply(chr));
         // Hero combo attack stacks handling -
