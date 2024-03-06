@@ -58,7 +58,6 @@ public class GlobalScripts {
                         script.addMenuOption("Change your eyes color", () -> script.askAvatarFace("Choose new eyes color -", getListOfColoredStyles(chr.getFace()))),
                         script.addMenuOption("Change your skin color", () -> script.askAvatarSkin("Choose new skin -", List.of(0, 1, 2, 3, 4)))
                         );
-        ;
         return script;
     }
 }
