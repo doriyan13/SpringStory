@@ -20,7 +20,6 @@ import com.dori.SpringStory.world.MigrateInUser;
 import com.dori.SpringStory.dataHandlers.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ public class Server {
     // Migrate in users -
     private static final Map<Integer, MigrateInUser> migrateUsers = new HashMap<>();
     // List of Connected clients -
-    private static final List<MapleClient> connectedClients = new ArrayList<>();
+    private static final Map<Integer, MapleClient> connectedClients = new ConcurrentHashMap<>();
 
     public static Map<Integer, MapleWorld> getWorldsMap() {
         return worldList;
@@ -52,15 +51,20 @@ public class Server {
     }
 
     public static MapleWorld getWorldById(int worldID) {
-        return getWorldsMap().getOrDefault(worldID,null);
+        return getWorldsMap().getOrDefault(worldID, null);
     }
 
-    public static boolean isChrOnline(int chrID){
+    public static boolean isChrOnline(int chrID) {
         return connectedClients
+                .values()
                 .stream()
                 .filter(client -> client.getChr().getId() == chrID)
                 .findFirst()
                 .orElse(null) != null;
+    }
+
+    public static boolean isAccountAlreadyConnected(int accountID) {
+        return connectedClients.getOrDefault(accountID, null) != null;
     }
 
     private static void initMapleWorlds() {
@@ -105,9 +109,9 @@ public class Server {
         ServiceManager.registerNewService(ServiceType.StringData, StringDataService.getInstance());
     }
 
-    private static void shutdown(){
+    private static void shutdown() {
         logger.serverNotice("Starting Server shutdown!");
-        for (MapleWorld world : getWorlds()){
+        for (MapleWorld world : getWorlds()) {
             world.shutdown();
         }
         // Clear all the active events -
@@ -182,7 +186,7 @@ public class Server {
             // Remove from the list of users that need to migrate -
             migrateUsers.remove(chr.getId());
             // Add to the list of connected clients -
-            connectedClients.add(client);
+            connectedClients.put(migrateInUser.getAccount().getId(), client);
         } else {
             // trying to log in with a char that wasn't migrate in ?
             client.close();
@@ -193,11 +197,8 @@ public class Server {
         return getWorldById(worldID) != null;
     }
 
-    public static void removeClient(MapleClient client){
-        connectedClients.remove(client);
+    public static void removeClient(MapleClient client) {
+        connectedClients.remove(client.getAccount().getId());
     }
 
-    public static MapleClient getFirstConnectedClient(){
-        return connectedClients.getFirst();
-    }
 }

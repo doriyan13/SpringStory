@@ -53,6 +53,8 @@ public class LoginHandler {
                 // Is account is banned? -
                 if (account.getBanExpireDate() != null && !account.getBanExpireDate().isExpired()) {
                     loginType = LoginType.Blocked;
+                } else if (Server.isAccountAlreadyConnected(account.getId())) {
+                    loginType = LoginType.AlreadyConnected;
                 } else {
                     // Success -
                     isSuccess = true;
