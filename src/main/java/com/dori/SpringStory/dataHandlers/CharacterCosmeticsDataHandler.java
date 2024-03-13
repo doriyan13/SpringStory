@@ -40,10 +40,24 @@ public class CharacterCosmeticsDataHandler {
     }
 
     public static List<Integer> getAllUniqueFaces() {
-        return faces
-                .stream()
-                .filter(face -> face % 10 == 0)
-                .toList();
+        return List.of(20003, 20004, 20005, 20006, 20007, 20008, 20009, 20010, 20011, 20012, 20013, 20014, 20015, 20016, 20017, 20018, 20019, 20020, 20021, 20022, 20023, 20024, 20025, 20026, 20027, 20028, 20029, 20031, 20032, 20036, 20037, 21000, 21001, 21002, 21003, 21004, 21005, 21006, 21007, 21008, 21009, 21010, 21011, 21012, 21013, 21014, 21016, 21017, 21018, 21019, 21020, 21021, 21022, 21023, 21024, 21025, 21026, 21027, 21029, 21030, 21034, 21035);
+    }
+
+    private static int getBlackColor(int id,
+                                    boolean hair) {
+        return hair ? id - (id % 10) : (id - (((id / 100) % 10) * 100));
+    }
+
+    public static int getBlackColorHair(int id) {
+        return id - (id % 10);
+    }
+
+    public static int getBlackColorFace(int id) {
+        return id - (((id / 100) % 10) * 100);
+    }
+
+    public static List<Integer> getAllUniqueSkins() {
+        return List.of(0, 1, 2, 3, 4);
     }
 
     private static void loadCharacterBaseData(boolean hair) {

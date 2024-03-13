@@ -35,6 +35,10 @@ public class ItemDataHandler {
         return items.getOrDefault(itemID, null);
     }
 
+    public static EquipData getEquipDataByID(int equipID) {
+        return equips.getOrDefault(equipID, null);
+    }
+
     public static Item getItemByID(int itemID) {
         ItemData itemData = items.getOrDefault(itemID, null);
         return itemData != null ? new Item(itemData) : null;

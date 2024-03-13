@@ -1,5 +1,8 @@
 package com.dori.SpringStory.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum EquipBaseStat {
     tuc(0x1, 0),
     cuc(0x2, 0),
@@ -47,11 +50,4 @@ public enum EquipBaseStat {
         this.pos = pos;
     }
 
-    public int getVal() {
-        return val;
-    }
-
-    public int getPos() {
-        return pos;
-    }
 }

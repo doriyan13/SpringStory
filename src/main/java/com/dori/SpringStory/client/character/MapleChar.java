@@ -36,8 +36,7 @@ import java.util.*;
 
 import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.enums.EventType.VALIDATE_CHARACTER_TEMP_STATS;
-import static com.dori.SpringStory.enums.InventoryOperation.Add;
-import static com.dori.SpringStory.enums.InventoryOperation.UpdateQuantity;
+import static com.dori.SpringStory.enums.InventoryOperation.*;
 import static com.dori.SpringStory.enums.InventoryType.*;
 import static com.dori.SpringStory.enums.Stat.*;
 import static com.dori.SpringStory.enums.Stat.MaxHp;
@@ -1016,6 +1015,13 @@ public class MapleChar {
         }
     }
 
+    private void modifyItem(Inventory inventory,
+                            Item item,
+                            int amount) {
+        InventoryOperation inventoryOperation = inventory.updateItemQuantity(item, amount);
+        write(CWvsContext.inventoryOperation(true, inventoryOperation, (short) item.getBagIndex(), (short) -1, item));
+    }
+
     public void consumeItem(InventoryType invType,
                             int itemID,
                             int amount) {
@@ -1028,11 +1034,11 @@ public class MapleChar {
         }
     }
 
-    private void modifyItem(Inventory inventory,
-                            Item item,
-                            int amount) {
-        InventoryOperation inventoryOperation = inventory.updateItemQuantity(item, amount);
-        write(CWvsContext.inventoryOperation(true, inventoryOperation, (short) item.getBagIndex(), (short) -1, item));
+    public void removeItem(InventoryType invType,
+                           int itemID) {
+        Item itemToRemove = getInventoryByType(invType).getItemByItemID(itemID);
+        getInventoryByType(invType).removeItem(itemToRemove);
+        write(CWvsContext.inventoryOperation(true, InventoryOperation.Remove, (short) (invType == EQUIPPED ? -itemToRemove.getBagIndex() : itemToRemove.getBagIndex()), (short) 0, itemToRemove));
     }
 
     public void boundScript(ScriptApi script, int npcID) {

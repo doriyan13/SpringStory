@@ -1,5 +1,6 @@
 package com.dori.SpringStory.dataHandlers.dataEntities;
 
+import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.MapleUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -50,8 +51,7 @@ public class MobDropData {
     }
 
     public boolean willDrop(float dropRate) {
-        float randomValue = new Random().nextFloat();
-        return randomValue <= (chance * dropRate);
+        return ItemUtils.willDrop(chance, dropRate);
     }
 
     @JsonIgnore

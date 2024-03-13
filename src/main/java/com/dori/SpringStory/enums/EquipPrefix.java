@@ -1,7 +1,10 @@
 package com.dori.SpringStory.enums;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
+@Getter
 public enum EquipPrefix {
     Hat(100),
     FaceAccessory(101),
@@ -73,10 +76,6 @@ public enum EquipPrefix {
 
     EquipPrefix(int val) {
         this.val = val;
-    }
-
-    public int getVal() {
-        return val;
     }
 
     public static EquipPrefix getByVal(int prefix) {

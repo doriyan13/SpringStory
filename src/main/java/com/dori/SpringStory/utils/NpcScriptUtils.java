@@ -4,6 +4,9 @@ import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.scripts.api.MenuOption;
 import com.dori.SpringStory.scripts.api.ScriptApi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public interface NpcScriptUtils {
 
     // TODO: Find GMS-like text for this
@@ -25,5 +28,20 @@ public interface NpcScriptUtils {
                 }
             });
         });
+    }
+
+    static List<Integer> getListOfColoredHairs(int hairID) {
+        List<Integer> listOfAllColors = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            listOfAllColors.add(hairID + i);
+        }
+        return listOfAllColors;
+    }
+    static List<Integer> getListOfColoredFaces(int faceID) {
+        List<Integer> listOfAllColors = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            listOfAllColors.add(faceID + (i * 100));
+        }
+        return listOfAllColors;
     }
 }
