@@ -1,9 +1,13 @@
 package com.dori.SpringStory.utils;
 
+import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
-import com.dori.SpringStory.enums.BodyPart;
-import com.dori.SpringStory.enums.EquipPrefix;
-import com.dori.SpringStory.enums.EquipType;
+import com.dori.SpringStory.connection.packet.packets.CUser;
+import com.dori.SpringStory.constants.ItemConstants;
+import com.dori.SpringStory.dataHandlers.ItemDataHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.EquipData;
+import com.dori.SpringStory.dataHandlers.dataEntities.ItemData;
+import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.world.fieldEntities.Drop;
@@ -14,6 +18,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import static com.dori.SpringStory.constants.ItemConstants.WHITE_SCROLL_ID;
 
 @SuppressWarnings("unused")
 @Component
@@ -66,7 +72,8 @@ public interface ItemUtils {
                 case EvanWing -> bodyPart = BodyPart.EvanWing;
                 case EvanShoes -> bodyPart = BodyPart.EvanShoes;
                 case OneHandedAxe, OneHandedSword, OneHandedBluntWeapon, TwoHandedBluntWeapon, TwoHandedAxe, TwoHandedSword, PoleArm, Spear,
-                        Staff, Wand, Bow, Crossbow, Claw, Dagger, Gauntlet, Gun, Knuckle, Katana -> bodyPart = BodyPart.Weapon;
+                        Staff, Wand, Bow, Crossbow, Claw, Dagger, Gauntlet, Gun, Knuckle, Katana ->
+                        bodyPart = BodyPart.Weapon;
                 case CashWeapon -> bodyPart = BodyPart.CashWeapon;
                 default -> System.out.println("idk? " + prefix);
             }
@@ -287,6 +294,110 @@ public interface ItemUtils {
     }
 
     static boolean willSuccess(int chance) {
-        return getRandom(0,100) < chance;
+        return getRandom(0, 100) < chance;
+    }
+
+    static boolean isScrollingEquipValid(@NotNull MapleChar chr,
+                                         @Nullable Item scroll,
+                                         @Nullable Equip equip) {
+        if (equip == null) {
+            chr.message("Couldn't find the scroll, scrolling failed! ~", ChatType.SpeakerChannel);
+            chr.enableAction();
+            return false;
+        } else if (scroll == null) {
+            chr.message("Couldn't find the equip, scrolling failed! ~", ChatType.SpeakerChannel);
+            chr.enableAction();
+            return false;
+        }
+        return true;
+    }
+
+    static boolean isEquipScrollable(@NotNull MapleChar chr,
+                                     @NotNull Equip equip,
+                                     boolean recover) {
+        if (equip.getTuc() <= 0 && !recover) {
+            chr.message("No more upgrade slots available!", ChatType.SpeakerChannel);
+            chr.enableAction();
+            return false;
+        }
+        return true;
+    }
+
+    static boolean isScrollDataValid(@NotNull MapleChar chr,
+                                     @Nullable ItemData scrollInfo) {
+        if (scrollInfo == null || scrollInfo.getScrollStats().isEmpty()) {
+            chr.message("Couldn't find the scroll data, scrolling failed! ~", ChatType.SpeakerChannel);
+            chr.enableAction();
+            return false;
+        }
+        return true;
+    }
+
+    static boolean isWhiteScrollValid(@NotNull MapleChar chr,
+                                      @Nullable Item whiteScroll) {
+        MapleClient c = chr.getMapleClient();
+        if (whiteScroll == null) {
+            c.logout();
+            return false;
+        }
+        if (whiteScroll.getQuantity() < 1) {
+            chr.removeItem(InventoryType.CONSUME, whiteScroll.getItemId());
+            c.logout();
+            return false;
+        }
+        return true;
+    }
+
+    static void applyWhiteScrollToChar(@NotNull MapleChar chr) {
+        Item whiteScroll = chr.getConsumeInventory().getItemByItemID(WHITE_SCROLL_ID);
+        if (!isWhiteScrollValid(chr, whiteScroll)) {
+            return;
+        }
+        chr.consumeItem(InventoryType.CONSUME, whiteScroll.getItemId(), 1);
+    }
+
+    static void applyChaosScrollToEquip(@NotNull Equip equip,
+                                        @NotNull Map<ScrollStat, Integer> scrollStats) {
+        int max = scrollStats.containsKey(ScrollStat.incRandVol) ? ItemConstants.INC_RAND_CHAOS_MAX : ItemConstants.RAND_CHAOS_MAX;
+        for (EquipBaseStat ebs : ScrollStat.getRandStats()) {
+            int cur = (int) equip.getBaseStat(ebs);
+            if (cur == 0) {
+                continue;
+            }
+            int randStat = ItemUtils.getRandom(0, max);
+            randStat = ItemUtils.willSuccess(50) ? -randStat : randStat;
+            equip.addStat(ebs, randStat);
+        }
+    }
+
+    static void applyCleanSlateToEquip(@NotNull Equip equip) {
+        EquipData equipData = ItemDataHandler.getEquipDataByID(equip.getItemId());
+        if (equipData != null) {
+            int maxTuc = equipData.getTuc();
+            if (equip.getTuc() + equip.getCuc() < maxTuc) {
+                equip.addStat(EquipBaseStat.tuc, 1);
+            }
+        }
+    }
+
+    static void applyNormalScrollToEquip(@NotNull Equip equip,
+                                         @NotNull Map<ScrollStat, Integer> scrollStats) {
+        for (Map.Entry<ScrollStat, Integer> entry : scrollStats.entrySet()) {
+            ScrollStat ss = entry.getKey();
+            int val = entry.getValue();
+            if (ss.getEquipStat() != null) {
+                equip.addStat(ss.getEquipStat(), val);
+            }
+        }
+    }
+
+    static void applyDarkScrollBoom(@NotNull MapleChar chr,
+                                    @NotNull Equip equip,
+                                    @NotNull Item scroll,
+                                    boolean bEnchantSkill,
+                                    boolean bWhiteScroll) {
+        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
+        chr.removeItem(equip.getInvType(), equip.getItemId());
+        chr.write(CUser.showItemUpgradeEffect(chr.getId(), false, true, bEnchantSkill, bWhiteScroll, 0));
     }
 }
