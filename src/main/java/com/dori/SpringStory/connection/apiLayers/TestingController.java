@@ -32,9 +32,5 @@ public class TestingController {
         }
 
         System.out.println(Arrays.toString(byteArray));
-
-        InPacket test = new InPacket(byteArray);
-
-        MobHandler.handleMobMove(Server.getFirstConnectedClient(), test);
     }
 }
