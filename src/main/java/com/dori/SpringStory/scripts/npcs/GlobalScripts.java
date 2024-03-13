@@ -10,6 +10,11 @@ import com.dori.SpringStory.utils.NpcScriptUtils;
 
 import java.util.*;
 
+import static com.dori.SpringStory.dataHandlers.CharacterCosmeticsDataHandler.getBlackColorFace;
+import static com.dori.SpringStory.dataHandlers.CharacterCosmeticsDataHandler.getBlackColorHair;
+import static com.dori.SpringStory.utils.NpcScriptUtils.getListOfColoredFaces;
+import static com.dori.SpringStory.utils.NpcScriptUtils.getListOfColoredHairs;
+
 public class GlobalScripts {
 
     // Regular Cab in Victoria
@@ -18,10 +23,8 @@ public class GlobalScripts {
     public static ScriptApi handleTaxi(MapleChar chr) {
         ScriptApi script = new ScriptApi();
         String npcName = NpcMessageUtils.npcName(1012000);
-        script.sayNext("Hello! I'm ")
-                .blue(npcName)
-                .addMsg(", and I am here to take you to your destination quickly and safely.")
-                .blue(npcName)
+        script.sayNext("Hello! I'm ").blue(npcName)
+                .addMsg(", and I am here to take you to your destination quickly and safely.").blue(npcName)
                 .addMsg(" values your satisfaction, so you can always reach your destination at an affordable price.")
                 .addMsg(" I am here to serve you.");
 
@@ -39,25 +42,17 @@ public class GlobalScripts {
         return script;
     }
 
-    private static List<Integer> getListOfColoredStyles(int cosmeticID) {
-        List<Integer> listOfAllColors = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            listOfAllColors.add(cosmeticID + i);
-        }
-        return listOfAllColors;
-    }
-
     @NpcScript(id = 9900001)
     public static ScriptApi handleNimaKIN(MapleChar chr) {
         ScriptApi script = new ScriptApi();
         script.sayNext("Hello! I'm NimaKIN, and i dream to be a ").blue("stylist ").addMsg(":D")
                 .askMenu("What do you want to do today?",
                         script.addMenuOption("Change your hairstyle", () -> script.askAvatarHair("Choose new hair -", CharacterCosmeticsDataHandler.getAllUniqueHairs())),
-                        script.addMenuOption("Change your hairstyle color", () -> script.askAvatarHair("Choose new hair color -", getListOfColoredStyles(chr.getHair()))),
-                        script.addMenuOption("Change your eyes", () -> script.askAvatarFace("Choose new eyes -", CharacterCosmeticsDataHandler.getAllFaces())),
-                        script.addMenuOption("Change your eyes color", () -> script.askAvatarFace("Choose new eyes color -", getListOfColoredStyles(chr.getFace()))),
-                        script.addMenuOption("Change your skin color", () -> script.askAvatarSkin("Choose new skin -", List.of(0, 1, 2, 3, 4)))
-                        );
+                        script.addMenuOption("Change your hairstyle color", () -> script.askAvatarHair("Choose new hair color -", getListOfColoredHairs(getBlackColorHair(chr.getHair())))),
+                        script.addMenuOption("Change your eyes", () -> script.askAvatarFace("Choose new eyes -", CharacterCosmeticsDataHandler.getAllUniqueFaces())),
+                        script.addMenuOption("Change your eyes color", () -> script.askAvatarFace("Choose new eyes color -", getListOfColoredFaces(getBlackColorFace(chr.getFace())))),
+                        script.addMenuOption("Change your skin color", () -> script.askAvatarSkin("Choose new skin -", CharacterCosmeticsDataHandler.getAllUniqueSkins()))
+                );
         return script;
     }
 }

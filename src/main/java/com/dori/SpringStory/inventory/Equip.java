@@ -4,16 +4,15 @@ import com.dori.SpringStory.connection.dbConvertors.FileTimeConverter;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.constants.GameConstants;
-import com.dori.SpringStory.enums.EnchantStat;
-import com.dori.SpringStory.utils.utilEntities.FileTime;
 import com.dori.SpringStory.dataHandlers.dataEntities.EquipData;
+import com.dori.SpringStory.enums.EquipAttribute;
+import com.dori.SpringStory.enums.EquipBaseStat;
+import com.dori.SpringStory.utils.utilEntities.FileTime;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -95,8 +94,6 @@ public class Equip extends Item {
     private String iSlot = "";
     private String vSlot = "";
     private int fixedGrade;
-    @Transient
-    private Map<EnchantStat, Integer> enchantStats = new HashMap<>();
     @Transient
     private List<ItemSkill> itemSkills = new ArrayList<>();
     @Transient
@@ -198,5 +195,113 @@ public class Equip extends Item {
         }
         outPacket.encodeLong(0); // ftEquipped
         outPacket.encodeInt(0); // nPrevBonusExpRate
+    }
+
+    public long getBaseStat(EquipBaseStat equipBaseStat) {
+        return switch (equipBaseStat) {
+            case tuc -> getTuc();
+            case cuc -> getCuc();
+            case iStr -> getIStr();
+            case iDex -> getIDex();
+            case iInt -> getIInt();
+            case iLuk -> getILuk();
+            case iMaxHP -> getIMaxHp();
+            case iMaxMP -> getIMaxMp();
+            case iPAD -> getIPad();
+            case iMAD -> getIMad();
+            case iPDD -> getIPDD();
+            case iMDD -> getIMDD();
+            case iACC -> getIAcc();
+            case iEVA -> getIEva();
+            case iCraft -> getICraft();
+            case iSpeed -> getISpeed();
+            case iJump -> getIJump();
+            case attribute -> getAttribute();
+            case levelUpType -> getLevelUpType();
+            case level -> getLevel();
+            case exp -> getExp();
+            case durability -> getDurability();
+            case iuc -> getIuc();
+            case iReduceReq -> getIReduceReq();
+            case specialAttribute -> getSpecialAttribute();
+            case durabilityMax -> getDurabilityMax();
+            case iIncReq -> getIIncReq();
+            case growthEnchant -> getGrowthEnchant();
+            case psEnchant -> getPsEnchant();
+            case bdr -> getBdr();
+            case imdr -> getImdr();
+            case damR -> getDamR();
+            case statR -> getStatR();
+            case cuttable -> getCuttable();
+            case exGradeOption -> getExGradeOption();
+            case hyperUpgrade -> getHyperUpgrade();
+            default -> 0;
+        };
+    }
+
+    public void setBaseStat(EquipBaseStat equipBaseStat, short amount) {
+        switch (equipBaseStat) {
+            case tuc -> setTuc(amount);
+            case cuc -> setCuc(amount);
+            case iStr -> setIStr(amount);
+            case iDex -> setIDex(amount);
+            case iInt -> setIInt(amount);
+            case iLuk -> setILuk(amount);
+            case iMaxHP -> setIMaxHp(amount);
+            case iMaxMP -> setIMaxMp(amount);
+            case iPAD -> setIPad(amount);
+            case iMAD -> setIMad(amount);
+            case iPDD -> setIPDD(amount);
+            case iMDD -> setIMDD(amount);
+            case iACC -> setIAcc(amount);
+            case iEVA -> setIEva(amount);
+            case iCraft -> setICraft(amount);
+            case iSpeed -> setISpeed(amount);
+            case iJump -> setIJump(amount);
+            case attribute -> setAttribute(amount);
+            case levelUpType -> setLevelUpType(amount);
+            case level -> setLevel(amount);
+            case exp -> setExp(amount);
+            case durability -> setDurability(amount);
+            case iuc -> setIuc(amount);
+            case iReduceReq -> setIReduceReq((byte) amount);
+            case specialAttribute -> setSpecialAttribute(amount);
+            case durabilityMax -> setDurabilityMax(amount);
+            case iIncReq -> setIIncReq(amount);
+            case growthEnchant -> setGrowthEnchant(amount);
+            case psEnchant -> setPsEnchant(amount);
+            case bdr -> setBdr(amount);
+            case imdr -> setImdr(amount);
+            case damR -> setDamR(amount);
+            case statR -> setStatR(amount);
+            case cuttable -> setCuttable(amount);
+            case exGradeOption -> setExGradeOption(amount);
+            case hyperUpgrade -> setHyperUpgrade(amount);
+        }
+    }
+
+    public void addStat(EquipBaseStat stat, int amount) {
+        int cur = (int) getBaseStat(stat);
+        int newStat = Math.max(cur + amount, 0); // stat cannot be negative
+        setBaseStat(stat, (short) newStat);
+    }
+
+    public boolean hasAttribute(EquipAttribute equipAttribute) {
+        return (getAttribute() & equipAttribute.getVal()) != 0;
+    }
+
+    public void addAttribute(EquipAttribute ea) {
+        short attr = getAttribute();
+        attr |= (short) ea.getVal();
+        setAttribute(attr);
+    }
+
+    public void removeAttribute(EquipAttribute equipAttribute) {
+        if (!hasAttribute(equipAttribute)) {
+            return;
+        }
+        short attr = getAttribute();
+        attr ^= (short) equipAttribute.getVal();
+        setAttribute(attr);
     }
 }

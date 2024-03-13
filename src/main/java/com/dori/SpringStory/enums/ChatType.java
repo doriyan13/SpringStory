@@ -1,5 +1,8 @@
 package com.dori.SpringStory.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ChatType {
     Normal(0),
     Whisper(1), // Green whisper txt
@@ -32,7 +35,4 @@ public enum ChatType {
         this((short) i);
     }
 
-    public short getVal() {
-        return val;
-    }
 }

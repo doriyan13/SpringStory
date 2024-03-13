@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -23,7 +24,7 @@ import static com.dori.SpringStory.enums.NpcMessageType.*;
 @SuppressWarnings("unused")
 public class ScriptApi {
     private int npcID;
-    private List<NpcMessage> npcMessages = new ArrayList<>();
+    private List<NpcMessage> npcMessages = new LinkedList<>();
     private Consumer<?> askResponseAction;
     private List<Runnable> responseAction;
     private int index;
@@ -173,7 +174,7 @@ public class ScriptApi {
                                @NotNull List<Integer> options,
                                @NotNull AvatarMsgType type) {
         AvatarMsg npcMsg = new AvatarMsg(msg, options, type);
-        npcMessages.add(new NpcMessage(AskAvatar, npcMsg));
+        npcMessages.add((index + 1), new NpcMessage(AskAvatar, npcMsg));
     }
 
     public void askAvatarHair(@NotNull String msg,
@@ -384,6 +385,9 @@ public class ScriptApi {
             index--;
             NpcMessage msg = this.npcMessages.get(index);
             this.currMsgType = msg.getType();
+            if (currMsgType == AskMenu) {
+                this.npcMessages.remove(index + 1);
+            }
             return msg;
         }
         return null;

@@ -6,18 +6,18 @@ import static com.dori.SpringStory.enums.EquipBaseStat.*;
 
 public enum ScrollStat {
     success,
+    incMHP,
+    incMMP,
     incSTR,
     incDEX,
     incINT,
     incLUK,
     incPAD,
-    incMAD,
     incPDD,
+    incMAD,
     incMDD,
     incACC,
     incEVA,
-    incMHP,
-    incMMP,
     incSpeed,
     incJump,
     incIUC,
@@ -69,6 +69,7 @@ public enum ScrollStat {
         return new EquipBaseStat[]{iStr, iDex, iInt, iLuk, iMaxHP, iMaxMP, iPAD, iMAD, iPDD, iMDD, iACC, iEVA};
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public EquipBaseStat getEquipStat() {
         return switch (this) {
             case incSTR -> iStr;

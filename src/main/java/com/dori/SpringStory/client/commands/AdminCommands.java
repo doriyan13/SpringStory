@@ -1,7 +1,6 @@
 package com.dori.SpringStory.client.commands;
 
 import com.dori.SpringStory.client.character.MapleChar;
-import com.dori.SpringStory.connection.packet.packets.CTownPortalPool;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.enums.*;
@@ -13,8 +12,6 @@ import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
 import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.utils.MapleUtils;
-import com.dori.SpringStory.utils.utilEntities.Position;
-import com.dori.SpringStory.world.fieldEntities.Drop;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.Portal;
 import com.dori.SpringStory.dataHandlers.ItemDataHandler;
@@ -25,11 +22,8 @@ import com.dori.SpringStory.dataHandlers.dataEntities.StringData;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.dori.SpringStory.constants.GameConstants.MAX_MESO;
-import static com.dori.SpringStory.enums.InventoryOperation.Add;
 import static com.dori.SpringStory.enums.InventoryOperation.Remove;
 
 @NoArgsConstructor
@@ -314,6 +308,10 @@ public class AdminCommands {
             } else {
                 Item item = ItemDataHandler.getItemByID(itemID);
                 if (item != null) {
+                    if (args.size() > 1) {
+                        int amount = Integer.parseInt(args.get(1));
+                        item.setQuantity(amount > 0 ? amount : 1);
+                    }
                     chr.addItem(item);
                 }
             }

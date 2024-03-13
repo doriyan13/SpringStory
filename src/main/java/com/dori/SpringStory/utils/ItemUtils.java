@@ -13,10 +13,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @SuppressWarnings("unused")
 @Component
 public interface ItemUtils {
+
+    Random rnd = new Random();
 
     private static int getItemPrefix(int nItemID) {
         return nItemID / 10000;
@@ -271,5 +274,19 @@ public interface ItemUtils {
         return ItemUtils.isDropMeso(drop)
                 || !ItemUtils.isOneOfAKindItem(droppedItem)
                 || isChrCanObtainOneOfAKindItem(chr, droppedItem);
+    }
+
+    static boolean willDrop(double chance,
+                            float dropRate) {
+        float randomValue = rnd.nextFloat();
+        return randomValue <= (chance * dropRate);
+    }
+
+    static int getRandom(int lower, int upper) {
+        return rnd.nextInt((upper - lower) + 1) + lower;
+    }
+
+    static boolean willSuccess(int chance) {
+        return getRandom(0,100) < chance;
     }
 }

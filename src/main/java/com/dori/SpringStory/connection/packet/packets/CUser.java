@@ -14,4 +14,22 @@ public interface CUser {
 
         return outPacket;
     }
+
+    static OutPacket showItemUpgradeEffect(int charID,
+                                           boolean success,
+                                           boolean cursed,
+                                           boolean enchantSkill,
+                                           boolean whiteScroll,
+                                           int nEnchantCategory){
+        OutPacket outPacket = new OutPacket(OutHeader.UserShowItemUpgradeEffect);
+        outPacket.encodeInt(charID);
+        outPacket.encodeBool(success);
+        outPacket.encodeBool(cursed);
+        outPacket.encodeBool(enchantSkill);
+        outPacket.encodeInt(nEnchantCategory);
+        outPacket.encodeBool(whiteScroll);
+        outPacket.encodeByte(0); // bRecoverable
+
+        return outPacket;
+    }
 }
