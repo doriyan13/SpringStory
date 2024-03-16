@@ -33,4 +33,14 @@ public interface GameConstants {
     // Drop -
     int DROP_HEIGHT = 100;
     int DROP_DIFF = 25;
+    // Enchantment -
+    int ENHANCEMENT_BASE_PERCENTAGE = 80;
+    int ADVANCE_ENHANCEMENT_BASE_PERCENTAGE = 100;
+    int LOWEST_ENHANCEMENT_PERCENTAGE = 10;
+    int BASE_STAT_CHANCE = 1; // 1%
+    int BASE_STAT_ENHANCEMENT = 3;
+    int BASE_HP_MP_ENHANCEMENT = 10;
+    int BASE_ATK_ENHANCEMENT = 3;
+    int BASE_SECONDARY_STAT_ENHANCEMENT = 5;
+    int BASE_MOBILITY_STAT_ENHANCEMENT = 2;
 }

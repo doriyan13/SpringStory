@@ -61,6 +61,7 @@ public class LoginHandler {
                     loginType = LoginType.Success;
                     // Set the current account to the client -
                     c.setAccount(account);
+                    Server.addNewConnectedClient(account.getId(), c);
                 }
             } else {
                 // Wrong password -

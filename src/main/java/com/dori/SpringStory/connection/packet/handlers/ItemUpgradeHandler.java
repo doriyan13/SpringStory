@@ -18,7 +18,9 @@ import com.dori.SpringStory.utils.ItemUtils;
 
 import java.util.Map;
 
+import static com.dori.SpringStory.connection.packet.headers.InHeader.UserHyperUpgradeItemUseRequest;
 import static com.dori.SpringStory.connection.packet.headers.InHeader.UserUpgradeItemUseRequest;
+import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.enums.InventoryOperation.Add;
 import static com.dori.SpringStory.enums.InventoryType.EQUIP;
 import static com.dori.SpringStory.enums.InventoryType.EQUIPPED;
@@ -59,7 +61,7 @@ public class ItemUpgradeHandler {
         // First remove the scroll (avoid duplication after use) -
         chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
         if (success) {
-            if (ItemUtils.isEquipScrollable(chr, equip, cleanSlateScroll)) {
+            if (!ItemUtils.isEquipScrollable(chr, equip, cleanSlateScroll)) {
                 return;
             }
             if (chaosScroll) {
@@ -83,5 +85,43 @@ public class ItemUpgradeHandler {
         // Update the equip for the client -
         chr.write(CWvsContext.inventoryOperation(true, Add, bagIndex, (short) 0, equip));
         chr.write(CUser.showItemUpgradeEffect(chr.getId(), success, boomTheItem, bEnchantSkill, bWhiteScroll, 0));
+    }
+
+    @Handler(op = UserHyperUpgradeItemUseRequest)
+    public static void handleUserHyperUpgradeItemUseRequest(MapleClient c,
+                                                            InPacket inPacket) {
+        MapleChar chr = c.getChr();
+
+        inPacket.decodeInt(); // update time
+        short useItemPos = inPacket.decodeShort(); //Use Position
+        short equipPos = inPacket.decodeShort(); //Eqp Position
+        boolean enchantSkill = inPacket.decodeBool(); // bEnchantSkill
+
+        Item scroll = chr.getInventoryByType(InventoryType.CONSUME).getItemByIndex(useItemPos);
+        InventoryType invType = equipPos < 0 ? EQUIPPED : EQUIP;
+        Equip equip = (Equip) chr.getInventoryByType(invType).getItemByIndex(equipPos);
+        if (!ItemUtils.isScrollingEquipValid(chr, scroll, equip) || !ItemUtils.canEnchantmentEquip(chr, equip)) {
+            return;
+        }
+        boolean advanceEnhancement = scroll.getItemId() % 2 == 0;
+        int basePercentage = advanceEnhancement ? ADVANCE_ENHANCEMENT_BASE_PERCENTAGE : ENHANCEMENT_BASE_PERCENTAGE;
+        int successRate = LOWEST_ENHANCEMENT_PERCENTAGE;
+        if (equip.getStarUpgradeCount() == 0) {
+            successRate = basePercentage;
+            //SKip calc
+        } else if (equip.getStarUpgradeCount() <= 7) {
+            successRate = basePercentage - (equip.getStarUpgradeCount() - 1) * 10;
+        }
+        boolean success = ItemUtils.willSuccess(successRate);
+        // First remove the scroll (avoid duplication after use) -
+        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
+        if (success) {
+            ItemUtils.applyEnchantment(equip);
+            // Update the equip for the client -
+            chr.write(CWvsContext.inventoryOperation(true, Add, (short) (equip.getInvType() == EQUIPPED ? -equip.getBagIndex() : equip.getBagIndex()), (short) 0, equip));
+        } else {
+            ItemUtils.applyEnchantmentBoom(chr, equip, scroll, enchantSkill);
+        }
+        chr.write(CUser.showItemHyperUpgradeEffect(chr.getId(), success, enchantSkill, 0));
     }
 }

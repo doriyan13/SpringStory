@@ -500,7 +500,7 @@ CNpc::GenerateMovePath | 0x00671590 | 241
 ? | 0x009D5D50 | 0x0F6
 ? | 0x009D5F10 | 0x61
 ? | 0x009D6000 | 0x5F
-? | 0x009D6130 | 0x5E
+CWvsContext::SendHyperUpgradeItemUseRequest | 0x009D6130 | 94
 CWvsContext::SendUpgradeItemUseRequest | 0x009D6260 | 93
 ? | 0x009D63A0 | 0x53
 ? | 0x009D64D0 | 0x60

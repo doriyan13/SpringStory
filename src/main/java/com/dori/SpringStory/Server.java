@@ -18,6 +18,7 @@ import com.dori.SpringStory.world.MapleWorld;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.world.MigrateInUser;
 import com.dori.SpringStory.dataHandlers.*;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -67,6 +68,15 @@ public class Server {
         return connectedClients.getOrDefault(accountID, null) != null;
     }
 
+    public static void addNewConnectedClient(int accountID,
+                                             @NotNull MapleClient client) {
+        connectedClients.put(accountID, client);
+    }
+
+    public static void removeConnectedAccount(int accountID) {
+        connectedClients.remove(accountID);
+    }
+
     private static void initMapleWorlds() {
         worldList.put((int) DEFAULT_WORLD_ID, new MapleWorld(DEFAULT_WORLD_ID, WORLD_NAME, EVENT_MSG, CHANNELS_PER_WORLD));
         for (MapleWorld world : getWorlds()) {
@@ -109,7 +119,7 @@ public class Server {
         ServiceManager.registerNewService(ServiceType.StringData, StringDataService.getInstance());
     }
 
-    private static void shutdown() {
+    public static void shutdown() {
         logger.serverNotice("Starting Server shutdown!");
         for (MapleWorld world : getWorlds()) {
             world.shutdown();
@@ -151,10 +161,6 @@ public class Server {
             logger.error("Couldn't finish loading the server in the time frame, need to re-run the server, or update the max loading time!");
         }
         if (isReady) {
-            // Adding shutdown hook for the server -
-            Thread shutdownHook = new Thread(Server::shutdown);
-            Runtime.getRuntime().addShutdownHook(shutdownHook);
-
             logger.serverNotice("~ Server is Ready ~");
         } else {
             // Close the Server if it wasn't able to load correctly -
@@ -186,7 +192,7 @@ public class Server {
             // Remove from the list of users that need to migrate -
             migrateUsers.remove(chr.getId());
             // Add to the list of connected clients -
-            connectedClients.put(migrateInUser.getAccount().getId(), client);
+            addNewConnectedClient(migrateInUser.getAccount().getId(), client);
         } else {
             // trying to log in with a char that wasn't migrate in ?
             client.close();
