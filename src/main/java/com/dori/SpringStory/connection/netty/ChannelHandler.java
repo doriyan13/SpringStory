@@ -1,5 +1,6 @@
 package com.dori.SpringStory.connection.netty;
 
+import com.dori.SpringStory.Server;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.Handler;
@@ -69,10 +70,15 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
     public void channelInactive(ChannelHandlerContext ctx) {
         logger.debug("Channel inactive.");
         MapleClient c = (MapleClient) ctx.channel().attr(CLIENT_KEY).get();
-        if (c != null && c.getChr() != null) {
-            c.logout();
-        } else if (c != null) {
-            logger.warning("Migration (login/out) with a client that don't have a chr attach! | IP: " + c.getIP());
+        if (c != null) {
+            if (c.getChr() != null) {
+                c.logout();
+            } else {
+                logger.warning("Migration (login/out) with a client that don't have a chr attach! | IP: " + c.getIP());
+            }
+            if (c.getAccount() != null) {
+                Server.removeConnectedAccount(c.getAccount().getId());
+            }
         } else {
             logger.warning("Was not able to save character, data inconsistency may have occurred.");
         }

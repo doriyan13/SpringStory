@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static com.dori.SpringStory.constants.GameConstants.*;
+import static com.dori.SpringStory.constants.GameConstants.BASE_MOBILITY_STAT_ENHANCEMENT;
 import static com.dori.SpringStory.constants.ItemConstants.WHITE_SCROLL_ID;
 
 @SuppressWarnings("unused")
@@ -396,8 +398,79 @@ public interface ItemUtils {
                                     @NotNull Item scroll,
                                     boolean bEnchantSkill,
                                     boolean bWhiteScroll) {
-        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
         chr.removeItem(equip.getInvType(), equip.getItemId());
         chr.write(CUser.showItemUpgradeEffect(chr.getId(), false, true, bEnchantSkill, bWhiteScroll, 0));
     }
+
+    static boolean canEnchantmentEquip(@NotNull MapleChar chr,
+                                      @NotNull Equip equip) {
+        if (equip.getStarUpgradeCount() >= 17 ) {
+            chr.message("The item is fully enchantment!", ChatType.SpeakerChannel);
+            chr.enableAction();
+            return false;
+        }
+        return true;
+    }
+
+    static void applyEnchantmentBoom(@NotNull MapleChar chr,
+                                    @NotNull Equip equip,
+                                    @NotNull Item scroll,
+                                    boolean bEnchantSkill) {
+        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
+        chr.removeItem(equip.getInvType(), equip.getItemId());
+        chr.write(CUser.showItemHyperUpgradeEffect(chr.getId(), false, bEnchantSkill, 0));
+    }
+
+    static boolean isHyperUpgradeItem(int itemID) {
+        return itemID / 100 == 20493;
+    }
+
+    static void applyEnchantment(@NotNull Equip equip) {
+        // upgrade the amount of stars by 1
+        equip.setStarUpgradeCount((short) (equip.getStarUpgradeCount() + 1));
+        // handle all the stats changes - exist + percentage
+        if (equip.getIStr() > 0 || ItemUtils.willSuccess(BASE_STAT_CHANCE)) {
+            equip.addStat(EquipBaseStat.iStr, ItemUtils.getRandom(0, BASE_STAT_ENHANCEMENT));
+        }
+        if (equip.getIDex() > 0 || ItemUtils.willSuccess(BASE_STAT_CHANCE)) {
+            equip.addStat(EquipBaseStat.iDex, ItemUtils.getRandom(0, BASE_STAT_ENHANCEMENT));
+        }
+        if (equip.getILuk() > 0 || ItemUtils.willSuccess(BASE_STAT_CHANCE)) {
+            equip.addStat(EquipBaseStat.iLuk, ItemUtils.getRandom(0, BASE_STAT_ENHANCEMENT));
+        }
+        if (equip.getIInt() > 0 || ItemUtils.willSuccess(BASE_STAT_CHANCE)) {
+            equip.addStat(EquipBaseStat.iInt, ItemUtils.getRandom(0, BASE_STAT_ENHANCEMENT));
+        }
+        if (equip.getIMaxHp() > 0) {
+            equip.addStat(EquipBaseStat.iMaxHP, ItemUtils.getRandom(0, BASE_HP_MP_ENHANCEMENT));
+        }
+        if (equip.getIMaxMp() > 0) {
+            equip.addStat(EquipBaseStat.iMaxMP, ItemUtils.getRandom(0, BASE_HP_MP_ENHANCEMENT));
+        }
+        if (equip.getIPad() > 0) {
+            equip.addStat(EquipBaseStat.iPAD, ItemUtils.getRandom(0, BASE_ATK_ENHANCEMENT));
+        }
+        if (equip.getIMad() > 0) {
+            equip.addStat(EquipBaseStat.iMAD, ItemUtils.getRandom(0, BASE_ATK_ENHANCEMENT));
+        }
+        if (equip.getIPDD() > 0) {
+            equip.addStat(EquipBaseStat.iPDD, ItemUtils.getRandom(0, BASE_SECONDARY_STAT_ENHANCEMENT));
+        }
+        if (equip.getIMDD() > 0) {
+            equip.addStat(EquipBaseStat.iMDD, ItemUtils.getRandom(0, BASE_SECONDARY_STAT_ENHANCEMENT));
+        }
+        if (equip.getIAcc() > 0) {
+            equip.addStat(EquipBaseStat.iACC, ItemUtils.getRandom(0, BASE_SECONDARY_STAT_ENHANCEMENT));
+        }
+        if (equip.getIEva() > 0) {
+            equip.addStat(EquipBaseStat.iEVA, ItemUtils.getRandom(0, BASE_SECONDARY_STAT_ENHANCEMENT));
+        }
+        if (equip.getISpeed() > 0) {
+            equip.addStat(EquipBaseStat.iSpeed, ItemUtils.getRandom(0, BASE_MOBILITY_STAT_ENHANCEMENT));
+        }
+        if (equip.getIJump() > 0) {
+            equip.addStat(EquipBaseStat.iJump, ItemUtils.getRandom(0, BASE_MOBILITY_STAT_ENHANCEMENT));
+        }
+    }
+
 }

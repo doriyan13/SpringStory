@@ -70,7 +70,7 @@ public class Equip extends Item {
     private short exGradeOption;
     private short hyperUpgrade;
     private short itemState;
-    private short chuc;
+    private short starUpgradeCount; // chuc
     private short rStr;
     private short rDex;
     private short rInt;
@@ -183,7 +183,7 @@ public class Equip extends Item {
         outPacket.encodeInt(durability);
         outPacket.encodeInt(iuc);
         outPacket.encodeByte(grade);
-        outPacket.encodeByte(chuc);
+        outPacket.encodeByte(starUpgradeCount);
 
         for (int i = 0; i < 3; i++) {
             outPacket.encodeShort(getOptions().get(i));
