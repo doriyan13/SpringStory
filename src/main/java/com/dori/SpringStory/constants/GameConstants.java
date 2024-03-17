@@ -43,4 +43,7 @@ public interface GameConstants {
     int BASE_ATK_ENHANCEMENT = 3;
     int BASE_SECONDARY_STAT_ENHANCEMENT = 5;
     int BASE_MOBILITY_STAT_ENHANCEMENT = 2;
+    // Potential -
+    int POTENTIAL_BASE_PERCENTAGE = 70;
+    int ADVANCE_POTENTIAL_BASE_PERCENTAGE = 90;
 }

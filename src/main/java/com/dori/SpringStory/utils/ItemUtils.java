@@ -473,4 +473,24 @@ public interface ItemUtils {
         }
     }
 
+    static boolean isNotItemOptionUpgradeItem(int nItemID) {
+        return nItemID / 100 != 20494;
+    }
+
+    static boolean canEquipHavePotential(Equip equip) {
+        return !equip.isCash() &&
+                canEquipTypeHavePotential(equip.getItemId()) &&
+                (ItemDataHandler.getEquipDataByID(equip.getItemId()).getTuc() >= 1 || isSecondary(equip.getItemId()));
+    }
+
+    static void applyPotentialBoom(@NotNull MapleChar chr,
+                                     @NotNull Equip equip,
+                                     @NotNull Item scroll,
+                                     boolean bEnchantSkill) {
+        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
+        chr.removeItem(equip.getInvType(), equip.getItemId());
+        chr.write(CUser.showOptionItemUpgradeEffect(chr.getId(), false, bEnchantSkill, 0));
+    }
+
+
 }

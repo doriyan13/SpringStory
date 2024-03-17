@@ -189,4 +189,23 @@ public interface SkillUtils {
         }
         return amountOfStarsToConsume;
     }
+
+    static boolean isShootSkillNotUsingShootingWeapon(int skillId) {
+        return switch (skillId) {
+            case 4121003, 4221003, 5121002, 11101004, 15111006, 15111007, 21100004, 21110004, 21120006, 33101007 ->
+                    true;
+            default -> false;
+        };
+    }
+
+    static boolean isShootSkillNotConsumingBullet(int skillId) {
+        if (isShootSkillNotUsingShootingWeapon(skillId)) {
+            return true;
+        }
+        return switch (skillId) {
+            case 3101003, 3201003, 4111004, 13101005, 14101006, 33101002, 35001001, 35001004, 35101009, 35101010, 35111004, 35111015, 35121005, 35121012, 35121013 ->
+                    true;
+            default -> false;
+        };
+    }
 }

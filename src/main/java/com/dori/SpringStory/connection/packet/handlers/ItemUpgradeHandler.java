@@ -8,9 +8,7 @@ import com.dori.SpringStory.connection.packet.packets.CUser;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.dataHandlers.ItemDataHandler;
 import com.dori.SpringStory.dataHandlers.dataEntities.ItemData;
-import com.dori.SpringStory.enums.EquipBaseStat;
-import com.dori.SpringStory.enums.InventoryType;
-import com.dori.SpringStory.enums.ScrollStat;
+import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
@@ -18,8 +16,7 @@ import com.dori.SpringStory.utils.ItemUtils;
 
 import java.util.Map;
 
-import static com.dori.SpringStory.connection.packet.headers.InHeader.UserHyperUpgradeItemUseRequest;
-import static com.dori.SpringStory.connection.packet.headers.InHeader.UserUpgradeItemUseRequest;
+import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
 import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.enums.InventoryOperation.Add;
 import static com.dori.SpringStory.enums.InventoryType.EQUIP;
@@ -119,9 +116,64 @@ public class ItemUpgradeHandler {
             ItemUtils.applyEnchantment(equip);
             // Update the equip for the client -
             chr.write(CWvsContext.inventoryOperation(true, Add, (short) (equip.getInvType() == EQUIPPED ? -equip.getBagIndex() : equip.getBagIndex()), (short) 0, equip));
+            chr.write(CUser.showItemHyperUpgradeEffect(chr.getId(), true, enchantSkill, 0));
         } else {
             ItemUtils.applyEnchantmentBoom(chr, equip, scroll, enchantSkill);
         }
-        chr.write(CUser.showItemHyperUpgradeEffect(chr.getId(), success, enchantSkill, 0));
+    }
+
+
+    @Handler(op = UserItemOptionUpgradeItemUseRequest)
+    public static void handleUserItemOptionUpgradeItemUseRequest(MapleClient c,
+                                                                 InPacket inPacket) {
+        MapleChar chr = c.getChr();
+
+        inPacket.decodeInt(); // update time
+        short useItemPos = inPacket.decodeShort(); //Use Position
+        short equipPos = inPacket.decodeShort(); //Eqp Position
+        boolean enchantSkill = inPacket.decodeBool();
+
+        Item scroll = chr.getInventoryByType(InventoryType.CONSUME).getItemByIndex(useItemPos);
+        InventoryType invType = equipPos < 0 ? EQUIPPED : EQUIP;
+        Equip equip = (Equip) chr.getInventoryByType(invType).getItemByIndex(equipPos);
+        if (!ItemUtils.isScrollingEquipValid(chr, scroll, equip) || ItemUtils.isNotItemOptionUpgradeItem(scroll.getItemId())) {
+            return;
+        } else if (!ItemUtils.canEquipHavePotential(equip)) {
+            logger.warning(String.format("Character %d tried to add potential an eligible item (id %d)", chr.getId(), equip.getItemId()));
+            chr.enableAction();
+            return;
+        }
+        boolean advancePotentialScroll = scroll.getItemId() % 2 == 0;
+        int successRate = advancePotentialScroll ? ADVANCE_POTENTIAL_BASE_PERCENTAGE : POTENTIAL_BASE_PERCENTAGE;
+        boolean success = ItemUtils.willSuccess(successRate);
+
+        // First remove the scroll (avoid duplication after use) -
+        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
+        if (success) {
+            equip.setGrade(PotentialGradeCode.HiddenRare);
+            // Update the equip for the client -
+            chr.write(CWvsContext.inventoryOperation(true, Add, (short) (equip.getInvType() == EQUIPPED ? -equip.getBagIndex() : equip.getBagIndex()), (short) 0, equip));
+            chr.write(CUser.showOptionItemUpgradeEffect(chr.getId(), true, enchantSkill, 0));
+        } else {
+            ItemUtils.applyPotentialBoom(chr, equip, scroll, enchantSkill);
+        }
+    }
+
+    @Handler(op = UserItemReleaseRequest)
+    public static void handleUserItemReleaseRequest(MapleClient c,
+                                                    InPacket inPacket) {
+        MapleChar chr = c.getChr();
+
+        inPacket.decodeInt(); // update time
+        short useItemPos = inPacket.decodeShort(); //Use Position
+        short equipPos = inPacket.decodeShort(); //Eqp Position
+
+        Item scroll = chr.getInventoryByType(InventoryType.CONSUME).getItemByIndex(useItemPos);
+        InventoryType invType = equipPos < 0 ? EQUIPPED : EQUIP;
+        Equip equip = (Equip) chr.getInventoryByType(invType).getItemByIndex(equipPos);
+        if (!ItemUtils.isScrollingEquipValid(chr, scroll, equip) || !PotentialGradeCode.isHiddenPotential(equip.getGrade())) {
+            return;
+        }
+        //TODO: need to handle calcs for adding option - and wz read it & also third line calc & recalc rates!
     }
 }

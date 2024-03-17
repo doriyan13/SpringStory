@@ -46,4 +46,18 @@ public interface CUser {
 
         return outPacket;
     }
+
+    static OutPacket showOptionItemUpgradeEffect(int charID,
+                                                boolean success,
+                                                boolean enchantSkill,
+                                                int nEnchantCategory){
+        OutPacket outPacket = new OutPacket(OutHeader.UserShowItemOptionUpgradeEffect);
+        outPacket.encodeInt(charID);
+        outPacket.encodeBool(success);
+        outPacket.encodeBool(!success);
+        outPacket.encodeBool(enchantSkill);
+        outPacket.encodeInt(nEnchantCategory);
+
+        return outPacket;
+    }
 }
