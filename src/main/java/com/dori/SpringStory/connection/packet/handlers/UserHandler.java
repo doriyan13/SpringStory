@@ -256,4 +256,10 @@ public class UserHandler {
         Drop drop = new Drop(mesoAmountToDrop);
         chr.getField().spawnDrop(drop, chr.getPosition());
     }
+
+    @Handler(op = UserSkillCancelRequest)
+    public static void handleUserSkillCancelRequest(MapleClient c, InPacket inPacket) {
+        int skillID = inPacket.decodeInt();
+        c.getChr().cancelBuff(skillID);
+    }
 }

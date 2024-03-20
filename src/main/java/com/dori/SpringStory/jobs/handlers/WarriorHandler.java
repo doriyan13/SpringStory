@@ -82,8 +82,9 @@ public class WarriorHandler implements JobHandler {
                     chr.getTsm().addTempStat(CharacterTemporaryStat.BlessingArmor, skillData.getSkillId(), (amountOfAbsorbedHits + 1), durationInSec);
                 } else {
                     //reset! + cooldown -
-                    chr.getTsm().markExpiredStat(skillData.getSkillId());
-                    chr.resetTemporaryStats();
+                    chr.cancelBuff(skillData.getSkillId());
+//                    chr.getTsm().markExpiredStat(skillData.getSkillId());
+//                    chr.resetTemporaryStats();
                     //TODO: need to handle cooldowns!
                 }
             } else if (MapleUtils.succeedProp(percentageToActivateShield)) {

@@ -103,5 +103,6 @@ public interface BuffsDataLoader {
         // Super GM
         add(Job.SuperGM, ADMIN_SUPER_HASTE, Speed, "40", "1800");
         add(Job.SuperGM, ADMIN_SUPER_HASTE, Jump, "20", "1800");
+        add(Job.SuperGM, ADMIN_HIDE, DarkSight, "1", "10800");
     }
 }

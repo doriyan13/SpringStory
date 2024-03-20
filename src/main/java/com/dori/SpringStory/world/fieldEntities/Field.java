@@ -155,7 +155,7 @@ public class Field extends MapData {
                 "", new String[]{""}));
         // Spawn lifes for the client -
         this.spawnLifesForCharacter(chr);
-        if (firstPlayerInField) {
+        if (firstPlayerInField && !chr.isHidden()) {
             // Assign Controllers For life -
             this.assignControllerToMobs(chr);
             this.assignControllerToNpcs(chr);

@@ -12,6 +12,7 @@ import com.dori.SpringStory.enums.AdminCommandTypes;
 import com.dori.SpringStory.enums.ChatType;
 import com.dori.SpringStory.enums.Stat;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
 import com.dori.SpringStory.utils.utilEntities.Position;
 import com.dori.SpringStory.world.fieldEntities.Field;
 import com.dori.SpringStory.world.fieldEntities.mob.Mob;
@@ -21,6 +22,7 @@ import com.dori.SpringStory.dataHandlers.dataEntities.MobData;
 import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.Admin;
+import static com.dori.SpringStory.enums.Skills.ADMIN_HIDE;
 
 public class AdminHandler {
     // Logger -
@@ -74,6 +76,11 @@ public class AdminHandler {
                 }
                 case HIDE -> {
                     boolean hidden = inPacket.decodeBool();
+                    if (hidden && !chr.getTsm().hasCTS(CharacterTemporaryStat.DarkSight)) {
+                        chr.handleSkill(ADMIN_HIDE.getId(), 1, 0);
+                    } else if (!hidden) {
+                        chr.cancelBuff(ADMIN_HIDE.getId());
+                    }
                     chr.write(CField.adminResult(AdminCommandTypes.HIDE.getCmdFlag(), hidden));
                 }
                 case GET_USERS_IN_FIELD -> {

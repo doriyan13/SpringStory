@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static com.dori.SpringStory.enums.EventType.CONSUME_CHARACTER_HP;
 import static com.dori.SpringStory.enums.EventType.REGEN_CHARACTER;
@@ -71,14 +72,31 @@ public class TemporaryStatManager {
         return passiveStats.get(stat) != null ? passiveStats.get(stat).getTotal() : 0;
     }
 
-    public void markExpiredStat(int skillID) {
-        // first remove from all the cts the skill temp stats values -
-        additionalStats.values().forEach(statData -> {
-            statData.removeSkillStats(skillID);
-            if (statData.getSkillsDataDistribution().isEmpty()) {
-                statData.setDeleted(true);
-            }
-        });
+    public Set<CharacterTemporaryStat> markExpiredStat(int skillID) {
+        //        additionalStats.forEach((stat, statData) -> {
+//            statData.removeSkillStats(skillID);
+//            if (statData.getSkillsDataDistribution().isEmpty()) {
+//                statData.setDeleted(true);
+//            }
+//        });
+
+        // first remove from all the cts the skill temp stats values  and collect the ones to remove -
+        return additionalStats
+                .entrySet()
+                .stream()
+                .filter(tempStatEntry -> {
+                    tempStatEntry.getValue().removeSkillStats(skillID);
+                    if (tempStatEntry.getValue().getSkillsDataDistribution().isEmpty()) {
+                        tempStatEntry.getValue().setDeleted(true);
+                        return true;
+                    }
+                    return false;
+                }).map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+    }
+
+    public void removeTempStats(Set<CharacterTemporaryStat> tempStatsToRemove) {
+        additionalStats.keySet().removeAll(tempStatsToRemove);
     }
 
     private long getExpirationTime(SkillData skillData, int slv) {
@@ -136,8 +154,10 @@ public class TemporaryStatManager {
                                          int slv) {
         int duration = FormulaCalcUtils.calcValueFromFormula(buffData.getDurationInSecFormula(), slv);
         switch (buffData.getTempStat()) {
-            case Regen -> EventManager.addEvent(chr.getId(), REGEN_CHARACTER, new RegenChrEvent(chr, value, buffData.isHealth(), buffData.getIntervalInSec(), (duration / buffData.getIntervalInSec())), buffData.getIntervalInSec());
-            case DragonBlood ->  EventManager.addEvent(chr.getId(), CONSUME_CHARACTER_HP, new ConsumeChrHpOrMpEvent(chr, value, true, buffData.getIntervalInSec(), (duration / buffData.getIntervalInSec())), buffData.getIntervalInSec());
+            case Regen ->
+                    EventManager.addEvent(chr.getId(), REGEN_CHARACTER, new RegenChrEvent(chr, value, buffData.isHealth(), buffData.getIntervalInSec(), (duration / buffData.getIntervalInSec())), buffData.getIntervalInSec());
+            case DragonBlood ->
+                    EventManager.addEvent(chr.getId(), CONSUME_CHARACTER_HP, new ConsumeChrHpOrMpEvent(chr, value, true, buffData.getIntervalInSec(), (duration / buffData.getIntervalInSec())), buffData.getIntervalInSec());
         }
     }
 
