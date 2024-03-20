@@ -73,13 +73,6 @@ public class TemporaryStatManager {
     }
 
     public Set<CharacterTemporaryStat> markExpiredStat(int skillID) {
-        //        additionalStats.forEach((stat, statData) -> {
-//            statData.removeSkillStats(skillID);
-//            if (statData.getSkillsDataDistribution().isEmpty()) {
-//                statData.setDeleted(true);
-//            }
-//        });
-
         // first remove from all the cts the skill temp stats values  and collect the ones to remove -
         return additionalStats
                 .entrySet()
