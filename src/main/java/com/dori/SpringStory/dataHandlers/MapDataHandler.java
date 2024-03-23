@@ -28,7 +28,7 @@ public class MapDataHandler {
     // Logger -
     private static final Logger logger = new Logger(MapDataHandler.class);
     // Map Cache of all the maps -
-    private static final Map<Integer, MapData> fields = new LinkedHashMap<>();
+    private static final Map<Integer, MapData> fields = new HashMap<>();
     // List of world map fields -
     private static final WorldMapData worldMapFields = new WorldMapData(new ArrayList<>());
     // List of maps for goto command -

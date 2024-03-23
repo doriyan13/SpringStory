@@ -60,4 +60,13 @@ public interface CUser {
 
         return outPacket;
     }
+
+    static OutPacket showItemReleaseEffect(int charID,
+                                           short pos){
+        OutPacket outPacket = new OutPacket(OutHeader.UserShowItemReleaseEffect);
+        outPacket.encodeInt(charID);
+        outPacket.encodeShort(pos);
+
+        return outPacket;
+    }
 }

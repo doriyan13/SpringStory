@@ -24,7 +24,7 @@ public class SkillDataHandler {
     // Logger -
     private static final Logger logger = new Logger(MapDataHandler.class);
     // Map Cache of all the maps -
-    private static final Map<Integer, SkillData> skills = new LinkedHashMap<>();
+    private static final Map<Integer, SkillData> skills = new HashMap<>();
     // TODO: need to handle MobSkillInfo!
 
     public static Skill getSkillByID(int skillID) {

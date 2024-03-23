@@ -25,4 +25,16 @@ public class ItemOptionData {
     private int reqLevel;
     private Map<Integer, Map<BaseStat, Double>> statValuesPerLevel = new HashMap<>();
     private Map<Integer, Map<ItemOptionType, Integer>> miscValuesPerLevel = new HashMap<>();
+
+    public void addStatValue(int level, BaseStat baseStat, double value) {
+        Map<BaseStat, Double> valMap = getStatValuesPerLevel().getOrDefault(level, new HashMap<>());
+        valMap.put(baseStat, value);
+        getStatValuesPerLevel().put(level, valMap);
+    }
+
+    public void addMiscValue(int level, ItemOptionType type, int value) {
+        Map<ItemOptionType, Integer> valMap = getMiscValuesPerLevel().getOrDefault(level, new HashMap<>());
+        valMap.put(type, value);
+        getMiscValuesPerLevel().put(level, valMap);
+    }
 }

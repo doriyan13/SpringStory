@@ -417,4 +417,18 @@ public class AdminCommands {
     public static void style(MapleChar chr, List<String> args) {
         NpcScriptHandler.getInstance().handleNpcScript(chr, 9900001);
     }
+
+    @Command(names = {"cube"}, requiredPermission = AccountType.GameMaster)
+    public static void cube(MapleChar chr, List<String> args) {
+        Item potentialScroll = ItemDataHandler.getItemByID(2460003);
+        if (potentialScroll != null) {
+            potentialScroll.setQuantity(100);
+            chr.addItem(potentialScroll);
+        }
+        Item magnifyGlass = ItemDataHandler.getItemByID(2049400);
+        if (magnifyGlass != null) {
+            magnifyGlass.setQuantity(100);
+            chr.addItem(magnifyGlass);
+        }
+    }
 }
