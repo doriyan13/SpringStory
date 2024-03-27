@@ -418,7 +418,7 @@ public class AdminCommands {
         NpcScriptHandler.getInstance().handleNpcScript(chr, 9900001);
     }
 
-    @Command(names = {"cube"}, requiredPermission = AccountType.GameMaster)
+    @Command(names = {"potential"}, requiredPermission = AccountType.GameMaster)
     public static void cube(MapleChar chr, List<String> args) {
         Item potentialScroll = ItemDataHandler.getItemByID(2460003);
         if (potentialScroll != null) {
