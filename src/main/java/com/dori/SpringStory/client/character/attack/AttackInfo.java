@@ -105,9 +105,8 @@ public class AttackInfo {
             this.bulletPos = inPacket.decodeShort();
             short pnCashItemPos = inPacket.decodeShort();
             byte nShootRange0a = inPacket.decodeByte();
-            //TODO: need to hook all the skills and handle this - | need to handle it properly!!
             // is_shoot_skill_not_consuming_bullit -> Line 2331 | 0x006EEAF0
-            if (true /*is_shoot_skill_not_consuming_bullet(skillId)*/) {
+            if (SkillUtils.isShootSkillNotConsumingBullet(skillId)) {
                 int pnItemID = inPacket.decodeInt();
                 System.out.println("pnItemID - " + pnItemID);
             }

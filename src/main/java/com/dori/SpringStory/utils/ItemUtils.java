@@ -7,6 +7,7 @@ import com.dori.SpringStory.constants.ItemConstants;
 import com.dori.SpringStory.dataHandlers.ItemDataHandler;
 import com.dori.SpringStory.dataHandlers.dataEntities.EquipData;
 import com.dori.SpringStory.dataHandlers.dataEntities.ItemData;
+import com.dori.SpringStory.dataHandlers.dataEntities.ItemOptionData;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Item;
@@ -20,7 +21,6 @@ import java.util.Map;
 import java.util.Random;
 
 import static com.dori.SpringStory.constants.GameConstants.*;
-import static com.dori.SpringStory.constants.GameConstants.BASE_MOBILITY_STAT_ENHANCEMENT;
 import static com.dori.SpringStory.constants.ItemConstants.WHITE_SCROLL_ID;
 
 @SuppressWarnings("unused")
@@ -403,8 +403,8 @@ public interface ItemUtils {
     }
 
     static boolean canEnchantmentEquip(@NotNull MapleChar chr,
-                                      @NotNull Equip equip) {
-        if (equip.getStarUpgradeCount() >= 17 ) {
+                                       @NotNull Equip equip) {
+        if (equip.getStarUpgradeCount() >= 17) {
             chr.message("The item is fully enchantment!", ChatType.SpeakerChannel);
             chr.enableAction();
             return false;
@@ -413,9 +413,9 @@ public interface ItemUtils {
     }
 
     static void applyEnchantmentBoom(@NotNull MapleChar chr,
-                                    @NotNull Equip equip,
-                                    @NotNull Item scroll,
-                                    boolean bEnchantSkill) {
+                                     @NotNull Equip equip,
+                                     @NotNull Item scroll,
+                                     boolean bEnchantSkill) {
         chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
         chr.removeItem(equip.getInvType(), equip.getItemId());
         chr.write(CUser.showItemHyperUpgradeEffect(chr.getId(), false, bEnchantSkill, 0));
@@ -473,4 +473,102 @@ public interface ItemUtils {
         }
     }
 
+    static boolean isNotItemOptionUpgradeItem(int nItemID) {
+        return nItemID / 100 != 20494;
+    }
+
+    static boolean canEquipHavePotential(Equip equip) {
+        return !equip.isCash() &&
+                canEquipTypeHavePotential(equip.getItemId()) &&
+                (ItemDataHandler.getEquipDataByID(equip.getItemId()).getTuc() >= 1 || isSecondary(equip.getItemId()));
+    }
+
+    static void applyPotentialBoom(@NotNull MapleChar chr,
+                                   @NotNull Equip equip,
+                                   @NotNull Item scroll,
+                                   boolean bEnchantSkill) {
+        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
+        chr.removeItem(equip.getInvType(), equip.getItemId());
+        chr.write(CUser.showOptionItemUpgradeEffect(chr.getId(), false, bEnchantSkill, 0));
+    }
+
+    static PotentialGrade revealNewPotentialGrade(@NotNull Equip equip) {
+        PotentialGrade grade = PotentialGrade.transformHiddenPotentialToRevealed(equip.getGrade());
+        if (grade == PotentialGrade.Rare && ItemUtils.willSuccess(EPIC_POTENTIAL_RANK_UP_PERCENTAGE)) {
+            grade = PotentialGrade.Epic;
+        } else if (grade == PotentialGrade.Epic && ItemUtils.willSuccess(UNIQUE_POTENTIAL_RANK_UP_PERCENTAGE)) {
+            grade = PotentialGrade.Unique;
+        }
+        return grade;
+    }
+
+    static ItemOptionEquipType getItemOptionEquipType(int equipID) {
+        ItemOptionEquipType itemOptionEquipType = null;
+        if (isShield(equipID)) {
+            itemOptionEquipType = ItemOptionEquipType.Armor;
+        } else if (isWeapon(equipID) || isSecondary(equipID)) {
+            itemOptionEquipType = ItemOptionEquipType.Weapon;
+        } else if (isRing(equipID) || isPendant(equipID) || isFaceAccessory(equipID) || isEyeAccessory(equipID) || isEarrings(equipID)) {
+            itemOptionEquipType = ItemOptionEquipType.Accessory;
+        } else if (isHat(equipID)) {
+            itemOptionEquipType = ItemOptionEquipType.Hat;
+        } else if (isTop(equipID) || isOverall(equipID)) {
+            itemOptionEquipType = ItemOptionEquipType.Top;
+        } else if (isBottom(equipID)) {
+            itemOptionEquipType = ItemOptionEquipType.Bottom;
+        } else if (isShoe(equipID)) {
+            itemOptionEquipType = ItemOptionEquipType.Shoes;
+        } else if (isGlove(equipID)) {
+            itemOptionEquipType = ItemOptionEquipType.Glove;
+        } else if (isArmor(equipID) || isShoulder(equipID) || isBelt(equipID)) {
+            itemOptionEquipType = ItemOptionEquipType.Armor;
+        } else {
+            itemOptionEquipType = ItemOptionEquipType.AnyExceptWeapon;
+        }
+        return itemOptionEquipType;
+    }
+
+    static List<ItemOptionData> getOptionalPotentialsForEquip(@NotNull Equip equip,
+                                                              @NotNull ItemOptionEquipType itemOptionEquipType) {
+        return ItemDataHandler.getAllItemOptions()
+                .stream()
+                .filter(itemOption -> itemOption.getReqLevel() <= (equip.getRLevel() + equip.getIIncReq()) // throw out incorrect level range
+                        && (itemOption.getOptionType() == itemOptionEquipType.getVal() || itemOption.getOptionType() == ItemOptionEquipType.AnyEquip.getVal())
+                        && PotentialGrade.getItemOptionPotentialGrade(itemOption.getId()) == equip.getGrade() // throw out incorrect grade codes
+                        && itemOption.getOptionType() != 90) // these show "Hidden" for some reason o___o
+                .toList();
+    }
+
+    static int getEquipAmountOfPotentialLines(@NotNull Equip equip) {
+        int index = 0;
+        for (Integer option : equip.getOptions()) {
+            if (option == 0) {
+                break;
+            }
+            index++;
+        }
+        int amountOfLines = index > 0 ? equip.getOptions().size() : MIN_AMOUNT_OF_POTENTIAL_LINES;
+        if (amountOfLines < MAX_AMOUNT_OF_POTENTIAL_LINES && ItemUtils.willSuccess(ADDITIONAL_LINE_POTENTIAL_PERCENTAGE)) {
+            amountOfLines += 1;
+        }
+        return amountOfLines;
+    }
+
+    static CashItemType getConsumeCashItemTypeById(int nItemID) {
+        CashItemType result = CashItemType.getCashItemTypeByID(nItemID);
+        int resCast = result.getVal();
+
+        if (resCast < 12 || resCast > 78) {
+            return CashItemType.NONE;
+        }
+        if ((resCast <= 32) || (resCast >= 47 && resCast <= 54) || (resCast >= 71 && resCast <= 75)) {
+            return result;
+        }
+        return switch (result) {
+            case CONSUME_EFFECT_ITEM, COLOR_LENS, SELECT_NPC, MORPH, AVATAR_MEGAPHONE, HEART_SPEAKER, SKULL_SPEAKER,
+                    ART_SPEAKER_WORLD, EXTEND_EXPIRE_DATE, KARMA_SCISSORS, EXPIRED_PROTECTING, CHARACTER_SALE,
+                    ITEM_UPGRADE, QUEST_DELIVERY -> result;
+            default -> CashItemType.NONE;
+        };
+    }
 }

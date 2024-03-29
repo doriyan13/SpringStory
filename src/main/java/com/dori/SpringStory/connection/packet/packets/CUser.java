@@ -46,4 +46,27 @@ public interface CUser {
 
         return outPacket;
     }
+
+    static OutPacket showOptionItemUpgradeEffect(int charID,
+                                                boolean success,
+                                                boolean enchantSkill,
+                                                int nEnchantCategory){
+        OutPacket outPacket = new OutPacket(OutHeader.UserShowItemOptionUpgradeEffect);
+        outPacket.encodeInt(charID);
+        outPacket.encodeBool(success);
+        outPacket.encodeBool(!success);
+        outPacket.encodeBool(enchantSkill);
+        outPacket.encodeInt(nEnchantCategory);
+
+        return outPacket;
+    }
+
+    static OutPacket showItemReleaseEffect(int charID,
+                                           short pos){
+        OutPacket outPacket = new OutPacket(OutHeader.UserShowItemReleaseEffect);
+        outPacket.encodeInt(charID);
+        outPacket.encodeShort(pos);
+
+        return outPacket;
+    }
 }

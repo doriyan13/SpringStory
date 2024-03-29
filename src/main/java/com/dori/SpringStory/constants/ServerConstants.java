@@ -60,6 +60,7 @@ public interface ServerConstants {
     String WORLD_MAP_JSON_FILE = "worldMaps.json";
     // Item Data -
     String ITEM_JSON_DIR = JSON_DIR + "/Item/";
+    String ITEM_OPTION_JSON_DIR = JSON_DIR + "/ItemOptions/";
     String EQUIP_JSON_DIR = JSON_DIR + "/Equip/";
     // Skill Data -
     String SKILL_JSON_DIR = JSON_DIR + "/Skill/";

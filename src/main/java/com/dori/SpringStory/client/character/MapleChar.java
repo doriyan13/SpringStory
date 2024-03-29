@@ -3,6 +3,7 @@ package com.dori.SpringStory.client.character;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
+import com.dori.SpringStory.connection.packet.packets.CUser;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ValidateChrTempStatsEvent;
 import com.dori.SpringStory.jobs.JobHandler;
@@ -31,13 +32,16 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 import static com.dori.SpringStory.constants.GameConstants.*;
+import static com.dori.SpringStory.constants.ItemConstants.CUBE_FRAGMENT;
 import static com.dori.SpringStory.enums.EventType.VALIDATE_CHARACTER_TEMP_STATS;
 import static com.dori.SpringStory.enums.InventoryOperation.*;
 import static com.dori.SpringStory.enums.InventoryType.*;
+import static com.dori.SpringStory.enums.Skills.ADMIN_HIDE;
 import static com.dori.SpringStory.enums.Stat.*;
 import static com.dori.SpringStory.enums.Stat.MaxHp;
 import static com.dori.SpringStory.enums.Stat.MaxMp;
@@ -141,6 +145,8 @@ public class MapleChar {
     private Map<Integer, Long> skillCoolTimes = new HashMap<>();
     @Transient
     private ScriptApi script;
+    @Transient
+    private boolean hidden = false;
 
     public MapleChar(int accountID, String name, int gender) {
         // Set char base data -
@@ -859,14 +865,17 @@ public class MapleChar {
         SkillData skillData = SkillDataHandler.getSkillDataByID(skillID);
         if (skillData != null) {
             if (!attemptHandleActiveSkill(skillData, slv)) {
-                if (tsm.attemptHandleCustomSkillsByID(this, skillData, slv, throwingStarItemID)
-                        || tsm.attemptToAutoHandleSkillByID(skillData, slv)) {
+                if (this.tsm.attemptHandleCustomSkillsByID(this, skillData, slv, throwingStarItemID)
+                        || this.tsm.attemptToAutoHandleSkillByID(skillData, slv)) {
                     applyTemporaryStats();
                     EventManager.addEvent(MapleUtils.concat(getId(), skillID), VALIDATE_CHARACTER_TEMP_STATS, new ValidateChrTempStatsEvent(this), getTsm().getSkillExpirationTimeInSec(skillID) + 1); // adding 1 sec delay to make the server response feel more natural in the client
                 } else {
                     // Must do it cuz if not the client will be locked for skills that don't modify stats
                     enableAction();
                 }
+            }
+            if (skillID == ADMIN_HIDE.getId()) {
+                this.hidden = true;
             }
             Item throwingStarToConsumeFrom = throwingStarItemID != 0 ? getConsumeInventory().getItemByItemID(throwingStarItemID) : null;
             SkillUtils.applySkillConsumptionToChar(skillID, slv, this, throwingStarToConsumeFrom);
@@ -1063,5 +1072,38 @@ public class MapleChar {
     public void modifySkin(int skinID) {
         setSkin(skinID);
         updateStat(Skin, skinID);
+    }
+
+    public void cancelBuff(int skillID) {
+        Set<CharacterTemporaryStat> tempStatsToRemove = getTsm().markExpiredStat(skillID);
+        getTsm().getSkillsExpiration().remove(skillID);
+        validateHpAndMp();
+        write(CWvsContext.temporaryStatReset(getTsm()));
+        getTsm().removeTempStats(tempStatsToRemove);
+        if (skillID == ADMIN_HIDE.getId()) {
+            this.hidden = false;
+            Field field = getField();
+            if (field.getPlayers().size() == 1) {
+                // Assign Controllers For life -
+                field.assignControllerToMobs(this);
+                field.assignControllerToNpcs(this);
+            }
+        }
+    }
+
+    public void cubeEquip(short equipPos,
+                          @NotNull Item cube) {
+        Equip equip = (Equip) getEquipInventory().getItemByIndex(equipPos);
+        // First remove the cube (avoid duplication after use) -
+        consumeItem(CASH, cube.getItemId(), 1);
+        Item cubeFragment = ItemDataHandler.getItemByID(CUBE_FRAGMENT);
+        if (cubeFragment != null) {
+            addItem(cubeFragment);
+        }
+        // Hidden to potential grade again -
+        equip.setGrade(PotentialGrade.transformPotentialToHiddenPotential(equip.getGrade()));
+        // Update the equip for the client -
+        write(CWvsContext.inventoryOperation(true, Add, (short) (equip.getInvType() == EQUIPPED ? -equip.getBagIndex() : equip.getBagIndex()), (short) 0, equip));
+        write(CUser.showItemReleaseEffect(getId(), equipPos));
     }
 }

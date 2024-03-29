@@ -5,14 +5,21 @@ import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.constants.GameConstants;
 import com.dori.SpringStory.dataHandlers.dataEntities.EquipData;
+import com.dori.SpringStory.dataHandlers.dataEntities.ItemOptionData;
 import com.dori.SpringStory.enums.EquipAttribute;
 import com.dori.SpringStory.enums.EquipBaseStat;
+import com.dori.SpringStory.enums.ItemOptionEquipType;
+import com.dori.SpringStory.enums.PotentialGrade;
+import com.dori.SpringStory.utils.ItemUtils;
 import com.dori.SpringStory.utils.utilEntities.FileTime;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.dori.SpringStory.enums.PotentialGrade.HiddenRare;
+import static com.dori.SpringStory.enums.PotentialGrade.Normal;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -53,7 +60,7 @@ public class Equip extends Item {
     private short exp;
     private short durability = 100; // suppose to be 100
     private short iuc;
-    private short grade;
+    private PotentialGrade grade;
     private byte iReduceReq;
     private short specialAttribute;
     private short durabilityMax;
@@ -148,6 +155,7 @@ public class Equip extends Item {
         this.superiorEqp = equipData.isSuperiorEqp();
         this.iReduceReq = equipData.getIReduceReq();
         this.specialGrade = equipData.getSpecialGrade();
+        this.grade = ItemUtils.willSuccess(GameConstants.POTENTIAL_EQUIP_DROP) ? HiddenRare : Normal;
         this.options = equipData.getOptions();
     }
 
@@ -182,7 +190,7 @@ public class Equip extends Item {
         outPacket.encodeInt(exp);
         outPacket.encodeInt(durability);
         outPacket.encodeInt(iuc);
-        outPacket.encodeByte(grade);
+        outPacket.encodeByte(grade.getVal());
         outPacket.encodeByte(starUpgradeCount);
 
         for (int i = 0; i < 3; i++) {
@@ -303,5 +311,16 @@ public class Equip extends Item {
         short attr = getAttribute();
         attr ^= (short) equipAttribute.getVal();
         setAttribute(attr);
+    }
+
+    public void revealPotential() {
+        setGrade(ItemUtils.revealNewPotentialGrade(this));
+        ItemOptionEquipType itemOptionEquipType = ItemUtils.getItemOptionEquipType(getItemId());
+        List<ItemOptionData> potentialOptions = ItemUtils.getOptionalPotentialsForEquip(this, itemOptionEquipType);
+        int amountOfLines = ItemUtils.getEquipAmountOfPotentialLines(this);
+        for (int i = 0; i < amountOfLines; i++) {
+            int randomPotentialIndex = ItemUtils.getRandom(0, potentialOptions.size());
+            getOptions().set(i, potentialOptions.get(randomPotentialIndex).getId());
+        }
     }
 }

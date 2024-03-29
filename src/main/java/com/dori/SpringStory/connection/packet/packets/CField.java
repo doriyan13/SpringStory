@@ -6,7 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface CField {
 
-    static @NotNull OutPacket adminResult(int cmdType, boolean hidden) {
+    static @NotNull OutPacket adminResult(int cmdType,
+                                          boolean hidden) {
         OutPacket outPacket = new OutPacket(OutHeader.AdminResult);
         outPacket.encodeByte(cmdType);
         switch (cmdType) {

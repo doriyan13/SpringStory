@@ -1,7 +1,10 @@
 package com.dori.SpringStory.dataHandlers;
 
 import com.dori.SpringStory.constants.ServerConstants;
+import com.dori.SpringStory.dataHandlers.dataEntities.ItemOptionData;
+import com.dori.SpringStory.enums.BaseStat;
 import com.dori.SpringStory.enums.InventoryType;
+import com.dori.SpringStory.enums.ItemOptionType;
 import com.dori.SpringStory.enums.SpecStat;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Item;
@@ -13,6 +16,7 @@ import com.dori.SpringStory.utils.XMLApi;
 import com.dori.SpringStory.dataHandlers.dataEntities.EquipData;
 import com.dori.SpringStory.dataHandlers.dataEntities.ItemData;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 
@@ -27,8 +31,9 @@ public class ItemDataHandler {
     // Logger -
     private static final Logger logger = new Logger(MapDataHandler.class);
     // Map Cache of all the items -
-    private static final Map<Integer, ItemData> items = new LinkedHashMap<>();
-    private static final Map<Integer, EquipData> equips = new LinkedHashMap<>();
+    private static final Map<Integer, ItemData> items = new HashMap<>();
+    private static final Map<Integer, EquipData> equips = new HashMap<>();
+    private static final Map<Integer, ItemOptionData> itemOptions = new HashMap<>();
 
 
     public static ItemData getItemDataByID(int itemID) {
@@ -47,6 +52,10 @@ public class ItemDataHandler {
     public static Equip getEquipByID(int equipID) {
         EquipData equipData = equips.getOrDefault(equipID, null);
         return equipData != null ? new Equip(equipData) : null;
+    }
+
+    public static List<ItemOptionData> getAllItemOptions() {
+        return new ArrayList<>(itemOptions.values());
     }
 
     private static void loadInfoNode(Node infoNode, ItemData item) {
@@ -283,7 +292,7 @@ public class ItemDataHandler {
                     }
                 }
             }
-            for (int i = 0; i < 7 - options.size(); i++) {
+            for (int i = 0; i < options.size(); i++) {
                 options.add(0);
             }
             equip.setOptions(options);
@@ -343,11 +352,11 @@ public class ItemDataHandler {
             for (File file : files) {
                 Node node = XMLApi.getRoot(file);
                 List<Node> nodes = XMLApi.getAllChildren(node);
-                for (Node mainNode : XMLApi.getAllChildren(nodes.get(0))) {
+                for (Node mainNode : XMLApi.getAllChildren(nodes.getFirst())) {
                     Map<String, String> attributes = XMLApi.getAttributes(mainNode);
                     String mainName = attributes.get("name");
                     if (mainName != null) {
-                        int itemId = Integer.parseInt(XMLApi.getAttributes(nodes.get(0)).get("name").replace(".img", ""));
+                        int itemId = Integer.parseInt(XMLApi.getAttributes(nodes.getFirst()).get("name").replace(".img", ""));
                         EquipData equip = new EquipData();
                         equip.setItemID(itemId);
                         // Load Main node data into equip data -
@@ -360,19 +369,147 @@ public class ItemDataHandler {
         }
     }
 
+    private static void loadItemOptionInfoNode(@NotNull Node infoNode,
+                                               @NotNull ItemOptionData itemOption) {
+        for (Node infoChild : XMLApi.getAllChildren(infoNode)) {
+            String name = XMLApi.getNamedAttribute(infoChild, "name");
+            String value = XMLApi.getNamedAttribute(infoChild, "value");
+            switch (name) {
+                case "optionType" -> itemOption.setOptionType(Integer.parseInt(value));
+                case "reqLevel" -> itemOption.setReqLevel(Integer.parseInt(value));
+            }
+        }
+    }
+
+    private static void addBossStatValuesToItemOption(@NotNull Node levelChild,
+                                                      int level,
+                                                      int value,
+                                                      @NotNull ItemOptionData itemOption) {
+        Node incDamgNode = XMLApi.getFirstChildByNameDF(levelChild, "incDAMr");
+        if (incDamgNode != null) {
+            value = Integer.parseInt(XMLApi.getNamedAttribute(incDamgNode, "value"));
+        }
+        itemOption.addStatValue(level, BaseStat.bd, value);
+    }
+
+    private static void loadItemOptionLevelNode(@NotNull Node levelNode,
+                                                @NotNull ItemOptionData itemOption) {
+        for (Node levelChild : XMLApi.getAllChildren(levelNode)) {
+            int level = Integer.parseInt(XMLApi.getNamedAttribute(levelChild, "name"));
+            for (Node levelInfoNode : XMLApi.getAllChildren(levelChild)) {
+                String name = XMLApi.getNamedAttribute(levelInfoNode, "name");
+                String stringValue = XMLApi.getNamedAttribute(levelInfoNode, "value");
+                int value = 0;
+                if (MapleUtils.isNumber(stringValue)) {
+                    value = Integer.parseInt(stringValue);
+                }
+                switch (name) {
+                    case "incSTR" -> itemOption.addStatValue(level, BaseStat.str, value);
+                    case "incDEX" -> itemOption.addStatValue(level, BaseStat.dex, value);
+                    case "incINT" -> itemOption.addStatValue(level, BaseStat.inte, value);
+                    case "incLUK" -> itemOption.addStatValue(level, BaseStat.luk, value);
+                    case "incMHP" -> itemOption.addStatValue(level, BaseStat.mhp, value);
+                    case "incMMP" -> itemOption.addStatValue(level, BaseStat.mmp, value);
+                    case "incACC" -> itemOption.addStatValue(level, BaseStat.acc, value);
+                    case "incEVA" -> itemOption.addStatValue(level, BaseStat.eva, value);
+                    case "incSpeed" -> itemOption.addStatValue(level, BaseStat.speed, value);
+                    case "incJump" -> itemOption.addStatValue(level, BaseStat.jump, value);
+                    case "incPAD" -> itemOption.addStatValue(level, BaseStat.pad, value);
+                    case "incMAD" -> itemOption.addStatValue(level, BaseStat.mad, value);
+                    case "incPDD" -> itemOption.addStatValue(level, BaseStat.pdd, value);
+                    case "incMDD" -> itemOption.addStatValue(level, BaseStat.mdd, value);
+                    case "incCr" -> itemOption.addStatValue(level, BaseStat.cr, value);
+                    case "incPADr" -> itemOption.addStatValue(level, BaseStat.padR, value);
+                    case "incMADr" -> itemOption.addStatValue(level, BaseStat.madR, value);
+                    case "incSTRr" -> itemOption.addStatValue(level, BaseStat.strR, value);
+                    case "incDEXr" -> itemOption.addStatValue(level, BaseStat.dexR, value);
+                    case "incINTr" -> itemOption.addStatValue(level, BaseStat.intR, value);
+                    case "incLUKr" -> itemOption.addStatValue(level, BaseStat.lukR, value);
+                    case "ignoreTargetDEF" -> itemOption.addStatValue(level, BaseStat.ied, value);
+                    case "incDAMr" -> itemOption.addStatValue(level, BaseStat.fd, value);
+                    case "boss" -> addBossStatValuesToItemOption(levelChild, level, value, itemOption);
+                    case "incAllskill" -> itemOption.addStatValue(level, BaseStat.incAllSkill, value);
+                    case "incMHPr" -> itemOption.addStatValue(level, BaseStat.mhpR, value);
+                    case "incMMPr" -> itemOption.addStatValue(level, BaseStat.mmpR, value);
+                    case "incACCr" -> itemOption.addStatValue(level, BaseStat.accR, value);
+                    case "incEVAr" -> itemOption.addStatValue(level, BaseStat.evaR, value);
+                    case "incPDDr" -> itemOption.addStatValue(level, BaseStat.pddR, value);
+                    case "incMDDr" -> itemOption.addStatValue(level, BaseStat.mddR, value);
+                    case "RecoveryHP" -> itemOption.addStatValue(level, BaseStat.hpRecovery, value);
+                    case "RecoveryMP" -> itemOption.addStatValue(level, BaseStat.mpRecovery, value);
+                    case "incMaxDamage" -> itemOption.addStatValue(level, BaseStat.damageOver, value);
+                    case "incSTRlv" -> itemOption.addStatValue(level, BaseStat.strLv, value);
+                    case "incDEXlv" -> itemOption.addStatValue(level, BaseStat.dexLv, value);
+                    case "incINTlv" -> itemOption.addStatValue(level, BaseStat.intLv, value);
+                    case "incLUKlv" -> itemOption.addStatValue(level, BaseStat.lukLv, value);
+                    case "RecoveryUP" -> itemOption.addStatValue(level, BaseStat.recoveryUp, value);
+                    case "incTerR" -> itemOption.addStatValue(level, BaseStat.ter, value);
+                    case "incAsrR" -> itemOption.addStatValue(level, BaseStat.asr, value);
+                    case "incEXPr" -> itemOption.addStatValue(level, BaseStat.expR, value);
+                    case "mpconReduce" -> itemOption.addStatValue(level, BaseStat.mpconReduce, value);
+                    case "reduceCooltime" -> itemOption.addStatValue(level, BaseStat.reduceCooltime, value);
+                    case "incMesoProp" -> itemOption.addStatValue(level, BaseStat.mesoR, value);
+                    case "incRewardProp" -> itemOption.addStatValue(level, BaseStat.dropR, value);
+                    case "incCriticaldamageMin" -> itemOption.addStatValue(level, BaseStat.minCd, value);
+                    case "incCriticaldamageMax" -> itemOption.addStatValue(level, BaseStat.maxCd, value);
+                    case "incPADlv" -> itemOption.addStatValue(level, BaseStat.padLv, value);
+                    case "incMADlv" -> itemOption.addStatValue(level, BaseStat.madLv, value);
+                    case "incMHPlv" -> itemOption.addStatValue(level, BaseStat.mhpLv, value);
+                    case "incMMPlv" -> itemOption.addStatValue(level, BaseStat.mmpLv, value);
+                    case "prop" -> itemOption.addMiscValue(level, ItemOptionType.prop, value);
+                    case "face" -> itemOption.addMiscValue(level, ItemOptionType.face, value);
+                    case "time" -> itemOption.addMiscValue(level, ItemOptionType.time, value);
+                    case "HP" -> itemOption.addMiscValue(level, ItemOptionType.HP, value);
+                    case "MP" -> itemOption.addMiscValue(level, ItemOptionType.MP, value);
+                    case "attackType" -> itemOption.addMiscValue(level, ItemOptionType.attackType, value);
+                    case "level" -> itemOption.addMiscValue(level, ItemOptionType.level, value);
+                    case "ignoreDAM" -> itemOption.addMiscValue(level, ItemOptionType.ignoreDAM, value);
+                    case "ignoreDAMr" -> itemOption.addMiscValue(level, ItemOptionType.ignoreDAMr, value);
+                    case "DAMreflect" -> itemOption.addMiscValue(level, ItemOptionType.DAMreflect, value);
+                }
+            }
+        }
+    }
+
+    public static void loadItemOptionsFromWZ() {
+        File file = new File(ITEM_BASE_WZ_DIR + "/ItemOption.img.xml");
+        List<Node> nodes = XMLApi.getAllChildren(XMLApi.getRoot(file));
+        for (Node mainNode : XMLApi.getAllChildren(nodes.getFirst())) {
+            ItemOptionData itemOption = new ItemOptionData();
+            String nodeName = XMLApi.getNamedAttribute(mainNode, "name");
+            itemOption.setId(Integer.parseInt(nodeName));
+            Node infoNode = XMLApi.getFirstChildByNameBF(mainNode, "info");
+            if (infoNode != null) {
+                loadItemOptionInfoNode(infoNode, itemOption);
+            }
+            Node levelNode = XMLApi.getFirstChildByNameBF(mainNode, "level");
+            if (levelNode != null) {
+                loadItemOptionLevelNode(levelNode, itemOption);
+            }
+            itemOptions.put(itemOption.getId(), itemOption);
+        }
+    }
+
+    public static void loadItemOptionData() {
+        logger.startLoad("WZ", "Item Option Data");
+        long startTime = System.currentTimeMillis();
+        loadItemOptionsFromWZ();
+        logger.finishLoad(itemOptions.size(), "WZ", "Items Option Data", ((System.currentTimeMillis() - startTime) / 1000.0));
+    }
+
     public static void loadItemData() {
-        logger.startLoad("WZ","Item Data");
+        logger.startLoad("WZ", "Item Data");
         long startTime = System.currentTimeMillis();
         loadItemsFromWZ();
-        logger.finishLoad(items.size(), "WZ", "Items Data",((System.currentTimeMillis() - startTime) / 1000.0));
+        logger.finishLoad(items.size(), "WZ", "Items Data", ((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
     public static void loadEquipData() {
         logger.serverNotice("Start loading Equip data...");
-        logger.startLoad("WZ","Equip Data");
+        logger.startLoad("WZ", "Equip Data");
         long startTime = System.currentTimeMillis();
         loadEquipsFromWZ();
-        logger.finishLoad(equips.size(), "WZ", "Equip Data",((System.currentTimeMillis() - startTime) / 1000.0));
+        logger.finishLoad(equips.size(), "WZ", "Equip Data", ((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
     private static void exportItemsToJson() {
@@ -381,6 +518,14 @@ public class ItemDataHandler {
         MapleUtils.makeDirIfAbsent(ITEM_JSON_DIR);
         items.values().forEach(item -> JsonUtils.createJsonFile(item, ITEM_JSON_DIR + item.getItemId() + ".json"));
         logger.serverNotice("~ Finished creating the items JSON files! ~");
+    }
+
+    private static void exportItemOptionsToJson() {
+        logger.serverNotice("Start creating the JSONs for item options..");
+        MapleUtils.makeDirIfAbsent(JSON_DIR);
+        MapleUtils.makeDirIfAbsent(ITEM_OPTION_JSON_DIR);
+        itemOptions.values().forEach(item -> JsonUtils.createJsonFile(item, ITEM_OPTION_JSON_DIR + item.getId() + ".json"));
+        logger.serverNotice("~ Finished creating the item options JSON files! ~");
     }
 
     private static void exportEquipsToJson() {
@@ -393,6 +538,7 @@ public class ItemDataHandler {
 
     public static void exportDataToJson() {
         exportItemsToJson();
+        exportItemOptionsToJson();
         exportEquipsToJson();
     }
 
@@ -400,7 +546,7 @@ public class ItemDataHandler {
         long startTime = System.currentTimeMillis();
         File dir = new File(ITEM_JSON_DIR);
         File[] files = dir.listFiles();
-        logger.startLoad("JSON","Item Data");
+        logger.startLoad("JSON", "Item Data");
         if (files != null) {
             for (File file : files) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -412,7 +558,7 @@ public class ItemDataHandler {
                     e.printStackTrace();
                 }
             }
-            logger.finishLoad(files.length, "JSON", "Item Data",((System.currentTimeMillis() - startTime) / 1000.0));
+            logger.finishLoad(files.length, "JSON", "Item Data", ((System.currentTimeMillis() - startTime) / 1000.0));
         } else {
             logger.error("Didn't found items JSONs to load!");
         }
@@ -422,7 +568,7 @@ public class ItemDataHandler {
         long startTime = System.currentTimeMillis();
         File dir = new File(EQUIP_JSON_DIR);
         File[] files = dir.listFiles();
-        logger.startLoad("JSON","Equip Data");
+        logger.startLoad("JSON", "Equip Data");
         if (files != null) {
             for (File file : files) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -434,24 +580,49 @@ public class ItemDataHandler {
                     e.printStackTrace();
                 }
             }
-            logger.finishLoad(files.length, "JSON", "Equip Data",((System.currentTimeMillis() - startTime) / 1000.0));
+            logger.finishLoad(files.length, "JSON", "Equip Data", ((System.currentTimeMillis() - startTime) / 1000.0));
         } else {
             logger.error("Didn't found equips JSONs to load!");
         }
     }
 
+    public static void loadJsonItemOptions() {
+        long startTime = System.currentTimeMillis();
+        File dir = new File(ITEM_OPTION_JSON_DIR);
+        File[] files = dir.listFiles();
+        logger.startLoad("JSON", "Item Option Data");
+        if (files != null) {
+            for (File file : files) {
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    ItemOptionData itemOption = mapper.readValue(file, ItemOptionData.class);
+                    itemOptions.put(itemOption.getId(), itemOption);
+                } catch (Exception e) {
+                    logger.error("Error occurred while trying to load the file: " + file.getName());
+                    e.printStackTrace();
+                }
+            }
+            logger.finishLoad(files.length, "JSON", "Item Option Data", ((System.currentTimeMillis() - startTime) / 1000.0));
+        } else {
+            logger.error("Didn't found items JSONs to load!");
+        }
+    }
+
     private static boolean isJsonDataExist() {
         File itemDir = new File(ITEM_JSON_DIR);
+        File itemOptionDir = new File(ITEM_OPTION_JSON_DIR);
         File equipDir = new File(EQUIP_JSON_DIR);
-        return itemDir.exists() && equipDir.exists();
+        return itemDir.exists() && equipDir.exists() && itemOptionDir.exists();
     }
 
     public static void load() {
         if (isJsonDataExist()) {
             loadJsonItems();
+            loadJsonItemOptions();
             loadJsonEquips();
         } else {
             loadItemData();
+            loadItemOptionData();
             loadEquipData();
             exportDataToJson();
         }
