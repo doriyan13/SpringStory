@@ -18,6 +18,7 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dori.SpringStory.enums.PotentialGrade.HiddenRare;
 import static com.dori.SpringStory.enums.PotentialGrade.Normal;
 
 @Data
@@ -154,7 +155,7 @@ public class Equip extends Item {
         this.superiorEqp = equipData.isSuperiorEqp();
         this.iReduceReq = equipData.getIReduceReq();
         this.specialGrade = equipData.getSpecialGrade();
-        this.grade = Normal;
+        this.grade = ItemUtils.willSuccess(GameConstants.POTENTIAL_EQUIP_DROP) ? HiddenRare : Normal;
         this.options = equipData.getOptions();
     }
 

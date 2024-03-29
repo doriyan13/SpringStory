@@ -194,7 +194,7 @@ CField::SendChatMsgSlash | Line ? | 0x005408E0 | 151
 ? | 0x00584B10 | 308
 ? | 0x00584B10 | 308
 ? | 0x0058EB50 | 308
-? | 0x005C9E70 | 0x55
+CItemSpeakerDlg::_SendConsumeCashItemUseRequest | 0x005C9E70 | 85
 CLogin::SendCheckUserLimitPacket | 0x005D43D0 | 6
 0x005D44A0 | 0x0F
 CLogin::OnAcceptLicense | 0x005D4540 | 1
@@ -373,7 +373,7 @@ CNpc::GenerateMovePath | 0x00671590 | 241
 ? | 0x0076B210 | 0x0C1
 ? | 0x0076E200 | 0x4A
 ? | 0x00777D20 | 0x137
-? | 0x0077A240 | 0x55
+CUICharacterSaleDlg::SendCreateNewCharacter | 0x0077A240 | 85
 ? | 0x0078C940 | 0x75
 ? | 0x0078DD80 | 0x75
 ? | 0x007900D0 | 0x41
@@ -388,7 +388,7 @@ CNpc::GenerateMovePath | 0x00671590 | 241
 ? | 0x007C4250 | 0x0B3
 ? | 0x007C4530 | 0x0B3
 ? | 0x007C6520 | 0x0B3
-? | 0x007CA660 | 0x55
+CUIIncubator::OnButtonClicked | 0x007CA660 | 0x55
 ? | 0x007D58D0 | 0x7D
 ? | 0x007D7EF0 | 0x55
 ? | 0x007DE690 | 0x139

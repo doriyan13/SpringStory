@@ -553,4 +553,22 @@ public interface ItemUtils {
         }
         return amountOfLines;
     }
+
+    static CashItemType getConsumeCashItemTypeById(int nItemID) {
+        CashItemType result = CashItemType.getCashItemTypeByID(nItemID);
+        int resCast = result.getVal();
+
+        if (resCast < 12 || resCast > 78) {
+            return CashItemType.NONE;
+        }
+        if ((resCast <= 32) || (resCast >= 47 && resCast <= 54) || (resCast >= 71 && resCast <= 75)) {
+            return result;
+        }
+        return switch (result) {
+            case CONSUME_EFFECT_ITEM, COLOR_LENS, SELECT_NPC, MORPH, AVATAR_MEGAPHONE, HEART_SPEAKER, SKULL_SPEAKER,
+                    ART_SPEAKER_WORLD, EXTEND_EXPIRE_DATE, KARMA_SCISSORS, EXPIRED_PROTECTING, CHARACTER_SALE,
+                    ITEM_UPGRADE, QUEST_DELIVERY -> result;
+            default -> CashItemType.NONE;
+        };
+    }
 }

@@ -3,6 +3,7 @@ package com.dori.SpringStory.client.character;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
+import com.dori.SpringStory.connection.packet.packets.CUser;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ValidateChrTempStatsEvent;
 import com.dori.SpringStory.jobs.JobHandler;
@@ -31,10 +32,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 import static com.dori.SpringStory.constants.GameConstants.*;
+import static com.dori.SpringStory.constants.ItemConstants.CUBE_FRAGMENT;
 import static com.dori.SpringStory.enums.EventType.VALIDATE_CHARACTER_TEMP_STATS;
 import static com.dori.SpringStory.enums.InventoryOperation.*;
 import static com.dori.SpringStory.enums.InventoryType.*;
@@ -1086,5 +1089,21 @@ public class MapleChar {
                 field.assignControllerToNpcs(this);
             }
         }
+    }
+
+    public void cubeEquip(short equipPos,
+                          @NotNull Item cube) {
+        Equip equip = (Equip) getEquipInventory().getItemByIndex(equipPos);
+        // First remove the cube (avoid duplication after use) -
+        consumeItem(CASH, cube.getItemId(), 1);
+        Item cubeFragment = ItemDataHandler.getItemByID(CUBE_FRAGMENT);
+        if (cubeFragment != null) {
+            addItem(cubeFragment);
+        }
+        // Hidden to potential grade again -
+        equip.setGrade(PotentialGrade.transformPotentialToHiddenPotential(equip.getGrade()));
+        // Update the equip for the client -
+        write(CWvsContext.inventoryOperation(true, Add, (short) (equip.getInvType() == EQUIPPED ? -equip.getBagIndex() : equip.getBagIndex()), (short) 0, equip));
+        write(CUser.showItemReleaseEffect(getId(), equipPos));
     }
 }

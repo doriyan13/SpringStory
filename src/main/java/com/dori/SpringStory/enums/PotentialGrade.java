@@ -46,4 +46,14 @@ public enum PotentialGrade {
             default -> potentialGrade;
         };
     }
+
+    public static PotentialGrade transformPotentialToHiddenPotential(PotentialGrade potentialGrade) {
+        return switch (potentialGrade) {
+            case Rare -> HiddenRare;
+            case Epic -> HiddenEpic;
+            case Unique -> HiddenUnique;
+            case Legendary -> HiddenLegendary;
+            default -> potentialGrade;
+        };
+    }
 }
