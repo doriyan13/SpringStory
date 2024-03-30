@@ -121,13 +121,17 @@ public class AdminCommands {
                         resultsData.forEach(entity ->
                                 chr.message(entity.toString(), ChatType.SpeakerWorld)));
             } else {
-                chr.message("Un-valid Search type! only can choose: Mob | Map | Item | Skill | NPC _name_ ", ChatType.SpeakerChannel);
+                chr.message("Un-valid Search type! only can choose: Mob | Map | Item | Skill | NPC <name> ", ChatType.SpeakerChannel);
             }
         } else {
-            chr.message("Un-valid Search type! only can choose: Mob | Map | Item | Skill | NPC _name_ ", ChatType.SpeakerChannel);
+            chr.message("Un-valid Search type! only can choose: Mob | Map | Item | Skill | NPC <name> ", ChatType.SpeakerChannel);
         }
     }
 
+    @Command(names = {"query"}, requiredPermission = AccountType.GameMaster)
+    public static void query(MapleChar chr, List<String> args) {
+        NpcScriptHandler.getInstance().handleNpcScript(chr, 9401771);
+    }
 
     @Command(names = {"say", "speak"}, requiredPermission = AccountType.GameMaster)
     public static void say(MapleChar chr, List<String> args) {

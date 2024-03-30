@@ -64,6 +64,10 @@ public interface NpcMessageUtils {
         return "#i" + input + "#";
     }
 
+    static String itemImage(long input) {
+        return "#i" + input + "#";
+    }
+
     static String itemDetails(int input) {
         return "#z" + input + "#";
     }
@@ -80,11 +84,23 @@ public interface NpcMessageUtils {
         return "#m" + input + "#";
     }
 
+    static String mapName(long input) {
+        return "#m" + input + "#";
+    }
+
     static String mobName(int input) {
         return "#o" + input + "#";
     }
 
+    static String mobName(long input) {
+        return "#o" + input + "#";
+    }
+
     static String npcName(int input) {
+        return "#p" + input + "#";
+    }
+
+    static String npcName(long input) {
         return "#p" + input + "#";
     }
 
@@ -93,6 +109,10 @@ public interface NpcMessageUtils {
     }
 
     static String skillImage(int input) {
+        return "#s" + input + "#";
+    }
+
+    static String skillImage(long input) {
         return "#s" + input + "#";
     }
 

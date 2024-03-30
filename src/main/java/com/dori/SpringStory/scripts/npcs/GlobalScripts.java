@@ -2,18 +2,23 @@ package com.dori.SpringStory.scripts.npcs;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.dataHandlers.CharacterCosmeticsDataHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.StringData;
+import com.dori.SpringStory.enums.StringDataType;
 import com.dori.SpringStory.scripts.api.MenuOption;
 import com.dori.SpringStory.scripts.api.NpcScript;
 import com.dori.SpringStory.scripts.api.ScriptApi;
+import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
+import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.utils.NpcMessageUtils;
 import com.dori.SpringStory.utils.NpcScriptUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.dori.SpringStory.dataHandlers.CharacterCosmeticsDataHandler.getBlackColorFace;
 import static com.dori.SpringStory.dataHandlers.CharacterCosmeticsDataHandler.getBlackColorHair;
-import static com.dori.SpringStory.utils.NpcScriptUtils.getListOfColoredFaces;
-import static com.dori.SpringStory.utils.NpcScriptUtils.getListOfColoredHairs;
+import static com.dori.SpringStory.utils.NpcScriptUtils.*;
 
 public class GlobalScripts {
 
@@ -38,14 +43,14 @@ public class GlobalScripts {
             }
         }
 
-        script.askMenu("Please select your destination.\r\n", menuOptions);
+        script.askMenu("Please select your destination.", menuOptions);
         return script;
     }
 
-    @NpcScript(id = 9900001)
-    public static ScriptApi handleNimaKIN(MapleChar chr) {
+    @NpcScript(id = 9401769)
+    public static ScriptApi handleAqua(MapleChar chr) {
         ScriptApi script = new ScriptApi();
-        script.sayNext("Hello! I'm NimaKIN, and i dream to be a ").blue("stylist ").addMsg(":D")
+        script.sayNext("Hello! I'm Aqua the goddess, and i dream to be a ").blue("stylist ").addMsg(":D")
                 .askMenu("What do you want to do today?",
                         script.addMenuOption("Change your hairstyle", () -> script.askAvatarHair("Choose new hair -", CharacterCosmeticsDataHandler.getAllUniqueHairs())),
                         script.addMenuOption("Change your hairstyle color", () -> script.askAvatarHair("Choose new hair color -", getListOfColoredHairs(getBlackColorHair(chr.getHair())))),
@@ -53,6 +58,49 @@ public class GlobalScripts {
                         script.addMenuOption("Change your eyes color", () -> script.askAvatarFace("Choose new eyes color -", getListOfColoredFaces(getBlackColorFace(chr.getFace())))),
                         script.addMenuOption("Change your skin color", () -> script.askAvatarSkin("Choose new skin -", CharacterCosmeticsDataHandler.getAllUniqueSkins()))
                 );
+        return script;
+    }
+
+    @NpcScript(id = 9401771)
+    public static ScriptApi handleDarkness(MapleChar chr) {
+        ScriptApi script = new ScriptApi();
+
+        script.sayNext("Hello! I'm Darkness, and i'm the ").purple( "knowledge one ").addMsg(";D")
+                .askMenu("What type of info you want to search?",
+                        script.addMenuOption("Item", () -> script.askText("Write the Item name you want to get - ", "", 1, 20,
+                                (name) -> searchWzDataByName(chr, script, StringDataType.Item, name))
+                        ),
+                        script.addMenuOption("Map", () -> script.askText("Write the Map name you want to go to - ", "", 1, 20,
+                                (name) -> searchWzDataByName(chr, script, StringDataType.Map, name))
+                        ),
+                        script.addMenuOption("Mob", () -> script.askText("Write the Mob name you want to spawn - ", "", 1, 20,
+                                (name) -> searchWzDataByName(chr, script, StringDataType.Mob, name))
+                        ),
+                        script.addMenuOption("Npc", () -> script.askText("Write the Npc you want to talk to - ", "", 1, 20,
+                                (name) -> searchWzDataByName(chr, script, StringDataType.Npc, name))
+                        ),
+                        script.addMenuOption("Skill", () -> script.askText("Write the name you want to find - ", "", 1, 20,
+                                (name) -> searchWzDataByName(chr, script, StringDataType.Skill, name))
+                        )
+                );
+        return script;
+    }
+
+    @NpcScript(id = 9401770)
+    public static ScriptApi handleMegumin(MapleChar chr) {
+        ScriptApi script = new ScriptApi();
+
+        script.sayNext("Hello! I'm Megumin")
+                .addNewLine("And i like EXPLOOOOOOOOOOOSION! ").red("<3");
+        return script;
+    }
+
+    @NpcScript(id = 9401768)
+    public static ScriptApi handleKazuma(MapleChar chr) {
+        ScriptApi script = new ScriptApi();
+
+        script.sayNext("Hello! I'm Kazuma")
+                .addNewLine("pantsu ;D ").red("<3");
         return script;
     }
 }

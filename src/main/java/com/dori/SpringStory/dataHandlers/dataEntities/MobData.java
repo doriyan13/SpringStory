@@ -51,6 +51,7 @@ public class MobData {
     private boolean noFlip;
     private long respawnDelay;
     private List<MobSkill> skills = new ArrayList<>();
+    private boolean displayable = false;
 
     public MobData(int templateId) {
         this.id = templateId;

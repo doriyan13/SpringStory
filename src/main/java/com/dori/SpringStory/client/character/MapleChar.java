@@ -941,6 +941,20 @@ public class MapleChar {
         }
     }
 
+    public void addItem(int itemID,
+                        int amount) {
+        Equip equip = ItemDataHandler.getEquipByID(itemID);
+        if (equip != null) {
+            addEquip(equip);
+        } else {
+            Item item = ItemDataHandler.getItemByID(itemID);
+            if (item != null) {
+                item.setQuantity(amount > 0 ? amount : 1);
+                addItem(item);
+            }
+        }
+    }
+
     public Drop dropItem(Item item, int quantity) {
         Item itemToDrop = item;
         // Partial Drop instead of full drop -
