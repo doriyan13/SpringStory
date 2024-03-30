@@ -149,6 +149,11 @@ public class MobDataHandler {
 
                     if (infoNode != null) {
                         MobData mob = handleInfoNode(id, respawnDelay, infoNode);
+                        // Check if the mob have movement nodes so it can be displayed -
+                        Node standNode = XMLApi.getFirstChildByNameBF(node, "stand");
+                        if (standNode != null) {
+                            mob.setDisplayable(true);
+                        }
                         mobs.putIfAbsent(mob.getId(), mob);
                     }
                 }
