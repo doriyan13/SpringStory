@@ -9,6 +9,7 @@ public interface ServerConstants {
     String HOST_IP = "127.0.0.1";
     // Ports -
     int LOGIN_PORT = 8484;
+    int CHANNEL_PORT_BASE = 8486;
     int CHAT_PORT = 8483;
     // Encryption -
     boolean ENABLE_ENCRYPTION = Boolean.parseBoolean(System.getenv().getOrDefault("ENABLE_ENCRYPTION", "true"));
