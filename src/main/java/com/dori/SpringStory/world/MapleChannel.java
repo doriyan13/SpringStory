@@ -53,7 +53,7 @@ public class MapleChannel {
         this.worldId = worldId;
         this.channelId = channelId;
         this.adultChannel = false;
-        this.port = ServerConstants.LOGIN_PORT + (100 * worldId) + channelId;
+        this.port = ServerConstants.CHANNEL_PORT_BASE + (100 * worldId) + channelId;
         this.fields = new ConcurrentHashMap<>();
         this.chars = new ConcurrentHashMap<>();
     }
