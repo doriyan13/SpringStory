@@ -184,6 +184,9 @@ public enum OutHeader {
     MobEscortReturnBefore(307),
     MobNextAttack(308),
     MobAttackedByMob(309),
+    // CUserPool::OnPacket -
+    UserEnterField(179),
+    UserLeaveField(180),
     // CUser::OnPacket -
     UserChat(181),
     UserChat2(182),

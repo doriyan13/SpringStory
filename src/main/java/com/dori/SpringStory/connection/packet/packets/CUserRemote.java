@@ -2,12 +2,15 @@ package com.dori.SpringStory.connection.packet.packets;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.client.character.attack.AttackInfo;
+import com.dori.SpringStory.client.effects.Effect;
 import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import com.dori.SpringStory.enums.AttackType;
 import com.dori.SpringStory.enums.DamageType;
 import com.dori.SpringStory.enums.Skills;
+import com.dori.SpringStory.enums.UserEffectTypes;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.utils.SkillUtils;
 import com.dori.SpringStory.world.fieldEntities.movement.MovementData;
 
@@ -108,7 +111,51 @@ public interface CUserRemote {
         if(dmg < 0){
             outPacket.encodeInt(thiefDodgeSkillID);
         }
+        return outPacket;
+    }
 
+    static OutPacket remoteEffect(int chrID,
+                                  UserEffectTypes type,
+                                  Effect effect) {
+        OutPacket outPacket = new OutPacket(OutHeader.CUserRemoteEffect);
+        outPacket.encodeInt(chrID);
+        outPacket.encodeByte(type.getVal());
+        switch (type) {
+            case LevelUp, PortalSoundEffect, JobChanged, QuestComplete, MonsterBookCard, ItemLevelUp, ExpItemConsumed,
+                    Buff, SoulStoneUse, EvolRing -> {}
+            default -> effect.encode(outPacket);
+        }
+        return outPacket;
+    }
+
+    static OutPacket temporaryStatSet(int chrID,
+                                      TemporaryStatManager tsm) {
+        OutPacket outPacket = new OutPacket(OutHeader.CUserRemoteSetTemporaryStat);
+        outPacket.encodeInt(chrID);
+        tsm.encodeForRemote(outPacket);
+        outPacket.encodeShort(0); // tDelay
+
+        return outPacket;
+    }
+
+    static OutPacket temporaryStatReset(int chrID,
+                                        TemporaryStatManager tsm) {
+        OutPacket outPacket = new OutPacket(OutHeader.CUserRemoteResetTemporaryStat);
+        outPacket.encodeInt(chrID);
+        tsm.encodeMask(outPacket, true);
+
+        return outPacket;
+    }
+
+    static OutPacket emotion(int chrID,
+                             int emotion,
+                             int duration,
+                             boolean isByItemOption) {
+        OutPacket outPacket = new OutPacket(OutHeader.CUserRemoteEmotion);
+        outPacket.encodeInt(chrID);
+        outPacket.encodeInt(emotion);
+        outPacket.encodeInt(duration);
+        outPacket.encodeBool(isByItemOption); // bEmotionByItemOption
         return outPacket;
     }
 }

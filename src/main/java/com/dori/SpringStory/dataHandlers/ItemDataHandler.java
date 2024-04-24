@@ -228,7 +228,7 @@ public class ItemDataHandler {
         for (Node n : XMLApi.getAllChildren(mainNode)) {
             String name = XMLApi.getNamedAttribute(n, "name");
             String value = XMLApi.getNamedAttribute(n, "value");
-            List<Integer> options = List.of(0, 0, 0);
+            List<Integer> options = new ArrayList<>(List.of(0, 0, 0));
             switch (name) {
                 case "islot" -> equip.setISlot(value);
                 case "vslot" -> equip.setVSlot(value);

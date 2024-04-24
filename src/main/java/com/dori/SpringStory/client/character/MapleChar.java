@@ -3,7 +3,7 @@ package com.dori.SpringStory.client.character;
 import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
-import com.dori.SpringStory.connection.packet.packets.CUser;
+import com.dori.SpringStory.connection.packet.packets.*;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.events.eventsHandlers.ValidateChrTempStatsEvent;
 import com.dori.SpringStory.jobs.JobHandler;
@@ -11,8 +11,6 @@ import com.dori.SpringStory.scripts.api.ScriptApi;
 import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
 import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.connection.packet.OutPacket;
-import com.dori.SpringStory.connection.packet.packets.CUserLocal;
-import com.dori.SpringStory.connection.packet.packets.CWvsContext;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Inventory;
@@ -841,6 +839,7 @@ public class MapleChar {
         write(CWvsContext.temporaryStatReset(getTsm()));
         getTsm().cleanDeletedStats();
         validateHpAndMp();
+        getField().broadcastPacket(CUserRemote.temporaryStatReset(getId(), getTsm()));
     }
 
     public void applyTemporaryStats() {
@@ -849,6 +848,8 @@ public class MapleChar {
         getTsm().applyModifiedStats();
         // After setting the chr stats the chr get locked and need to be released -
         enableAction();
+        // broadcast the new tempStats of char -
+        getField().broadcastPacket(CUserRemote.temporaryStatSet(getId(), getTsm()), this);
     }
 
     private boolean attemptHandleActiveSkill(SkillData skillData, int slv) {
@@ -876,6 +877,9 @@ public class MapleChar {
             }
             if (skillID == ADMIN_HIDE.getId()) {
                 this.hidden = true;
+                if (!this.field.getPlayers().isEmpty()) {
+                    this.field.broadcastPacket(CUserPool.userLeaveField(this), this);
+                }
             }
             Item throwingStarToConsumeFrom = throwingStarItemID != 0 ? getConsumeInventory().getItemByItemID(throwingStarItemID) : null;
             SkillUtils.applySkillConsumptionToChar(skillID, slv, this, throwingStarToConsumeFrom);
@@ -1097,12 +1101,14 @@ public class MapleChar {
         if (skillID == ADMIN_HIDE.getId()) {
             this.hidden = false;
             Field field = getField();
-            if (field.getPlayers().size() == 1) {
+            if (!field.getPlayers().isEmpty()) {
                 // Assign Controllers For life -
                 field.assignControllerToMobs(this);
                 field.assignControllerToNpcs(this);
+                field.broadcastPacket(CUserPool.userEnterField(this), this);
             }
         }
+        getField().broadcastPacket(CUserRemote.temporaryStatReset(getId(), getTsm()));
     }
 
     public void cubeEquip(short equipPos,

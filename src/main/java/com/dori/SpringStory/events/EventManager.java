@@ -38,21 +38,21 @@ public class EventManager {
         }
     }
 
-    public static  Set<ScheduledFuture<?>> getAllActiveEvents() {
+    public static Set<ScheduledFuture<?>> getAllActiveEvents() {
         Set<ScheduledFuture<?>> setOfEvents = new HashSet<>();
         events.values().forEach(eventMap -> setOfEvents.addAll(eventMap.values()));
         return setOfEvents;
     }
 
     private static void clearOldEvents() {
-        logger.serverNotice("|> Start cleanup of all the old events... |>");
         if (!events.isEmpty()) {
+            logger.serverNotice("|> Start cleanup of all the old events... |>");
             events.values().removeIf(mapOfEvents -> {
                 mapOfEvents.values().removeIf(event -> event.isDone() || event.isCancelled());
                 return mapOfEvents.isEmpty();
             });
+            logger.serverNotice("~ Finished cleanup! there still " + events.size() + " events ~");
         }
-        logger.serverNotice("~ Finished cleanup! there still " + events.size() + " events ~");
     }
 
     private static void clearUnUsedFields() {

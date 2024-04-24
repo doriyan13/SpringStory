@@ -166,10 +166,21 @@ public class Field extends MapData {
         chr.applyTemporaryStats();
         // Init function keys mapping -
         chr.write(CFuncKeyMappedMan.funcKeyMappedManInit(chr.getKeymap()));
+        this.players.forEach((key, value) -> {
+            if (key != chr.getId()) {
+                chr.write(CUserPool.userEnterField(value));
+            }
+        });
+        // broadcast spawn to other characters in field -
+        if (!chr.isHidden()) {
+            broadcastPacket(CUserPool.userEnterField(chr), chr);
+        }
     }
 
     public void removePlayer(MapleChar chr) {
         players.remove(chr.getId());
+        // broadcast leave of field to other characters in field -
+        broadcastPacket(CUserPool.userLeaveField(chr));
     }
 
     private void addNPC(Npc npc) {
