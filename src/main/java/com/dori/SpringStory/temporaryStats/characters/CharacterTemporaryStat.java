@@ -279,6 +279,16 @@ public enum CharacterTemporaryStat {
                 Beholder);
     }
 
+    public static List<CharacterTemporaryStat> getEncodingRemoteStats() {
+        return Arrays.asList(
+                Speed, ComboCounter, WeaponCharge, Stun, Darkness, Seal, Weakness, Curse, Poison, ShadowPartner, DarkSight,
+                SoulArrow, Morph, Ghost, Attract, SpiritJavelin, BanMap, Barrier, DojangShield, ReverseInput,
+                RespectPImmune, RespectMImmune, DefenseAtt, DefenseState, DojangBerserk, DojangInvincible, WindWalk,
+                RepeatEffect, StopPortion, StopMotion, Fear, MagicShield, Flying, Frozen, SuddenDeath, FinalCut, Cyclone,
+                Sneak, MoreWildDamageUp, Mechanic, DarkAura, BlueAura, YellowAura, BlessingArmor
+        );
+    }
+
     public static List<CharacterTemporaryStat> getEncodingTwoStateOrderRemote() {
         return Arrays.asList(
                 EnergyCharged,

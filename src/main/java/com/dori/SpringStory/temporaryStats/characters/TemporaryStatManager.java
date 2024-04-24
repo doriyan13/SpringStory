@@ -217,10 +217,14 @@ public class TemporaryStatManager {
     }
 
     public void encodeMask(OutPacket outPacket, boolean reset) {
+        encodeMask(outPacket, reset, false);
+    }
+
+    public void encodeMask(OutPacket outPacket, boolean reset, boolean remote) {
         UnsignedInt128BitBlock bits = new UnsignedInt128BitBlock();
         // Turn on the used stats bits -
         additionalStats.forEach((cts, statData) -> {
-            if ((reset && statData.isDeleted()) || statData.isModified()) {
+            if ((reset && statData.isDeleted()) || statData.isModified() || remote) {
                 bits.setBit(cts.getBitPos());
             }
         });
@@ -287,5 +291,36 @@ public class TemporaryStatManager {
             outPacket.encodeInt(getCTS(Pad)); // nBlessingArmorIncPAD
         }
         CharacterTemporaryStat.getEncodingTwoStateOrderRemote().forEach(stat -> encodeAdditionalStat(stat, outPacket, true));
+    }
+
+    private void encodeRemoteStat(CharacterTemporaryStat stat, OutPacket outPacket) {
+        TempStatData statData = additionalStats.get(stat);
+        if (statData == null) {
+            return;
+        }
+        TempStatValue value = getTempStatValues(statData);
+        switch (stat) {
+            case Speed, ComboCounter, Cyclone -> outPacket.encodeByte(value.getValue());
+            case Morph, Ghost -> outPacket.encodeShort(value.getValue());
+            case SpiritJavelin, RespectPImmune, RespectMImmune, DefenseAtt, DefenseState, MagicShield ->
+                    outPacket.encodeInt(value.getValue());
+            case WeaponCharge, Stun, Darkness, Seal, Weakness, ShadowPartner, Attract, BanMap, DojangShield,
+                    ReverseInput, RepeatEffect, StopPortion, StopMotion, Fear, Frozen, SuddenDeath, FinalCut,
+                    Mechanic, DarkAura, BlueAura, YellowAura -> outPacket.encodeInt(value.getReason());
+            case Poison -> {
+                outPacket.encodeShort(value.getValue()); // overwritten with 1
+                outPacket.encodeInt(value.getReason());
+            }
+        }
+    }
+
+    public void encodeForRemote(OutPacket outPacket) {
+        encodeMask(outPacket, false, true);
+        CharacterTemporaryStat.getEncodingRemoteStats()
+                .forEach(stat -> encodeRemoteStat(stat, outPacket));
+        outPacket.encodeBool(isDefenseAtt()); // bDefenseAtt
+        outPacket.encodeBool(isDefenseState()); // bDefenseState
+        CharacterTemporaryStat.getEncodingTwoStateOrderRemote()
+                .forEach(stat -> encodeAdditionalStat(stat, outPacket, true));
     }
 }

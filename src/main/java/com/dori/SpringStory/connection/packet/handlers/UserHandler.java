@@ -5,6 +5,8 @@ import com.dori.SpringStory.client.MapleClient;
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.client.character.attack.AttackInfo;
+import com.dori.SpringStory.client.effects.Effect;
+import com.dori.SpringStory.client.effects.parsers.SkillUseEffect;
 import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.headers.InHeader;
@@ -234,6 +236,10 @@ public class UserHandler {
         }
         // Handle the skill cts -
         chr.handleSkill(skillID, slv, throwingStarItemID);
+
+        // Handle remote skill effect -
+        Effect skillEffect = new SkillUseEffect(skillID,chr.getLevel(),slv);
+        chr.getField().broadcastPacket(CUserRemote.remoteEffect(chr.getId(), skillEffect.getType(), skillEffect), chr);
     }
 
     @Handler(op = UserTransferChannelRequest)
@@ -261,5 +267,16 @@ public class UserHandler {
     public static void handleUserSkillCancelRequest(MapleClient c, InPacket inPacket) {
         int skillID = inPacket.decodeInt();
         c.getChr().cancelBuff(skillID);
+    }
+
+    @Handler(op = UserEmotion)
+    public static void handleUserEmotion(MapleClient c, InPacket inPacket) {
+        MapleChar chr = c.getChr();
+
+        int emotion = inPacket.decodeInt();
+        int duration = inPacket.decodeInt();
+        boolean byItemOption = inPacket.decodeBool();
+
+        chr.getField().broadcastPacket(CUserRemote.emotion(chr.getId(),emotion,duration,byItemOption));
     }
 }
