@@ -2,19 +2,14 @@ package com.dori.SpringStory.scripts.npcs;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.dataHandlers.CharacterCosmeticsDataHandler;
-import com.dori.SpringStory.dataHandlers.dataEntities.StringData;
 import com.dori.SpringStory.enums.StringDataType;
 import com.dori.SpringStory.scripts.api.MenuOption;
 import com.dori.SpringStory.scripts.api.NpcScript;
 import com.dori.SpringStory.scripts.api.ScriptApi;
-import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
-import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.utils.NpcMessageUtils;
 import com.dori.SpringStory.utils.NpcScriptUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.dori.SpringStory.dataHandlers.CharacterCosmeticsDataHandler.getBlackColorFace;
 import static com.dori.SpringStory.dataHandlers.CharacterCosmeticsDataHandler.getBlackColorHair;

@@ -74,7 +74,7 @@ public interface ItemUtils {
                 case EvanWing -> bodyPart = BodyPart.EvanWing;
                 case EvanShoes -> bodyPart = BodyPart.EvanShoes;
                 case OneHandedAxe, OneHandedSword, OneHandedBluntWeapon, TwoHandedBluntWeapon, TwoHandedAxe, TwoHandedSword, PoleArm, Spear,
-                        Staff, Wand, Bow, Crossbow, Claw, Dagger, Gauntlet, Gun, Knuckle, Katana ->
+                     Staff, Wand, Bow, Crossbow, Claw, Dagger, Gauntlet, Gun, Knuckle, Katana ->
                         bodyPart = BodyPart.Weapon;
                 case CashWeapon -> bodyPart = BodyPart.CashWeapon;
                 default -> System.out.println("idk? " + prefix);
@@ -110,6 +110,22 @@ public interface ItemUtils {
                 }
             }
         }
+    }
+
+    static boolean isEquip(int itemId) {
+        return itemId / 1000000 == 1;
+    }
+
+    static boolean isConsume(int itemId) {
+        return itemId / 1000000 == 2;
+    }
+
+    static boolean isInstall(int itemId) {
+        return itemId / 1000000 == 3;
+    }
+
+    static boolean isEtc(int itemId) {
+        return itemId / 1000000 == 4;
     }
 
     static boolean isBullet(int itemID) {
@@ -205,8 +221,12 @@ public interface ItemUtils {
         return !isAccessory(itemID) && !isWeapon(itemID);
     }
 
+    static boolean isChair(int itemID) {
+        return itemID / 10_000 == 301;
+    }
+
     static boolean isThrowingItem(int itemID) {
-        return isThrowingStar(itemID) || isBullet(itemID) || isBowArrow(itemID);
+        return isThrowingStar(itemID) || isBullet(itemID);
     }
 
     static boolean isThrowingStar(int itemID) {
@@ -277,8 +297,8 @@ public interface ItemUtils {
         };
     }
 
-    static boolean isChrCanObtainItem(@NotNull MapleChar chr,
-                                      @NotNull Drop drop) {
+    static boolean canChrObtainItem(@NotNull MapleChar chr,
+                                    @NotNull Drop drop) {
         Item droppedItem = drop.getItem();
         return ItemUtils.isDropMeso(drop)
                 || !ItemUtils.isOneOfAKindItem(droppedItem)
@@ -343,7 +363,7 @@ public interface ItemUtils {
             return false;
         }
         if (whiteScroll.getQuantity() < 1) {
-            chr.removeItem(InventoryType.CONSUME, whiteScroll.getItemId());
+            chr.removeItem(whiteScroll.getItemId());
             c.logout();
             return false;
         }
@@ -355,7 +375,7 @@ public interface ItemUtils {
         if (!isWhiteScrollValid(chr, whiteScroll)) {
             return;
         }
-        chr.consumeItem(InventoryType.CONSUME, whiteScroll.getItemId(), 1);
+        chr.consumeItem(whiteScroll.getItemId(), 1);
     }
 
     static void applyChaosScrollToEquip(@NotNull Equip equip,
@@ -398,7 +418,7 @@ public interface ItemUtils {
                                     @NotNull Item scroll,
                                     boolean bEnchantSkill,
                                     boolean bWhiteScroll) {
-        chr.removeItem(equip.getInvType(), equip.getItemId());
+        chr.removeItem(equip.getItemId());
         chr.write(CUser.showItemUpgradeEffect(chr.getId(), false, true, bEnchantSkill, bWhiteScroll, 0));
     }
 
@@ -416,8 +436,8 @@ public interface ItemUtils {
                                      @NotNull Equip equip,
                                      @NotNull Item scroll,
                                      boolean bEnchantSkill) {
-        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
-        chr.removeItem(equip.getInvType(), equip.getItemId());
+        chr.consumeItem(scroll.getItemId(), 1);
+        chr.removeItem(equip.getItemId());
         chr.write(CUser.showItemHyperUpgradeEffect(chr.getId(), false, bEnchantSkill, 0));
     }
 
@@ -487,8 +507,8 @@ public interface ItemUtils {
                                    @NotNull Equip equip,
                                    @NotNull Item scroll,
                                    boolean bEnchantSkill) {
-        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
-        chr.removeItem(equip.getInvType(), equip.getItemId());
+        chr.consumeItem(scroll.getItemId(), 1);
+        chr.removeItem(equip.getItemId());
         chr.write(CUser.showOptionItemUpgradeEffect(chr.getId(), false, bEnchantSkill, 0));
     }
 
@@ -566,8 +586,8 @@ public interface ItemUtils {
         }
         return switch (result) {
             case CONSUME_EFFECT_ITEM, COLOR_LENS, SELECT_NPC, MORPH, AVATAR_MEGAPHONE, HEART_SPEAKER, SKULL_SPEAKER,
-                    ART_SPEAKER_WORLD, EXTEND_EXPIRE_DATE, KARMA_SCISSORS, EXPIRED_PROTECTING, CHARACTER_SALE,
-                    ITEM_UPGRADE, QUEST_DELIVERY -> result;
+                 ART_SPEAKER_WORLD, EXTEND_EXPIRE_DATE, KARMA_SCISSORS, EXPIRED_PROTECTING, CHARACTER_SALE,
+                 ITEM_UPGRADE, QUEST_DELIVERY -> result;
             default -> CashItemType.NONE;
         };
     }

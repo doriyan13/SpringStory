@@ -1,8 +1,7 @@
 package com.dori.SpringStory.inventory;
 
-import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
-import com.dori.SpringStory.connection.packet.packets.CWvsContext;
+import com.dori.SpringStory.enums.BodyPart;
 import com.dori.SpringStory.enums.EquipType;
 import com.dori.SpringStory.enums.InventoryOperation;
 import com.dori.SpringStory.enums.InventoryType;
@@ -122,6 +121,22 @@ public class Inventory {
                 .orElse(null);
     }
 
+    public Item getFirstItemByIdAndMinAmount(int itemId,
+                                             int minAmount) {
+        return getItems()
+                .stream()
+                .filter(item -> item.getItemId() == itemId && item.getQuantity() >= minAmount)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public List<Item> getItemsByItemID(int itemId) {
+        return getItems()
+                .stream()
+                .filter(item -> (item.getItemId() == itemId) && item.getQuantity() != 0)
+                .toList();
+    }
+
     public InventoryOperation updateItemQuantity(Item item, int quantity) {
         if (isFullItemConsume(item, quantity)) {
             removeItem(item);
@@ -138,5 +153,38 @@ public class Inventory {
 
     public int getEmptySlots() {
         return getSlots() - getItems().size();
+    }
+
+    public int getRemainingSlots() {
+        return Math.max(slots - items.size(), 0);
+    }
+
+    public List<Item> getItemsByBodyPart(BodyPart bodyPart) {
+        return getItems()
+                .stream()
+                .filter(item -> item.getBagIndex() == bodyPart.getVal())
+                .toList();
+    }
+
+    public boolean hasItem(int itemId,
+                           int amount) {
+        boolean hasItem = false;
+        for (Item item : getItems()) {
+            if (item.getItemId() == itemId) {
+                hasItem = true;
+                amount -= item.getQuantity();
+            }
+        }
+        return hasItem && amount <= 0;
+    }
+
+    public int getItemCount(int itemId) {
+        int quantity = 0;
+        for (Item item : getItems()) {
+            if (item.getItemId() == itemId) {
+                quantity += item.getQuantity();
+            }
+        }
+        return quantity;
     }
 }

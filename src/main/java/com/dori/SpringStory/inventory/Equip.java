@@ -1,5 +1,6 @@
 package com.dori.SpringStory.inventory;
 
+import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.dbConvertors.FileTimeConverter;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.OutPacket;
@@ -17,6 +18,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.dori.SpringStory.enums.PotentialGrade.HiddenRare;
 import static com.dori.SpringStory.enums.PotentialGrade.Normal;
@@ -322,5 +324,41 @@ public class Equip extends Item {
             int randomPotentialIndex = ItemUtils.getRandom(0, potentialOptions.size());
             getOptions().set(i, potentialOptions.get(randomPotentialIndex).getId());
         }
+    }
+
+    private Optional<Short> getOptionalStat(short stat) {
+        return stat != 0 ? Optional.of(stat) : Optional.empty();
+    }
+
+    private void applyStatToChr(short stat,
+                                EquipBaseStat type,
+                                MapleChar chr) {
+        getOptionalStat(stat)
+                .ifPresent(statToApply -> chr
+                        .getTsm()
+                        .getEquipStats()
+                        .addStat(type, equipItemID, statToApply));
+    }
+
+    public void applyStatsToChr(MapleChar chr) {
+        applyStatToChr(getIStr(), EquipBaseStat.iStr, chr);
+        applyStatToChr(getIDex(), EquipBaseStat.iDex, chr);
+        applyStatToChr(getIInt(), EquipBaseStat.iInt, chr);
+        applyStatToChr(getILuk(), EquipBaseStat.iLuk, chr);
+        applyStatToChr(getIMaxHp(), EquipBaseStat.iMaxHP, chr);
+        applyStatToChr(getIMaxMp(), EquipBaseStat.iMaxMP, chr);
+        applyStatToChr(getIPad(), EquipBaseStat.iPAD, chr);
+        applyStatToChr(getIMad(), EquipBaseStat.iMAD, chr);
+        applyStatToChr(getIPDD(), EquipBaseStat.iPDD, chr);
+        applyStatToChr(getIMDD(), EquipBaseStat.iMDD, chr);
+        applyStatToChr(getIAcc(), EquipBaseStat.iACC, chr);
+        applyStatToChr(getIEva(), EquipBaseStat.iEVA, chr);
+        applyStatToChr(getICraft(), EquipBaseStat.iCraft, chr);
+        applyStatToChr(getISpeed(), EquipBaseStat.iSpeed, chr);
+        applyStatToChr(getIJump(), EquipBaseStat.iJump, chr);
+        applyStatToChr(getImdr(), EquipBaseStat.imdr, chr);
+        applyStatToChr(getDamR(), EquipBaseStat.damR, chr);
+        applyStatToChr(getStatR(), EquipBaseStat.statR, chr);
+        applyStatToChr(getCuttable(), EquipBaseStat.cuttable, chr);
     }
 }

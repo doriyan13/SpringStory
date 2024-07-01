@@ -83,8 +83,7 @@ public class MapleAccountService implements BaseService<MapleAccount> {
 
     @Override
     public MapleAccount update(Long entityID, MapleAccount entityDataToUpdate) {
-        // TODO: need to handle it!
-        return null;
+        return accountRepo.save(entityDataToUpdate);
     }
 
     @Override

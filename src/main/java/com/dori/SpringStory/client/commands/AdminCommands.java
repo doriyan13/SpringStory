@@ -8,7 +8,7 @@ import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Inventory;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
-import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
+import com.dori.SpringStory.scripts.handlers.ScriptHandler;
 import com.dori.SpringStory.services.StringDataService;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.utils.MapleUtils;
@@ -130,7 +130,7 @@ public class AdminCommands {
 
     @Command(names = {"query"}, requiredPermission = AccountType.GameMaster)
     public static void query(MapleChar chr, List<String> args) {
-        NpcScriptHandler.getInstance().handleNpcScript(chr, 9401771);
+        ScriptHandler.getInstance().handleNpcScript(chr, 9401771);
     }
 
     @Command(names = {"say", "speak"}, requiredPermission = AccountType.GameMaster)
@@ -419,7 +419,7 @@ public class AdminCommands {
 
     @Command(names = {"style"}, requiredPermission = AccountType.GameMaster)
     public static void style(MapleChar chr, List<String> args) {
-        NpcScriptHandler.getInstance().handleNpcScript(chr, 9900001);
+        ScriptHandler.getInstance().handleNpcScript(chr, 9401769);
     }
 
     @Command(names = {"potential"}, requiredPermission = AccountType.GameMaster)

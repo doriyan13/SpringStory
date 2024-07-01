@@ -22,6 +22,6 @@ public interface MapleAccountRepo
     // ref -> https://www.baeldung.com/spring-data-criteria-queries
 
     // In Query, you need to use the entityName in the query -
-    @Query("SELECT s FROM account s WHERE s.name =?1")
+    @Query("SELECT s FROM MapleAccount s WHERE s.name =?1")
     Optional<MapleAccount> findMapleAccountByName(String name);
 }

@@ -4,6 +4,8 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.connection.packet.headers.OutHeader;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public interface CField {
 
     static @NotNull OutPacket adminResult(int cmdType,
@@ -64,6 +66,15 @@ public interface CField {
                 // notice red msg to chat (i think all users get it)
                 outPacket.encodeString("hello hello");
             }
+        }
+        return outPacket;
+    }
+
+    static OutPacket quickSlotMappedInit(List<Integer> quickSlotKeyMap) {
+        OutPacket outPacket = new OutPacket(OutHeader.QuickSlotMappedInit);
+        outPacket.encodeByte(true); // defaults if false
+        for (int key : quickSlotKeyMap) {
+            outPacket.encodeInt(key);
         }
         return outPacket;
     }

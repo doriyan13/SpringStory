@@ -10,7 +10,7 @@ import com.dori.SpringStory.connection.packet.handlers.ChatHandler;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.events.EventManager;
 import com.dori.SpringStory.dataHandlers.MobDropHandler;
-import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
+import com.dori.SpringStory.scripts.handlers.ScriptHandler;
 import com.dori.SpringStory.services.*;
 import com.dori.SpringStory.temporaryStats.characters.BuffDataHandler;
 import com.dori.SpringStory.world.MapleChannel;
@@ -139,7 +139,7 @@ public class Server {
         // Register all the Packet handlers -
         ChannelHandler.initHandlers(false);
         // Register all the Npc scripts -
-        NpcScriptHandler.initHandlers();
+        ScriptHandler.initHandlers();
         // Init Login & Chat acceptors -
         initAcceptors();
         // Init all the MapleWorlds (including channels) -
@@ -174,7 +174,7 @@ public class Server {
     }
 
     public static void addNewOnlineUser(MapleChar chr, MapleClient client) {
-        MigrateInUser migrateInUser = migrateUsers.get(chr.getAccountID());
+        MigrateInUser migrateInUser = migrateUsers.get(chr.getAccount().getId());
         // Verify the user was migrated properly -
         if (migrateInUser != null) {
             // Set Client data to have to migrate data -
@@ -182,7 +182,7 @@ public class Server {
             client.setMachineID(migrateInUser.getMachineID());
             client.setChannel((byte) migrateInUser.getChannel().getChannelId());
             client.setMapleChannelInstance(migrateInUser.getChannel());
-            client.setAccount(migrateInUser.getAccount());
+            client.setAccount(chr.getAccount());
             // Add the char into the channel list of characters -
             client.getMapleChannelInstance().addChar(chr);
             // Set the char to be the client character instance -
@@ -192,7 +192,7 @@ public class Server {
             // Remove from the list of users that need to migrate -
             migrateUsers.remove(chr.getId());
             // Add to the list of connected clients -
-            addNewConnectedClient(migrateInUser.getAccount().getId(), client);
+            addNewConnectedClient(chr.getAccount().getId(), client);
         } else {
             // trying to log in with a char that wasn't migrate in ?
             client.close();

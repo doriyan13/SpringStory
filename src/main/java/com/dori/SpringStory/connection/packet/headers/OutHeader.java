@@ -154,6 +154,38 @@ public enum OutHeader {
     NpcEnterField(311),
     NpcLeaveField(312),
     NpcChangeController(313),
+    // CField::OnPacket -
+    TransferFieldReqIgnored(147),
+    TransferChannelReqIgnored(148),
+    FieldSpecificData(149),
+    GroupMessage(150),
+    Whisper(151),
+    CoupleMessage(152),
+    SummonItemInavailable(153),
+    FieldEffect(154),
+    FieldObstacleOnOff(155),
+    FieldObstacleOnOffStatus(156),
+    FieldObstacleAllReset(157),
+    BlowWeather(158),
+    PlayJukeBox(159),
+    AdminResult(160),
+    Quiz(161),
+    Desc(162),
+    // 163 - Vm'd, TODO: need to figure it out
+    SetQuestClear(166),
+    SetQuestTime(167),
+    WarnMessage(168),
+    SetObjectState(169),
+    DestroyClock(170),
+    StalkResult(171),
+    QuickSlotMappedInit(175),
+    FootHoldInfo(176),
+    RequestFootHoldInfo(177),
+    // 196 - Deprecated!
+    HontaleTimer(359),
+    ChaosZakumTimer(360),
+    HontailTimer(361),
+    ZakumTimer(362),
     // CNpcPool::OnNpcPacket
     NpcMove(314),
     NPcUpdateLimitedInfo(315),
@@ -270,9 +302,6 @@ public enum OutHeader {
     CUserRemoteGuildNameChanged(228),
     CUserRemoteGuildMarkChanged(229),
     CUserRemoteThrowGrenade(230),
-    // CField::OnPacket -
-    //TODO: need to fill all of them!
-    AdminResult(160),
 
     // CDropPool::OnPacket -
     DropEnterField(322),

@@ -56,7 +56,7 @@ public class ItemUpgradeHandler {
         boolean cleanSlateScroll = scrollStats.getOrDefault(ScrollStat.recover, 0) != 0;
         boolean boomTheItem = ItemUtils.willSuccess(scrollStats.getOrDefault(ScrollStat.cursed, 0));
         // First remove the scroll (avoid duplication after use) -
-        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
+        chr.consumeItem(scroll.getItemId(), 1);
         if (success) {
             if (!ItemUtils.isEquipScrollable(chr, equip, cleanSlateScroll)) {
                 return;
@@ -111,7 +111,7 @@ public class ItemUpgradeHandler {
         }
         boolean success = ItemUtils.willSuccess(successRate);
         // First remove the scroll (avoid duplication after use) -
-        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
+        chr.consumeItem(scroll.getItemId(), 1);
         if (success) {
             ItemUtils.applyEnchantment(equip);
             // Update the equip for the client -
@@ -148,7 +148,7 @@ public class ItemUpgradeHandler {
         boolean success = ItemUtils.willSuccess(successRate);
 
         // First remove the scroll (avoid duplication after use) -
-        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
+        chr.consumeItem(scroll.getItemId(), 1);
         if (success) {
             equip.setGrade(PotentialGrade.HiddenRare);
             // Update the equip for the client -
@@ -177,7 +177,7 @@ public class ItemUpgradeHandler {
         // Reveal and update all the potentials for to equip -
         equip.revealPotential();
         // First remove the scroll (avoid duplication after use) -
-        chr.consumeItem(InventoryType.CONSUME, scroll.getItemId(), 1);
+        chr.consumeItem(scroll.getItemId(), 1);
         // Update the equip for the client -
         chr.write(CWvsContext.inventoryOperation(true, Add, (short) (equip.getInvType() == EQUIPPED ? -equip.getBagIndex() : equip.getBagIndex()), (short) 0, equip));
         chr.write(CUser.showItemReleaseEffect(chr.getId(), equipPos));

@@ -11,6 +11,8 @@ public interface ServerConstants {
     int LOGIN_PORT = 8484;
     int CHANNEL_PORT_BASE = 8486;
     int CHAT_PORT = 8483;
+    // Shutdown -
+    long MAX_SHUTDOWN_TIME_IN_MIN = 1;
     // Encryption -
     boolean ENABLE_ENCRYPTION = Boolean.parseBoolean(System.getenv().getOrDefault("ENABLE_ENCRYPTION", "true"));
     // Maple Version stuff -
@@ -34,6 +36,7 @@ public interface ServerConstants {
     String DIR = System.getProperty("user.dir");
     String HANDLERS_DIR = DIR + "/src/main/java/com/dori/SpringStory/connection/packet/handlers";
     String NPC_SCRIPTS_DIR = DIR + "/src/main/java/com/dori/SpringStory/scripts/npcs";
+    String QUEST_SCRIPTS_DIR = DIR + "/src/main/java/com/dori/SpringStory/scripts/quests";
     String WZ_DIR = DIR + "/wz";
     // WZ reading stuff -
     int AMOUNT_OF_LOADERS = 9;
@@ -55,6 +58,8 @@ public interface ServerConstants {
     String HAIR_WZ_DIR = CHARACTER_WZ_DIR + "/Hair/";
     String FACE_WZ_DIR = CHARACTER_WZ_DIR + "/Face/";
     String JSON_DIR = DIR + "/json";
+    // Image reading stuff -
+    String IMG_DIR = System.getenv().getOrDefault("IMG_DIR", DIR + "/imgs");
     // Map Data -
     String MAP_JSON_DIR = JSON_DIR + "/Map/";
     String WORLD_MAP_JSON_DIR = JSON_DIR + "/WorldMap/";
@@ -78,6 +83,13 @@ public interface ServerConstants {
     int MOB_DROP_DEFAULT_MIN_QUANTITY = 1;
     int MOB_DROP_DEFAULT_MAX_QUANTITY = 1;
     double MOB_DROP_DEFAULT_CHANCE = 0.01;
+    // Quest Data -
+    String QUEST = "/Quest/";
+    String QUEST_IMG_DIR = IMG_DIR + QUEST;
+    String QUEST_INFO_IMG = "QuestInfo.img";
+    String QUEST_ACT_IMG = "Act.img";
+    String QUEST_CHECK_IMG = "Check.img";
+    String QUEST_JSON_DIR = JSON_DIR + QUEST;
     // Commands stuff -
     String COMMANDS_DIR = DIR + "/src/main/java/com/dori/SpringStory/client/commands";
     // Field -

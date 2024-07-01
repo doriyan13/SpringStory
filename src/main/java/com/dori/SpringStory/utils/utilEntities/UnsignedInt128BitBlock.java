@@ -14,7 +14,7 @@ public class UnsignedInt128BitBlock {
     }
 
     public void setBit(int bitPos){
-        if(bitPos >= CharacterTemporaryStat.Pad.getBitPos() && bitPos <= CharacterTemporaryStat.SummonBomb.getBitPos()){
+        if(bitPos >= CharacterTemporaryStat.Pad.getBitPos() && bitPos <= CharacterTemporaryStat.GuidedBullet.getBitPos()){
             dataBlock[getBitBlockPos(bitPos)] |= (1 << bitPos);
         }
     }

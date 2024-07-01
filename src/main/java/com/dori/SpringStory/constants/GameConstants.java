@@ -52,4 +52,6 @@ public interface GameConstants {
     int EPIC_POTENTIAL_RANK_UP_PERCENTAGE = 15;
     int UNIQUE_POTENTIAL_RANK_UP_PERCENTAGE = 10;
     int POTENTIAL_EQUIP_DROP = 15;
+    // QuickSlot -
+    int QUICK_SLOT_MAPPING_SIZE = 8;
 }

@@ -1,7 +1,11 @@
 package com.dori.SpringStory.enums;
 
+import com.dori.SpringStory.utils.ItemUtils;
+import lombok.Getter;
+
 import java.util.Arrays;
 
+@Getter
 public enum InventoryType {
     EQUIPPED(-1),
     EQUIP(1),
@@ -18,10 +22,6 @@ public enum InventoryType {
 
     InventoryType(byte val) {
         this.val = val;
-    }
-
-    public byte getVal() {
-        return val;
     }
 
     public static InventoryType getInventoryByVal(int val) {
@@ -42,5 +42,19 @@ public enum InventoryType {
 
     public boolean isStackable() {
         return this != EQUIP && this != EQUIPPED && this != CASH;
+    }
+
+    public static InventoryType getTypeByItemId(int itemId) {
+        if (ItemUtils.isEquip(itemId)) {
+            return EQUIP;
+        } else if (ItemUtils.isConsume(itemId)) {
+            return CONSUME;
+        } else if (ItemUtils.isInstall(itemId)) {
+            return INSTALL;
+        } else if (ItemUtils.isEtc(itemId)) {
+            return ETC;
+        } else {
+            return CASH;
+        }
     }
 }
