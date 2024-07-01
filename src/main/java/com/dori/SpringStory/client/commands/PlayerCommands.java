@@ -11,7 +11,6 @@ import com.dori.SpringStory.world.MapleWorld;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PlayerCommands {
     // Logger -
@@ -47,7 +46,7 @@ public class PlayerCommands {
     public static void info(MapleChar chr, List<String> args) {
         chr.message("Name: " + chr.getName(), ChatType.SpeakerWorld);
         chr.message("Lvl: " + chr.getLevel() + " | Job: " + chr.getJob() + " | Exp: " + chr.getExp(), ChatType.SpeakerWorld);
-        chr.message("Hp: " + chr.getHp() + " / " + chr.getStat(Stat.MaxHp) + " | " + "Mp: " + chr.getMp() + " / " + chr.getStat(Stat.MaxMp), ChatType.SpeakerWorld);
+        chr.message("Hp: " + chr.getHp() + " / " + chr.getTotalStat(Stat.MaxHp) + " | " + "Mp: " + chr.getMp() + " / " + chr.getTotalStat(Stat.MaxMp), ChatType.SpeakerWorld);
         chr.message("Str: " + chr.getNStr() + " | Dex: " + chr.getNDex() + " | Int: " + chr.getNInt() + " | Luk: " + chr.getNLuk(), ChatType.SpeakerWorld);
         chr.message("Field: " + chr.getField().getId() + " | Pos:" + chr.getPosition() + " | Fh: " + chr.getFoothold(), ChatType.SpeakerWorld);
     }

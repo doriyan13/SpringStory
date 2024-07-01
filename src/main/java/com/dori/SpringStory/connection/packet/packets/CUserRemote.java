@@ -158,4 +158,12 @@ public interface CUserRemote {
         outPacket.encodeBool(isByItemOption); // bEmotionByItemOption
         return outPacket;
     }
+
+    static OutPacket setActivePortableChair(int chrID,
+                                            int chairItemID) {
+        OutPacket outPacket = new OutPacket(OutHeader.CUserRemoteSetActivePortableChair);
+        outPacket.encodeInt(chrID);
+        outPacket.encodeInt(chairItemID);
+        return outPacket;
+    }
 }

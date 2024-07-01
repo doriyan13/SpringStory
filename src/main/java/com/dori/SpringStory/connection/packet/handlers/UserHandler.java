@@ -10,11 +10,15 @@ import com.dori.SpringStory.client.effects.parsers.SkillUseEffect;
 import com.dori.SpringStory.connection.packet.Handler;
 import com.dori.SpringStory.connection.packet.InPacket;
 import com.dori.SpringStory.connection.packet.headers.InHeader;
+import com.dori.SpringStory.connection.packet.packets.CUserLocal;
 import com.dori.SpringStory.connection.packet.packets.CUserRemote;
 import com.dori.SpringStory.connection.packet.packets.CWvsContext;
+import com.dori.SpringStory.dataHandlers.ItemDataHandler;
+import com.dori.SpringStory.dataHandlers.dataEntities.ItemData;
 import com.dori.SpringStory.enums.*;
 import com.dori.SpringStory.jobs.handlers.MagicianHandler;
 import com.dori.SpringStory.jobs.handlers.WarriorHandler;
+import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
 import com.dori.SpringStory.utils.FormulaCalcUtils;
 import com.dori.SpringStory.utils.JobUtils;
@@ -31,14 +35,19 @@ import com.dori.SpringStory.dataHandlers.dataEntities.SkillData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.dori.SpringStory.connection.packet.headers.InHeader.*;
 import static com.dori.SpringStory.constants.GameConstants.QUICK_SLOT_LENGTH;
 import static com.dori.SpringStory.enums.AttackType.*;
 import static com.dori.SpringStory.enums.Skills.*;
 import static com.dori.SpringStory.utils.FuncKeyMapUtils.handleKeyModifiedToChr;
+import static com.dori.SpringStory.utils.ItemUtils.isChair;
 
 public class UserHandler {
+    // Logger -
+    private static final Logger logger = new Logger(UserHandler.class);
+
     @Handler(op = UserMove)
     public static void handleUserMove(MapleClient c, InPacket inPacket) {
         // CVecCtrlUser::EndUpdateActive
@@ -238,7 +247,7 @@ public class UserHandler {
         chr.handleSkill(skillID, slv, throwingStarItemID);
 
         // Handle remote skill effect -
-        Effect skillEffect = new SkillUseEffect(skillID,chr.getLevel(),slv);
+        Effect skillEffect = new SkillUseEffect(skillID, chr.getLevel(), slv);
         chr.getField().broadcastPacket(CUserRemote.remoteEffect(chr.getId(), skillEffect.getType(), skillEffect), chr);
     }
 
@@ -277,6 +286,92 @@ public class UserHandler {
         int duration = inPacket.decodeInt();
         boolean byItemOption = inPacket.decodeBool();
 
-        chr.getField().broadcastPacket(CUserRemote.emotion(chr.getId(),emotion,duration,byItemOption));
+        chr.getField().broadcastPacket(CUserRemote.emotion(chr.getId(), emotion, duration, byItemOption));
+    }
+
+    @Handler(op = UserAbilityUpRequest)
+    public static void handleUserAbilityUpRequest(MapleChar chr, InPacket inPacket) {
+        inPacket.decodeInt(); // update_time
+        int statFlag = inPacket.decodeInt();
+        Stat stat = Stat.getByVal(statFlag);
+        int amount = switch (stat) {
+            case MaxHp, MaxMp -> 20;
+            default -> 1;
+        };
+        Map<Stat, Object> stats = new HashMap<>();
+        chr.addStat(stat, amount);
+        stats.put(stat, chr.getStat(stat));
+        chr.addStat(Stat.AbilityPoint, -1); // deduct 1 point as it was used
+        stats.put(Stat.AbilityPoint, chr.getAp());
+        chr.changeStats(stats);
+    }
+
+    @Handler(op = UserCharacterInfoRequest)
+    public static void handleUserCharacterInfoRequest(MapleClient c, InPacket inPacket) {
+        inPacket.decodeInt(); // update time
+        int chrID = inPacket.decodeInt();
+        inPacket.decodeBool(); // petInfo
+
+        MapleChar chrToGetHisInfo = c.getChr().getField().getPlayers().get(chrID);
+        if (chrToGetHisInfo != null) {
+            c.write(CWvsContext.characterInfo(chrToGetHisInfo));
+        }
+    }
+
+    @Handler(op = UserAbilityMassUpRequest)
+    public static void handleUserAbilityMassUpRequest(MapleChar chr, InPacket inPacket) {
+        inPacket.decodeInt(); // update_time
+        int amountOfStats = inPacket.decodeInt();
+        Map<Stat, Object> stats = new HashMap<>();
+        int totalAP = 0;
+
+        for (int i = 0; i < amountOfStats; i++) {
+            int statFlag = inPacket.decodeInt();
+            int amount = inPacket.decodeInt();
+            totalAP += amount;
+            Stat stat = Stat.getByVal(statFlag);
+            chr.addStat(stat, amount);
+            stats.put(stat, chr.getStat(stat));
+        }
+        chr.addStat(Stat.AbilityPoint, -totalAP); // deduct the points as it was used
+        stats.put(Stat.AbilityPoint, chr.getAp());
+        chr.changeStats(stats);
+    }
+
+    @Handler(op = UserSitRequest)
+    public static void handleUserSitRequest(MapleChar chr,
+                                            InPacket inPacket) {
+        short seatID = inPacket.decodeShort();
+        chr.write(CUserLocal.sitResult(seatID != -1, seatID));
+    }
+
+    @Handler(op = UserPortableChairSitRequest)
+    public static void handleUserPortableChairSitRequest(MapleChar chr,
+                                                         InPacket inPacket) {
+        int itemID = inPacket.decodeInt();
+        if (isChair(itemID) && chr.hasItem(itemID)) {
+            chr.sitOnChair(itemID);
+            chr.getField().broadcastPacket(CUserRemote.setActivePortableChair(chr.getId(), itemID));
+            chr.enableAction();
+        } else {
+            logger.error("The chr " + chr.getName() + " has no active portable chair!");
+            chr.getMapleClient().close();
+        }
+    }
+
+    @Handler(op = UserStatChangeByPortableChairRequest)
+    public static void handleUserStatChangeByPortableChairRequest(MapleChar chr,
+                                                                  InPacket inPacket) {
+        if (!chr.isSit()) {
+            return;
+        }
+        int chairID = chr.getChairID();
+        if (isChair(chairID) && chr.hasItem(chairID)) {
+            ItemData itemData = ItemDataHandler.getItemDataByID(chairID);
+            if (itemData == null) {
+                return;
+            }
+            chr.heal(itemData.getRecoveryHP(), itemData.getRecoveryMP());
+        }
     }
 }

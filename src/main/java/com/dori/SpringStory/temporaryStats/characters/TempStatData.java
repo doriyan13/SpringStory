@@ -11,23 +11,23 @@ import java.util.concurrent.ConcurrentHashMap;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TempStatData {
-    private Map<Integer, Integer> skillsDataDistribution = new ConcurrentHashMap<>();
+    private Map<Integer, Integer> dataDistribution = new ConcurrentHashMap<>();
     private int total;
     private boolean modified = true;
     private boolean deleted = false;
 
-    public void addSkillStats(int skillID, int statValue) {
-        int skillStatValue = skillsDataDistribution.getOrDefault(skillID, 0);
-        skillsDataDistribution.put(skillID, statValue);
+    public void addStat(int id, int value) {
+        int skillStatValue = dataDistribution.getOrDefault(id, 0);
+        dataDistribution.put(id, value);
         if(skillStatValue != 0) {
             total -= skillStatValue;
         }
-        total += statValue;
+        total += value;
         modified = true;
     }
 
     public void removeSkillStats(int skillID) {
-        Integer valueToDeduct = skillsDataDistribution.remove(skillID);
+        Integer valueToDeduct = dataDistribution.remove(skillID);
         if (valueToDeduct != null) {
             total -= valueToDeduct;
             modified = true;

@@ -6,6 +6,7 @@ import com.dori.SpringStory.connection.packet.OutPacket;
 import com.dori.SpringStory.constants.ServerConstants;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.services.MapleAccountService;
 import com.dori.SpringStory.services.MapleCharService;
 import com.dori.SpringStory.services.ServiceManager;
 import com.dori.SpringStory.utils.MapleUtils;
@@ -15,7 +16,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Data
@@ -59,11 +62,16 @@ public class MapleChannel {
     }
 
     public void shutdown() {
+        Set<Integer> savedAccounts = new HashSet<>();
         for (MapleChar chr : chars.values()) {
+            MapleAccount account = chr.getAccount();
             logger.warning("Logging out - ID: " + chr.getId() + " | Name - " + chr.getName());
-            // Save the Character progress in the DB -
-            ((MapleCharService) ServiceManager.getService(ServiceType.Character)).update((long) chr.getId(), chr);
-            logger.warning("Saved - ID: " + chr.getId() + " | Name - " + chr.getName() + " Progress successfully");
+            if (!savedAccounts.contains(account.getId())) {
+                savedAccounts.add(account.getId());
+                // Save the Character Account progress in the DB -
+                MapleAccountService.getInstance().update((long) account.getId(),account);
+            }
+            logger.warning("ID: " + chr.getId() + " | Name - " + chr.getName() + " Saved Progress successfully");
             // Close the user client -
             chr.getMapleClient().close();
         }
@@ -87,15 +95,6 @@ public class MapleChannel {
 
     public MapleChar getCharByName(String name) {
         return MapleUtils.findWithPred(getChars().values(), chr -> chr.getName().equals(name));
-    }
-
-    public MapleAccount getAccountByID(int accID) {
-        for (MapleChar chr : getChars().values()) {
-            if (chr.getAccountID() == accID) {
-                return chr.getMapleClient().getAccount();
-            }
-        }
-        return null;
     }
 
     public void broadcastPacket(OutPacket outPacket) {

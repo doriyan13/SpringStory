@@ -13,6 +13,7 @@ import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
@@ -22,6 +23,7 @@ import java.util.stream.IntStream;
 public class MapleUtils {
 
     private static final Pattern regexPattern = Pattern.compile("^\\$2[a-z]\\$.{56}$");
+    private static final Random random = new SecureRandom();
 
     /**
      * Gets a random element from a given List. This is done by utilizing {@link #getRandom(int)}.
@@ -58,6 +60,22 @@ public class MapleUtils {
             return list[getRandom(list.length - 1)];
         }
         return null;
+    }
+
+    public static <T> Optional<T> getRandomFromCollection(Collection<T> collection,
+                                                          ToDoubleFunction<T> weightFunction) {
+        if (collection.isEmpty()) {
+            return Optional.empty();
+        }
+        final double totalWeight = collection.stream().mapToDouble(weightFunction).sum();
+        double r = random.nextDouble() * totalWeight;
+        for (T item : collection) {
+            r -= weightFunction.applyAsDouble(item);
+            if (r <= 0.0) {
+                return Optional.of(item);
+            }
+        }
+        return Optional.empty();
     }
 
     /**

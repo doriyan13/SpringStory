@@ -134,6 +134,8 @@ public class ItemDataHandler {
                     case "create" -> item.setCreateID(intValue);
                     case "mobHP" -> item.setMobHP(intValue);
                     case "only" -> item.setOnly(Integer.parseInt(value) != 0); //TODO: need to test with ID - 3994126
+                    case "recoveryHP" -> item.setRecoveryHP(intValue);
+                    case "recoveryMP" -> item.setRecoveryMP(intValue);
                     // info not currently interesting. May be interested in the future.
                     /*case "icon", "iconRaw", "iconD", "iconReward", "iconShop", "recoveryHP", "recoveryMP", "sitAction",
                             "bodyRelMove", "only", "noDrop", "timeLimited", "accountSharable", "nickTag", "nickSkill", "endLotteryDate", "noFlip",

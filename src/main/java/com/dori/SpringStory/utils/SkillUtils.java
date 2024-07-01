@@ -2,8 +2,6 @@ package com.dori.SpringStory.utils;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.client.character.Skill;
-import com.dori.SpringStory.client.character.attack.AttackInfo;
-import com.dori.SpringStory.enums.InventoryType;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.enums.SkillStat;
 import com.dori.SpringStory.enums.Skills;
@@ -165,7 +163,7 @@ public interface SkillUtils {
         } else if (skillData.getSkillStatInfo().get(itemCon) != null && skillData.getSkillStatInfo().get(itemConNo) != null) {
             int itemIdToConsume = Integer.parseInt(skillData.getSkillStatInfo().get(itemCon));
             int amountToConsume = Integer.parseInt(skillData.getSkillStatInfo().get(itemConNo));
-            chr.consumeItem(InventoryType.ETC, itemIdToConsume, amountToConsume);
+            chr.consumeItem(itemIdToConsume, amountToConsume);
         }
     }
 
@@ -174,7 +172,7 @@ public interface SkillUtils {
                                        @NotNull Item throwingStarToConsumeFrom) {
         int amountOfStarsToConsume = getNumOfStarsToConsumeBySkillID(skillData.getSkillId());
         if (amountOfStarsToConsume != 0) {
-            chr.consumeItem(InventoryType.CONSUME, throwingStarToConsumeFrom.getItemId(), amountOfStarsToConsume);
+            chr.consumeItem(throwingStarToConsumeFrom.getItemId(), amountOfStarsToConsume);
         }
     }
 

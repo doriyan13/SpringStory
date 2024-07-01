@@ -10,20 +10,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "account")
-@Table(
-        name = "accounts"
-)
+@Entity
+@Table(name = "accounts")
 public class MapleAccount {
-    @Transient
-    private static final Logger log = new Logger(MapleAccount.class);
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -33,9 +28,8 @@ public class MapleAccount {
     @Enumerated(EnumType.ORDINAL)
     private AccountType accountType;
     private int accountSlots;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER) // fetch eagerly to fix lazy load handling -> https://www.baeldung.com/hibernate-initialize-proxy-exception
-    @JoinColumn(name = "accountID")
-    private Set<MapleChar> characters = new HashSet<>();
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER) // fetch eagerly to fix lazy load handling -> https://www.baeldung.com/hibernate-initialize-proxy-exception
+    private List<MapleChar> characters;
     private int votePoints;
     private int donationPoints;
     private byte gender;
@@ -45,6 +39,9 @@ public class MapleAccount {
     private FileTime banExpireDate;
     @Convert(converter = FileTimeConverter.class)
     private FileTime chatUnblockDate;
+
+    @Transient
+    private static final Logger log = new Logger(MapleAccount.class);
 
     public MapleAccount(String name, String password, boolean isAdmin) {
         this.worldId = ServerConstants.DEFAULT_WORLD_ID;
@@ -57,6 +54,6 @@ public class MapleAccount {
         this.donationPoints = 0;
         this.gender = 0; // Pretty sure it means male?
 
-        this.characters = new HashSet<>();
+        this.characters = new ArrayList<>();
     }
 }

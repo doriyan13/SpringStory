@@ -7,6 +7,7 @@ import com.dori.SpringStory.connection.netty.NettyClient;
 import com.dori.SpringStory.connection.packet.packets.CClientSocket;
 import com.dori.SpringStory.connection.packet.packets.CStage;
 import com.dori.SpringStory.enums.ServiceType;
+import com.dori.SpringStory.services.MapleAccountService;
 import com.dori.SpringStory.services.MapleCharService;
 import com.dori.SpringStory.services.ServiceManager;
 import com.dori.SpringStory.world.MapleChannel;
@@ -38,7 +39,7 @@ public class MapleClient extends NettyClient {
         MapleChar chr = getChr();
         // Remove the character from the list of online characters -
         chr.getMapleClient().getMapleChannelInstance().removeChar(chr);
-        ((MapleCharService) ServiceManager.getService(ServiceType.Character)).update((long) chr.getId(), chr);
+        MapleAccountService.getInstance().update((long) getAccount().getId(),chr.getAccount());
         // Remove client from list of connected clients -
         Server.removeClient(this);
         // Remove player from field -

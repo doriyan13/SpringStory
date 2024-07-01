@@ -1,8 +1,10 @@
 package com.dori.SpringStory.connection.packet.packets;
 
+import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.client.character.Skill;
 import com.dori.SpringStory.client.character.quest.Quest;
 import com.dori.SpringStory.enums.*;
+import com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryStat;
 import com.dori.SpringStory.temporaryStats.characters.TemporaryStatManager;
 import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.packet.OutPacket;
@@ -218,14 +220,84 @@ public interface CWvsContext {
         OutPacket outPacket = new OutPacket(OutHeader.Message);
 
         outPacket.encodeByte(QUEST_RECORD_MESSAGE.getVal());
-        outPacket.encodeShort(quest.getQRKey());
+        outPacket.encodeShort(quest.getQrKey());
         QuestStatus state = quest.getStatus();
         outPacket.encodeByte(state.getVal());
         switch (state) {
-            case NotStarted -> outPacket.encodeByte(0); // If quest is completed, but should never be true?
+            case NotStarted -> outPacket.encodeBool(true); // delete quest
             case Started -> outPacket.encodeString(quest.getQrValue());
             case Completed -> outPacket.encodeFT(quest.getCompletedTime());
         }
+        return outPacket;
+    }
+
+    static OutPacket characterInfo(MapleChar chr) {
+        OutPacket outPacket = new OutPacket(OutHeader.CharacterInfo);
+
+        outPacket.encodeInt(chr.getId());
+        outPacket.encodeByte(chr.getLevel());
+        outPacket.encodeShort(chr.getJob());
+        outPacket.encodeShort(chr.getPop());
+        outPacket.encodeByte(false); // bIsMarried
+
+        outPacket.encodeString(""); // sCommunity | GuildName
+        outPacket.encodeString(""); // sAlliance
+
+        outPacket.encodeByte(0); // medalInfo | need to figure out what it effects?
+
+        outPacket.encodeByte(0); // bPetInfo ? | 1 - encode pet info | 0 - don't encode pet into
+        // TODO: pet encoding -
+        /*
+        * for (byte i = 0; i < 3; i++)
+			{
+				if (Pets[i] != null)
+				{
+					p.Encode1(1);
+
+					var cp = Pets[i];
+					p.Encode4(cp.dwTemplateID);
+					p.EncodeString(cp.sName);
+					p.Encode1(cp.Level);
+					p.Encode2(cp.Tameness);
+					p.Encode1(cp.Repleteness); //i think
+					p.Encode2(cp.Skill);
+					p.Encode4(InventoryManipulator.GetItem(Parent, petwearparts[i], true)?.nItemID ?? 0); // TODO verify
+				}
+			}
+        * */
+        boolean hasMouth = chr.getTsm().hasCTS(CharacterTemporaryStat.RideVehicle);
+        outPacket.encodeBool(hasMouth);
+        // TODO: handle tamingMob encoding properly -
+        if (hasMouth) {
+            outPacket.encodeInt(1); // TamingMobLevel
+            outPacket.encodeInt(0); // TamingMobExp
+            outPacket.encodeInt(0); // TamingMobFatigue
+        }
+
+        // TODO: handle WishList -
+        outPacket.encodeByte(0); // amount of wish listed items
+        for (int i = 0; i < 0; i++) {
+            outPacket.encodeInt(0); // itemID
+        }
+
+        // MedalAchievementInfo::Decode(v29, v4);
+        Item medal = chr.getEquippedItemByBodyPart(BodyPart.Medal);
+        outPacket.encodeInt(medal != null ? medal.getItemId() : 0);
+        // TODO: medal handling properly -
+        outPacket.encodeShort(0); // questEntries.Length
+        for (int i = 0; i < 0; i++) {
+            outPacket.encodeShort(0); // nQuestID
+        }
+
+        // Chairs
+        List<Item> chairs = chr.getInstallInventory()
+                .getItems()
+                .stream()
+                .filter(item -> (item.getItemId() / 10000) == 301)
+                .toList();
+        outPacket.encodeInt(chairs.size());
+        chairs.forEach(item -> outPacket.encodeInt(item.getItemId()));
+
         return outPacket;
     }
 }

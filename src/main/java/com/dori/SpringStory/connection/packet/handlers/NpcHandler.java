@@ -9,7 +9,7 @@ import com.dori.SpringStory.connection.packet.packets.CScriptMan;
 import com.dori.SpringStory.enums.NpcMessageType;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.scripts.api.NpcMessage;
-import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
+import com.dori.SpringStory.scripts.handlers.ScriptHandler;
 import com.dori.SpringStory.scripts.message.AvatarMsg;
 import com.dori.SpringStory.scripts.message.NpcMessageData;
 import com.dori.SpringStory.scripts.message.SayMsg;
@@ -28,7 +28,7 @@ public class NpcHandler {
         inPacket.decodePosition(); // playerPos
         Npc npc = chr.getField().getNpcs().get(npcOid);
         // Invoke the script by the handler -
-        NpcScriptHandler.getInstance().handleNpcScript(chr, npc);
+        ScriptHandler.getInstance().handleNpcScript(chr, npc);
 
         //TODO: need to handle script invoking!
         // First try invoke the npc script

@@ -20,7 +20,7 @@ public class Quest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private int QRKey;
+    private int qrKey;
     private String qrValue;
 
     @Column(name = "status")
@@ -29,21 +29,8 @@ public class Quest {
     @Convert(converter = FileTimeConverter.class)
     private FileTime completedTime;
 
-    @Transient
-    private Map<String, String> properties = new HashMap<>();
-
-    //TODO: need to fix / figure out how to handle it properly?
-//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumn(name = "questID")
-//    @Cascade(org.hibernate.annotations.CascadeType.DELETE)
-//    private List<QuestProgressRequirement> progressRequirements;
-
-//    public Quest() {
-//        progressRequirements = new ArrayList<>();
-//    }
-
-    public Quest(int QRKey, QuestStatus status) {
-        this.QRKey = QRKey;
+    public Quest(int qrKey, QuestStatus status) {
+        this.qrKey = qrKey;
         this.status = status;
     }
 }

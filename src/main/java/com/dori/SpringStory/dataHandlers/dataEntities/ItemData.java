@@ -58,6 +58,8 @@ public class ItemData {
     private int grade;
     private Set<Integer> reqItemIds = new HashSet<>();
     private boolean only;
+    private int recoveryHP;
+    private int recoveryMP;
 
     public void addSkill(int skill) {
         skills.add(skill);

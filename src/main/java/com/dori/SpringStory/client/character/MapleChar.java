@@ -1,6 +1,8 @@
 package com.dori.SpringStory.client.character;
 
 import com.dori.SpringStory.client.MapleClient;
+import com.dori.SpringStory.client.character.quest.Quest;
+import com.dori.SpringStory.client.character.quest.QuestManager;
 import com.dori.SpringStory.client.messages.IncEXPMessage;
 import com.dori.SpringStory.connection.dbConvertors.InlinedIntArrayConverter;
 import com.dori.SpringStory.connection.packet.packets.*;
@@ -33,9 +35,11 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dori.SpringStory.constants.GameConstants.*;
 import static com.dori.SpringStory.constants.ItemConstants.CUBE_FRAGMENT;
+import static com.dori.SpringStory.enums.EquipBaseStat.*;
 import static com.dori.SpringStory.enums.EventType.VALIDATE_CHARACTER_TEMP_STATS;
 import static com.dori.SpringStory.enums.InventoryOperation.*;
 import static com.dori.SpringStory.enums.InventoryType.*;
@@ -56,8 +60,9 @@ public class MapleChar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "accountID")
-    private int accountID;
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private MapleAccount account;
     @Column(name = "char_name")
     private String name;
     private int rewardPoints;
@@ -114,6 +119,8 @@ public class MapleChar {
     @JoinColumn(name = "cashInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Inventory cashInventory = new Inventory(CASH, DEFAULT_CASH_INVENTORY_SIZE);
+    // Item counter for SN calc -
+    private AtomicInteger itemSnCounter;
     // Skill fields -
     @MapKey(name = "skillId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -124,6 +131,9 @@ public class MapleChar {
     @MapKey(name = "key")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Map<Integer, KeyMapping> keymap;
+    @JoinColumn(name = "questManager")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private QuestManager questManager;
     // Non-DB fields -
     @Transient
     private static final Logger logger = new Logger(MapleChar.class);
@@ -145,10 +155,14 @@ public class MapleChar {
     private ScriptApi script;
     @Transient
     private boolean hidden = false;
+    @Transient
+    private boolean sit = false;
+    @Transient
+    private int chairID;
 
-    public MapleChar(int accountID, String name, int gender) {
+    public MapleChar(MapleAccount account, String name, int gender) {
         // Set char base data -
-        this.accountID = accountID;
+        this.account = account;
         this.name = name;
         this.gender = CharacterGender.getGenderByOrdinal(gender); // 0 - boy | 1 - girl
         this.skin = DEFAULT_SKIN;
@@ -179,11 +193,17 @@ public class MapleChar {
         this.skills = new HashMap<>();
         // KeyMapping -
         this.keymap = new HashMap<>();
+        // QuickSlots -
+        this.quickSlotKeys = new ArrayList<>();
+        // SN counter -
+        this.itemSnCounter = new AtomicInteger(0);
+        // Quests Manager -
+        this.questManager = new QuestManager();
     }
 
-    public MapleChar(int accountID, String name, byte gender, int job, short subJob, int[] charAppearance) {
+    public MapleChar(MapleAccount account, String name, byte gender, int job, short subJob, int[] charAppearance) {
         // Set char base data -
-        this.accountID = accountID;
+        this.account = account;
         this.name = name;
         this.gender = CharacterGender.getGenderByOrdinal(gender); // 0 - boy | 1 - girl
         // Character appearance -
@@ -223,14 +243,38 @@ public class MapleChar {
         this.skills = new HashMap<>();
         // KeyMapping -
         this.keymap = new HashMap<>();
+        // QuickSlots -
+        this.quickSlotKeys = new ArrayList<>();
+        // SN counter -
+        this.itemSnCounter = new AtomicInteger(0);
+        // Quests Manager -
+        this.questManager = new QuestManager();
+    }
+
+    public int getTotalStat(Stat stat) {
+        return switch (stat) {
+            case MaxHp -> getMaxHp() + (getMaxHp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_HP) / 100)
+                    + (getMaxHp() * getTsm().getCTS(CharacterTemporaryStat.MaxHp) / 100)
+                    + getTsm().getEquipStats().getStat(iMaxHP);
+            case MaxMp -> getMaxMp() + (getMaxMp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_MP) / 100)
+                    + (getMaxMp() * getTsm().getCTS(CharacterTemporaryStat.MaxMp) / 100)
+                    + getTsm().getEquipStats().getStat(iMaxMP);
+            case Str -> getNStr() + getTsm().getEquipStats().getStat(iStr);
+            case Dex -> getNDex() + getTsm().getEquipStats().getStat(iDex);
+            case Inte -> getNInt() + getTsm().getEquipStats().getStat(iInt);
+            case Luk -> getNLuk() + getTsm().getEquipStats().getStat(iLuk);
+            default -> 0;
+        };
     }
 
     public int getStat(Stat stat) {
         return switch (stat) {
-            case MaxHp ->
-                    getMaxHp() + (getMaxHp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_HP) / 100) + (getMaxHp() * getTsm().getCTS(CharacterTemporaryStat.MaxHp) / 100);
-            case MaxMp ->
-                    getMaxMp() + (getMaxMp() * getTsm().getPassiveStat(PassiveBuffStat.MAX_MP) / 100) + (getMaxMp() * getTsm().getCTS(CharacterTemporaryStat.MaxMp) / 100);
+            case MaxHp -> getMaxHp();
+            case MaxMp -> getMaxMp();
+            case Str -> getNStr();
+            case Dex -> getNDex();
+            case Inte -> getNInt();
+            case Luk -> getNLuk();
             default -> 0;
         };
     }
@@ -242,6 +286,10 @@ public class MapleChar {
                 applyPassiveSkillDataStats(skillData, skill.getCurrentLevel());
             }
         });
+    }
+
+    public void initEquipStats() {
+        getEquippedInventory().getItems().forEach(item -> ((Equip) item).applyStatsToChr(this));
     }
 
     /**
@@ -623,7 +671,7 @@ public class MapleChar {
     public void modifyHp(int amount) {
         int newHp;
         if (amount > 0) {
-            newHp = Math.min(amount + getHp(), getStat(MaxHp));
+            newHp = Math.min(amount + getHp(), getTotalStat(MaxHp));
             setHp(newHp);
             updateStat(Stat.Hp, newHp);
         } else if (amount < 0) {
@@ -636,7 +684,7 @@ public class MapleChar {
     public void modifyMp(int amount) {
         int newMp;
         if (amount > 0) {
-            newMp = Math.min(Math.abs(amount + getMp()), getStat(MaxMp));
+            newMp = Math.min(Math.abs(amount + getMp()), getTotalStat(MaxMp));
             setMp(newMp);
             updateStat(Stat.Mp, newMp);
         } else if (amount < 0) {
@@ -646,9 +694,19 @@ public class MapleChar {
         }
     }
 
+    public void heal(int amountOfHpToHeal,
+                     int amountOfMpToHeal) {
+        if (amountOfHpToHeal > 0) {
+            modifyHp(amountOfHpToHeal);
+        }
+        if (amountOfMpToHeal > 0) {
+            modifyMp(amountOfMpToHeal);
+        }
+    }
+
     public void fullHeal() {
-        int amountOfHpToHeal = getStat(MaxHp) - getHp();
-        int amountOfMpToHeal = getStat(MaxMp) - getMp();
+        int amountOfHpToHeal = getTotalStat(MaxHp) - getHp();
+        int amountOfMpToHeal = getTotalStat(MaxMp) - getMp();
 
         if (amountOfHpToHeal > 0) {
             modifyHp(amountOfHpToHeal);
@@ -763,7 +821,7 @@ public class MapleChar {
         for (Map.Entry<SkillStat, String> entry : skillData.getSkillStatInfo().entrySet()) {
             PassiveBuffStat stat = Stat.getStatBySkillStat(entry.getKey());
             if (stat != null) {
-                getTsm().addPassiveStat(stat, skillData.getSkillId(), FormulaCalcUtils.calcValueFromFormula(entry.getValue(), slv));
+                getTsm().getPassiveStats().addStat(stat, skillData.getSkillId(), FormulaCalcUtils.calcValueFromFormula(entry.getValue(), slv));
             }
         }
     }
@@ -816,14 +874,14 @@ public class MapleChar {
     }
 
     private void validateHp() {
-        int maxHp = getStat(MaxHp);
+        int maxHp = getTotalStat(MaxHp);
         if (getHp() > maxHp) {
             modifyHp(maxHp);
         }
     }
 
     private void validateMp() {
-        int maxMp = getStat(MaxMp);
+        int maxMp = getTotalStat(MaxMp);
         if (getHp() > maxMp) {
             modifyMp(maxMp);
         }
@@ -845,7 +903,7 @@ public class MapleChar {
     public void applyTemporaryStats() {
         resetTemporaryStats();
         write(CWvsContext.temporaryStatSet(getTsm()));
-        getTsm().applyModifiedStats();
+        getTsm().getAdditionalStats().applyModifiedStats();
         // After setting the chr stats the chr get locked and need to be released -
         enableAction();
         // broadcast the new tempStats of char -
@@ -873,6 +931,8 @@ public class MapleChar {
                 } else {
                     // Must do it cuz if not the client will be locked for skills that don't modify stats
                     enableAction();
+                    // broadcast the new tempStats of char -
+                    getField().broadcastPacket(CUserRemote.temporaryStatSet(getId(), getTsm()), this);
                 }
             }
             if (skillID == ADMIN_HIDE.getId()) {
@@ -898,14 +958,14 @@ public class MapleChar {
                     amountToRaise = amountOfStacks + 2 <= maxCombo ? 2 : 1; // If it doesn't overflow then double stack, if it overflows keep at 1.
                 }
             }
-            getTsm().addStat(ComboCounter, Skills.CRUSADER_COMBO_ATTACK.getId(), amountOfStacks + amountToRaise);
+            getTsm().getAdditionalStats().addStat(ComboCounter, Skills.CRUSADER_COMBO_ATTACK.getId(), amountOfStacks + amountToRaise);
             applyTemporaryStats();
         }
     }
 
     public void resetAttackCombo() {
         if (getTsm().getCTS(ComboCounter) != 0) {
-            getTsm().addStat(ComboCounter, Skills.CRUSADER_COMBO_ATTACK.getId(), 1);
+            getTsm().getAdditionalStats().addStat(ComboCounter, Skills.CRUSADER_COMBO_ATTACK.getId(), 1);
             applyTemporaryStats();
         }
     }
@@ -917,32 +977,54 @@ public class MapleChar {
         write(CWvsContext.inventoryOperation(true, Add, (short) equip.getBagIndex(), (short) -1, equip));
     }
 
-    public void addItem(Item item) {
+    public boolean addItem(Item item) {
         Inventory inventory = getInventoryByType(item.getInvType());
         ItemData itemData = ItemDataHandler.getItemDataByID(item.getItemId());
         boolean newItem = false;
-        if (inventory != null && itemData != null && item.getQuantity() > 0) {
-            Item itemInInv = inventory.getItemByItemID(item.getItemId());
-            if (itemInInv != null && inventory.getType().isStackable()) {
-                int updatedQuantity = item.getQuantity() + itemInInv.getQuantity();
-                int amountToNewStack = updatedQuantity - itemData.getSlotMax();
-                if (amountToNewStack > 0) {
-                    item.setQuantity(amountToNewStack);
-                    updatedQuantity = itemData.getSlotMax();
-                    newItem = true;
-                }
-                itemInInv.setQuantity(updatedQuantity);
-                write(CWvsContext.inventoryOperation(true, UpdateQuantity, (short) itemInInv.getBagIndex(), (short) -1, itemInInv));
-            } else {
-                newItem = true;
-            }
-        } else {
+        if (inventory == null || itemData == null || item.getQuantity() <= 0) {
             logger.error("Got illegal item: " + item);
+            return false;
+        }
+        List<Item> itemsInInv = inventory.getItemsByItemID(item.getItemId())
+                .stream()
+                .filter(itemInInv -> itemInInv.getQuantity() < itemData.getSlotMax())
+                .toList();
+        if (itemsInInv.isEmpty() || !inventory.getType().isStackable()) {
+            newItem = true;
+        }
+        int amountToNewStack = item.getQuantity();
+        for (Item itemInInv : itemsInInv) {
+            if (amountToNewStack <= 0) {
+                break;
+            }
+            int newTotal = itemInInv.getQuantity() + amountToNewStack;
+            amountToNewStack = newTotal - itemData.getSlotMax();
+            if (amountToNewStack > 0) { // overflow
+                itemInInv.setQuantity(itemData.getSlotMax());
+            } else {
+                itemInInv.setQuantity(newTotal);
+            }
+            write(CWvsContext.inventoryOperation(true, UpdateQuantity, (short) itemInInv.getBagIndex(), (short) -1, itemInInv));
+        }
+        // Need to add a new item -
+        if (amountToNewStack > 0) {
+            item.setQuantity(amountToNewStack);
+            newItem = true;
         }
         if (newItem) {
-            inventory.addItem(item);
-            write(CWvsContext.inventoryOperation(true, Add, (short) item.getBagIndex(), (short) -1, item));
+            if (!inventory.isFull()) {
+                if (ItemUtils.isThrowingItem(item.getItemId())) {
+                    // rechargeable item SN -
+                    item.setSerialNumber(getItemSnCounter().getAndIncrement() | (((long) getId()) << 32));
+                }
+                inventory.addItem(item);
+                write(CWvsContext.inventoryOperation(true, Add, (short) item.getBagIndex(), (short) -1, item));
+            } else {
+                message("Inventory is full! ", ChatType.SpeakerChannel);
+                return false;
+            }
         }
+        return true;
     }
 
     public void addItem(int itemID,
@@ -1006,6 +1088,19 @@ public class MapleChar {
         modifyMeso(amount, false);
     }
 
+    public void modifyPop(int amount) {
+        int newFameAmount;
+        if (amount > 0) {
+            newFameAmount = Math.min(amount + getPop(), Short.MAX_VALUE);
+            setPop(newFameAmount);
+            updateStat(Pop, newFameAmount);
+        } else if (amount < 0 && (amount + getPop() >= Short.MIN_VALUE)) {
+            newFameAmount = amount + getMeso();
+            setPop(newFameAmount);
+            updateStat(Pop, newFameAmount);
+        }
+    }
+
     public boolean haveEquip(int equipID) {
         return getEquipInventory().getItemByItemID(equipID) != null
                 || getEquippedInventory().getItemByItemID(equipID) != null;
@@ -1049,23 +1144,27 @@ public class MapleChar {
         write(CWvsContext.inventoryOperation(true, inventoryOperation, (short) item.getBagIndex(), (short) -1, item));
     }
 
-    public void consumeItem(InventoryType invType,
-                            int itemID,
-                            int amount) {
-        Inventory itemInv = getInventoryByType(invType);
-        Item item = itemInv.getItemByItemID(itemID);
+    public boolean consumeItem(int itemID,
+                               int amount) {
+        Inventory itemInv = getInventoryByType(InventoryType.getTypeByItemId(itemID));
+        Item item = itemInv.getFirstItemByIdAndMinAmount(itemID, amount);
         if (item != null) {
             modifyItem(itemInv, item, -amount);
+            return true;
         } else {
-            logger.error("The player: " + getName() + ", try to modify an item that don't exist!! - " + itemID + " | inv - " + invType);
+            logger.error("The player: " + getName() + ", try to modify an item that don't exist!! - " + itemID + " | inv - " + itemInv.getType());
+            return false;
         }
     }
 
-    public void removeItem(InventoryType invType,
-                           int itemID) {
-        Item itemToRemove = getInventoryByType(invType).getItemByItemID(itemID);
-        getInventoryByType(invType).removeItem(itemToRemove);
-        write(CWvsContext.inventoryOperation(true, InventoryOperation.Remove, (short) (invType == EQUIPPED ? -itemToRemove.getBagIndex() : itemToRemove.getBagIndex()), (short) 0, itemToRemove));
+    public void removeItem(int itemID) {
+        Inventory inventory = getInventoryByType(InventoryType.getTypeByItemId(itemID));
+        Item itemToRemove = inventory.getItemByItemID(itemID);
+        if (itemToRemove == null) {
+            logger.error("Could not find item with ID: " + itemID + " in inventory: " + inventory + " to remove!!");
+        }
+        inventory.removeItem(itemToRemove);
+        write(CWvsContext.inventoryOperation(true, InventoryOperation.Remove, (short) (inventory.getType() == EQUIPPED ? -itemToRemove.getBagIndex() : itemToRemove.getBagIndex()), (short) 0, itemToRemove));
     }
 
     public void boundScript(ScriptApi script, int npcID) {
@@ -1097,7 +1196,7 @@ public class MapleChar {
         getTsm().getSkillsExpiration().remove(skillID);
         validateHpAndMp();
         write(CWvsContext.temporaryStatReset(getTsm()));
-        getTsm().removeTempStats(tempStatsToRemove);
+        getTsm().getAdditionalStats().removeStats(tempStatsToRemove);
         if (skillID == ADMIN_HIDE.getId()) {
             this.hidden = false;
             Field field = getField();
@@ -1115,7 +1214,7 @@ public class MapleChar {
                           @NotNull Item cube) {
         Equip equip = (Equip) getEquipInventory().getItemByIndex(equipPos);
         // First remove the cube (avoid duplication after use) -
-        consumeItem(CASH, cube.getItemId(), 1);
+        consumeItem(cube.getItemId(), 1);
         Item cubeFragment = ItemDataHandler.getItemByID(CUBE_FRAGMENT);
         if (cubeFragment != null) {
             addItem(cubeFragment);
@@ -1125,5 +1224,71 @@ public class MapleChar {
         // Update the equip for the client -
         write(CWvsContext.inventoryOperation(true, Add, (short) (equip.getInvType() == EQUIPPED ? -equip.getBagIndex() : equip.getBagIndex()), (short) 0, equip));
         write(CUser.showItemReleaseEffect(getId(), equipPos));
+    }
+
+    public void addStat(@NotNull Stat stat,
+                        int amount) {
+        switch (stat) {
+            case MaxHp -> setMaxHp(getMaxHp() + amount);
+            case MaxMp -> setMaxMp(getMaxMp() + amount);
+            case Hp -> setHp(getHp() + amount);
+            case Mp -> setMp(getMp() + amount);
+            case Str -> setNStr(getNStr() + amount);
+            case Dex -> setNDex(getNDex() + amount);
+            case Inte -> setNInt(getNInt() + amount);
+            case Luk -> setNLuk(getNLuk() + amount);
+            case Exp -> setExp(getExp() + amount);
+            case Pop -> setPop(getPop() + amount);
+            case Level -> setLevel(getLevel() + amount);
+            case Money -> setMeso(getMeso() + amount);
+            case SkillPoint -> setSp(getSp() + amount);
+            case AbilityPoint -> setAp(getAp() + amount);
+        }
+    }
+
+    public Item getEquippedItemByBodyPart(BodyPart bodyPart) {
+        List<Item> items = getEquippedInventory().getItemsByBodyPart(bodyPart);
+        return !items.isEmpty() ? items.getFirst() : null;
+    }
+
+    public boolean hasItem(int itemID,
+                           int amount) {
+        return getInventoryByType(InventoryType.getTypeByItemId(itemID))
+                .hasItem(itemID, amount);
+    }
+
+    public boolean hasItem(int itemID) {
+        return getInventoryByType(InventoryType.getTypeByItemId(itemID))
+                .hasItem(itemID, 1);
+    }
+
+    public int getItemCount(int itemID) {
+        return getInventoryByType(InventoryType.getTypeByItemId(itemID))
+                .getItemCount(itemID);
+    }
+
+    public void sitOnChair(int chairID) {
+        this.chairID = chairID;
+        this.sit = true;
+    }
+
+    public void stopSitting() {
+        this.chairID = 0;
+        this.sit = false;
+    }
+
+    public void forceStartQuest(int questId) {
+        Quest qr = getQuestManager().forceStartQuest(questId);
+        write(CWvsContext.questRecordMessage(qr));
+        enableAction();
+    }
+
+    public void forceCompleteQuest(int questId) {
+        Quest qr = getQuestManager().forceCompleteQuest(questId);
+        write(CWvsContext.questRecordMessage(qr));
+        enableAction();
+        // Quest complete effect
+        write(CUserLocal.effect(UserEffectTypes.QuestComplete, null));
+        getField().broadcastPacket(CUserRemote.remoteEffect(getId(), UserEffectTypes.QuestComplete, null));
     }
 }

@@ -2,6 +2,7 @@ package com.dori.SpringStory.temporaryStats.characters;
 
 import com.dori.SpringStory.client.character.MapleChar;
 import com.dori.SpringStory.connection.packet.OutPacket;
+import com.dori.SpringStory.enums.EquipBaseStat;
 import com.dori.SpringStory.enums.PassiveBuffStat;
 import com.dori.SpringStory.enums.Job;
 import com.dori.SpringStory.events.EventManager;
@@ -19,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import static com.dori.SpringStory.enums.EventType.CONSUME_CHARACTER_HP;
 import static com.dori.SpringStory.enums.EventType.REGEN_CHARACTER;
@@ -32,8 +32,9 @@ import static com.dori.SpringStory.temporaryStats.characters.CharacterTemporaryS
 public class TemporaryStatManager {
     // Fields -
     private Map<Integer, Long> skillsExpiration = new ConcurrentHashMap<>();
-    private Map<CharacterTemporaryStat, TempStatData> additionalStats = new ConcurrentHashMap<>();
-    private Map<PassiveBuffStat, TempStatData> passiveStats = new ConcurrentHashMap<>();
+    private TempStatCollection<CharacterTemporaryStat> additionalStats = new TempStatCollection<>();
+    private TempStatCollection<PassiveBuffStat> passiveStats = new TempStatCollection<>();
+    private TempStatCollection<EquipBaseStat> equipStats = new TempStatCollection<>();
     private boolean defenseState;
     private boolean defenseAtt;
     private int[] diceInfo = new int[22];
@@ -41,55 +42,29 @@ public class TemporaryStatManager {
     // Logger-
     private static final Logger logger = new Logger(TemporaryStatManager.class);
 
-    public void addStat(CharacterTemporaryStat cts, int skillID, int value) {
-        if (!additionalStats.containsKey(cts)) {
-            additionalStats.put(cts, new TempStatData());
-        }
-        additionalStats.get(cts).addSkillStats(skillID, value);
-    }
-
-    public void addTempStat(CharacterTemporaryStat cts, int skillID, int value, int durationInSec) {
-        addStat(cts, skillID, value);
+    public void addTempStat(CharacterTemporaryStat cts,
+                            int skillID,
+                            int value,
+                            int durationInSec) {
+        additionalStats.addStat(cts, skillID, value);
         skillsExpiration.put(skillID, getExpirationTime(durationInSec));
     }
 
     public int getCTS(CharacterTemporaryStat stat) {
-        return additionalStats.get(stat) != null ? additionalStats.get(stat).getTotal() : 0;
+        return additionalStats.getStat(stat);
     }
 
     public boolean hasCTS(CharacterTemporaryStat stat) {
-        return additionalStats.get(stat) != null;
-    }
-
-    public void addPassiveStat(PassiveBuffStat stat, int skillID, int value) {
-        if (!passiveStats.containsKey(stat)) {
-            passiveStats.put(stat, new TempStatData());
-        }
-        passiveStats.get(stat).addSkillStats(skillID, value);
+        return additionalStats.hasStat(stat);
     }
 
     public int getPassiveStat(PassiveBuffStat stat) {
-        return passiveStats.get(stat) != null ? passiveStats.get(stat).getTotal() : 0;
+        return passiveStats.getStat(stat);
     }
 
     public Set<CharacterTemporaryStat> markExpiredStat(int skillID) {
         // first remove from all the cts the skill temp stats values  and collect the ones to remove -
-        return additionalStats
-                .entrySet()
-                .stream()
-                .filter(tempStatEntry -> {
-                    tempStatEntry.getValue().removeSkillStats(skillID);
-                    if (tempStatEntry.getValue().getSkillsDataDistribution().isEmpty()) {
-                        tempStatEntry.getValue().setDeleted(true);
-                        return true;
-                    }
-                    return false;
-                }).map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
-    }
-
-    public void removeTempStats(Set<CharacterTemporaryStat> tempStatsToRemove) {
-        additionalStats.keySet().removeAll(tempStatsToRemove);
+        return additionalStats.markAndGetStatsToRemoveById(skillID);
     }
 
     private long getExpirationTime(SkillData skillData, int slv) {
@@ -130,15 +105,11 @@ public class TemporaryStatManager {
             boolean expired = System.currentTimeMillis() - entry.getValue() >= 0;
             if (expired) {
                 // clean the empty stats from the map -
-                additionalStats.values().removeIf(statData -> statData.getSkillsDataDistribution().isEmpty());
+                additionalStats.removeStatById(entry.getKey());
                 return true;
             }
             return false;
         });
-    }
-
-    public void applyModifiedStats() {
-        additionalStats.values().forEach(statData -> statData.setModified(false));
     }
 
     private void handleSpecialBuffEffect(@NotNull MapleChar chr,
@@ -161,7 +132,7 @@ public class TemporaryStatManager {
                                   int throwingStarItemID) {
         int value = throwingStarItemID != 0 ? (throwingStarItemID % 10_000 + 1) : FormulaCalcUtils.calcValueFromFormula(buffData.getCalcFormula(), slv);
         if (value != 0) {
-            addStat(buffData.getTempStat(), skillData.getSkillId(), value);
+            additionalStats.addStat(buffData.getTempStat(), skillData.getSkillId(), value);
             skillsExpiration.put(skillData.getSkillId(), getExpirationTime(buffData.getDurationInSecFormula(), slv));
             handleSpecialBuffEffect(chr, buffData, value, slv);
         }
@@ -194,7 +165,7 @@ public class TemporaryStatManager {
             }
         });
         if (!ctsToAdd.isEmpty()) {
-            ctsToAdd.forEach((stat, value) -> addStat(stat, skillData.getSkillId(), value));
+            ctsToAdd.forEach((stat, value) -> additionalStats.addStat(stat, skillData.getSkillId(), value));
             skillsExpiration.put(skillData.getSkillId(), getExpirationTime(skillData, slv));
             return true;
         }
@@ -203,17 +174,18 @@ public class TemporaryStatManager {
 
     public boolean hasMovementEffectingStat() {
         return additionalStats
+                .getStats()
                 .keySet()
                 .stream()
                 .anyMatch(CharacterTemporaryStat::isMovingEffectingStat);
     }
 
     private boolean containsSwallow() {
-        return additionalStats.containsKey(CharacterTemporaryStat.SwallowAttackDamage)
-                || additionalStats.containsKey(CharacterTemporaryStat.SwallowCritical)
-                || additionalStats.containsKey(CharacterTemporaryStat.SwallowMaxMP)
-                || additionalStats.containsKey(CharacterTemporaryStat.SwallowDefence)
-                || additionalStats.containsKey(CharacterTemporaryStat.SwallowEvasion);
+        return additionalStats.hasStat(CharacterTemporaryStat.SwallowAttackDamage)
+                || additionalStats.hasStat(CharacterTemporaryStat.SwallowCritical)
+                || additionalStats.hasStat(CharacterTemporaryStat.SwallowMaxMP)
+                || additionalStats.hasStat(CharacterTemporaryStat.SwallowDefence)
+                || additionalStats.hasStat(CharacterTemporaryStat.SwallowEvasion);
     }
 
     public void encodeMask(OutPacket outPacket, boolean reset) {
@@ -223,7 +195,7 @@ public class TemporaryStatManager {
     public void encodeMask(OutPacket outPacket, boolean reset, boolean remote) {
         UnsignedInt128BitBlock bits = new UnsignedInt128BitBlock();
         // Turn on the used stats bits -
-        additionalStats.forEach((cts, statData) -> {
+        additionalStats.getStats().forEach((cts, statData) -> {
             if ((reset && statData.isDeleted()) || statData.isModified() || remote) {
                 bits.setBit(cts.getBitPos());
             }
@@ -237,7 +209,7 @@ public class TemporaryStatManager {
     private TempStatValue getTempStatValues(TempStatData statData) {
         TempStatValue tempStatValue = new TempStatValue();
         Optional<Map.Entry<Integer, Integer>> firstSkillData = statData
-                .getSkillsDataDistribution()
+                .getDataDistribution()
                 .entrySet()
                 .stream()
                 .findFirst();
@@ -266,7 +238,7 @@ public class TemporaryStatManager {
     }
 
     private void encodeAdditionalStat(CharacterTemporaryStat stat, OutPacket outPacket, boolean twoStateOrder) {
-        TempStatData statData = additionalStats.get(stat);
+        TempStatData statData = additionalStats.getStatData(stat);
         if (statData != null && statData.isModified()) {
             encodeTempStatValue(getTempStatValues(statData), outPacket, twoStateOrder);
         }
@@ -282,19 +254,19 @@ public class TemporaryStatManager {
         if (containsSwallow()) {
             outPacket.encodeByte(0); // tSwallowBuffTime | it's a byte so i guess max of 255?
         }
-        if (additionalStats.containsKey(CharacterTemporaryStat.Dice)) {
+        if (additionalStats.hasStat(CharacterTemporaryStat.Dice)) {
             for (int i = 0; i < getDiceInfo().length; i++) {
                 outPacket.encodeInt(getDiceInfo()[i]);
             }
         }
-        if (additionalStats.containsKey(CharacterTemporaryStat.BlessingArmor)) {
+        if (additionalStats.hasStat(CharacterTemporaryStat.BlessingArmor)) {
             outPacket.encodeInt(getCTS(Pad)); // nBlessingArmorIncPAD
         }
         CharacterTemporaryStat.getEncodingTwoStateOrderRemote().forEach(stat -> encodeAdditionalStat(stat, outPacket, true));
     }
 
     private void encodeRemoteStat(CharacterTemporaryStat stat, OutPacket outPacket) {
-        TempStatData statData = additionalStats.get(stat);
+        TempStatData statData = additionalStats.getStatData(stat);
         if (statData == null) {
             return;
         }
@@ -305,8 +277,8 @@ public class TemporaryStatManager {
             case SpiritJavelin, RespectPImmune, RespectMImmune, DefenseAtt, DefenseState, MagicShield ->
                     outPacket.encodeInt(value.getValue());
             case WeaponCharge, Stun, Darkness, Seal, Weakness, ShadowPartner, Attract, BanMap, DojangShield,
-                    ReverseInput, RepeatEffect, StopPortion, StopMotion, Fear, Frozen, SuddenDeath, FinalCut,
-                    Mechanic, DarkAura, BlueAura, YellowAura -> outPacket.encodeInt(value.getReason());
+                 ReverseInput, RepeatEffect, StopPortion, StopMotion, Fear, Frozen, SuddenDeath, FinalCut,
+                 Mechanic, DarkAura, BlueAura, YellowAura -> outPacket.encodeInt(value.getReason());
             case Poison -> {
                 outPacket.encodeShort(value.getValue()); // overwritten with 1
                 outPacket.encodeInt(value.getReason());

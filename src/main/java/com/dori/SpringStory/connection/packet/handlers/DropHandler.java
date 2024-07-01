@@ -27,7 +27,7 @@ public class DropHandler {
 
         Drop drop = chr.getField().getDrops().get(dropID);
         if (drop != null) {
-            if (ItemUtils.isChrCanObtainItem(chr, drop)) {
+            if (ItemUtils.canChrObtainItem(chr, drop)) {
                 chr.pickupItem(drop);
             } else {
                 chr.write(CWvsContext.dropPickupMessage(0, PickupMessageType.ITEM_UNAVAILABLE_TO_PICKUP, (short) 0, 0));

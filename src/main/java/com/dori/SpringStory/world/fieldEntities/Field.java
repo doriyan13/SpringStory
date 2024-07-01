@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import static com.dori.SpringStory.constants.GameConstants.DEFAULT_FIELD_MOB_CAPACITY;
+import static com.dori.SpringStory.constants.GameConstants.QUICK_SLOT_MAPPING_SIZE;
 import static com.dori.SpringStory.constants.ServerConstants.*;
 import static com.dori.SpringStory.utils.HashUuidCreator.getRandomUuidInLong;
 
@@ -162,10 +163,16 @@ public class Field extends MapData {
         }
         // Init the player passive stats -
         chr.initPassiveStats();
+        // Init the player Equip stats -
+        chr.initEquipStats();
         // Apply the chr temporary stats -
         chr.applyTemporaryStats();
         // Init function keys mapping -
         chr.write(CFuncKeyMappedMan.funcKeyMappedManInit(chr.getKeymap()));
+        // Init Quick slots mapping -
+        if (chr.getQuickSlotKeys().size() == QUICK_SLOT_MAPPING_SIZE) {
+            chr.write(CField.quickSlotMappedInit(chr.getQuickSlotKeys()));
+        }
         this.players.forEach((key, value) -> {
             if (key != chr.getId()) {
                 chr.write(CUserPool.userEnterField(value));

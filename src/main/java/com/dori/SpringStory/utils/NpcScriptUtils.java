@@ -8,7 +8,7 @@ import com.dori.SpringStory.dataHandlers.dataEntities.StringData;
 import com.dori.SpringStory.enums.StringDataType;
 import com.dori.SpringStory.scripts.api.MenuOption;
 import com.dori.SpringStory.scripts.api.ScriptApi;
-import com.dori.SpringStory.scripts.handlers.NpcScriptHandler;
+import com.dori.SpringStory.scripts.handlers.ScriptHandler;
 import com.dori.SpringStory.services.StringDataService;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,7 +61,7 @@ public interface NpcScriptUtils {
                                           StringDataType type,
                                           long id) {
         switch (type) {
-            case Npc -> NpcScriptHandler.getInstance().handleNpcScript(chr, (int) id);
+            case Npc -> ScriptHandler.getInstance().handleNpcScript(chr, (int) id);
             case Map -> chr.warp((int) id);
             case Item -> chr.addItem((int) id, 1);
             case Mob -> chr.getField().spawnMobById((int) id, chr);

@@ -13,6 +13,7 @@ import com.dori.SpringStory.enums.JobType;
 import com.dori.SpringStory.enums.LoginType;
 import com.dori.SpringStory.enums.ServiceType;
 import com.dori.SpringStory.logger.Logger;
+import com.dori.SpringStory.services.MapleAccountService;
 import com.dori.SpringStory.services.MapleCharService;
 import com.dori.SpringStory.services.ServiceManager;
 import com.dori.SpringStory.utils.FuncKeyMapUtils;
@@ -145,15 +146,14 @@ public class LoginHandler {
         // Verify if the name is valid to use -
         Optional<?> existingChar = ServiceManager.getService(ServiceType.Character).getEntityByName(name);
         if (existingChar.isEmpty()) {
+            MapleAccount account = c.getAccount();
             // Attempt to create a new character -
-            newChar = new MapleChar(c.getAccount().getId(), name, gender, job, subJob, charAppearance);
+            newChar = new MapleChar(account, name, gender, job, subJob, charAppearance);
             // Add default Key mapping for the new character -
             newChar.setKeymap(FuncKeyMapUtils.getDefaultKeyMapping());
-            c.getAccount().getCharacters().add(newChar);
-//            if (newChar.getEquippedInventory().getItems().size() == AMOUNT_OF_CREATION_EQUIPS_FOR_CHAR) {
-//
-//            }
-            ((MapleCharService) ServiceManager.getService(ServiceType.Character)).addNewEntity(newChar);
+            account.getCharacters().add(newChar);
+            MapleAccountService.getInstance().update((long) account.getId(), account);
+
             loginType = LoginType.Success;
         }
         // Send a new character creation successful creation -
