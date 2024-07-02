@@ -468,6 +468,24 @@ public class MapleChar {
         }
     }
 
+    private void encodeQuestRecords(OutPacket outPacket) {
+        Set<Quest> questRecords = questManager.getStartedQuests(); // amount of not completed quests
+        outPacket.encodeShort(questRecords.size());
+        for (Quest qr : questRecords) {
+            outPacket.encodeShort(qr.getQrKey()); // nQuestID
+            outPacket.encodeString(qr.getQrValue()); // sQRValue
+        }
+    }
+
+    private void encodeQuestsComplete(OutPacket outPacket) {
+        Set<Quest> questRecords = questManager.getCompletedQuests(); // amount of completed quests
+        outPacket.encodeShort(questRecords.size());
+        for (Quest qr : questRecords) {
+            outPacket.encodeShort(qr.getQrKey()); // nQuestID
+            outPacket.encodeFT(qr.getCompletedTime()); // completed time
+        }
+    }
+
     public void encodeInfo(OutPacket outPacket, DBChar mask) {
         outPacket.encodeLong(mask.getFlag());
         outPacket.encodeByte(getTsm().getCTS(CombatOrders)); // CombatOrders
@@ -509,17 +527,11 @@ public class MapleChar {
         }
         //TODO: need to handle properly
         if (mask.isInMask(DBChar.QuestRecord)) {
-            outPacket.encodeShort(0); // amount of not completed quests
-            //for (Quest quest : getQuests)
-            outPacket.encodeShort(0); // nQuestID
-            outPacket.encodeString(""); // sQRValue
+            encodeQuestRecords(outPacket);
         }
         //TODO: need to handle properly
         if (mask.isInMask(DBChar.QuestComplete)) {
-            outPacket.encodeShort(0); // amount of completed quests
-            //for (Quest quest : getQuests)
-            outPacket.encodeShort(0); // nQuestID
-            outPacket.encodeFT(FileTime.fromType(FileTime.Type.PLAIN_ZERO)); // completed time, need to give proper time!
+            encodeQuestsComplete(outPacket);
         }
         if (mask.isInMask(DBChar.MiniGameRecord)) {
             //TODO!
@@ -571,8 +583,12 @@ public class MapleChar {
             outPacket.encodeShort(0);
         }
         if (mask.isInMask(DBChar.QuestRecordEx)) {
-            //TODO!
-            outPacket.encodeShort(0);
+            Set<Quest> questRecords = questManager.getExQuests();
+            outPacket.encodeShort(questRecords.size());
+            for (Quest qr : questRecords) {
+                outPacket.encodeShort(qr.getQrKey());
+                outPacket.encodeString(qr.getQrValue());
+            }
         }
         if (mask.isInMask(DBChar.WildHunterInfo)) {
             //TODO!
@@ -631,12 +647,15 @@ public class MapleChar {
     public void unEquip(Item item) {
         getEquippedInventory().removeItem(item);
         getEquipInventory().addItem(item);
+        getTsm().getEquipStats().removeStatById(item.getItemId());
+        validateHpAndMp();
         // TODO: need in the future to add handling for updating remove avatarLook && Item Skills!
     }
 
     public void equip(Item item) {
         getEquipInventory().removeItem(item);
         getEquippedInventory().addItem(item);
+        ((Equip) item).applyStatsToChr(this);
     }
 
     public void swapItems(Item item, Item swappedItem, boolean fromEquippedInv) {
