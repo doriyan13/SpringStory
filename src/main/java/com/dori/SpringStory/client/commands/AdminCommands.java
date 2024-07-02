@@ -465,4 +465,11 @@ public class AdminCommands {
         }
     }
 
+    @Command(names = {"resetap", "resetAp"}, requiredPermission = AccountType.GameMaster)
+    public static void resetAp(MapleChar chr, List<String> args) {
+        chr.setAp(4);
+        chr.updateStat(Stat.AbilityPoint, 4);
+        chr.message("Reset AP back to: " + 4, ChatType.GameDesc);
+    }
+
 }
