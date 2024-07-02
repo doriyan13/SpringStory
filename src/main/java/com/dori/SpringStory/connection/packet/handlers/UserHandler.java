@@ -342,7 +342,11 @@ public class UserHandler {
     public static void handleUserSitRequest(MapleChar chr,
                                             InPacket inPacket) {
         short seatID = inPacket.decodeShort();
-        chr.write(CUserLocal.sitResult(seatID != -1, seatID));
+        boolean sit = seatID != -1;
+        if (!sit) {
+            chr.stopSitting();
+        }
+        chr.write(CUserLocal.sitResult(sit, seatID));
     }
 
     @Handler(op = UserPortableChairSitRequest)
