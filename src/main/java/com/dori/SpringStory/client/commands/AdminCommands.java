@@ -435,4 +435,34 @@ public class AdminCommands {
             chr.addItem(magnifyGlass);
         }
     }
+
+    @Command(names = {"kill", "killall", "nuke"}, requiredPermission = AccountType.GameMaster)
+    public static void killALl(MapleChar chr, List<String> args) {
+        int amount = chr.getField().getMobs().size();
+        chr.getField().getMobs().forEach((id, mob) -> mob.die(false));
+        chr.message("Killed " + amount + " mobs!", ChatType.GameDesc);
+    }
+
+    @Command(names = {"proitem", "hackitem", "msi"}, requiredPermission = AccountType.GameMaster)
+    public static void proItem(MapleChar chr, List<String> args) {
+        if (!args.isEmpty()) {
+            int itemID = Integer.parseInt(args.getFirst());
+            Equip equip = ItemDataHandler.getEquipByID(itemID);
+            if (equip != null) {
+                equip.setIStr(Short.MAX_VALUE);
+                equip.setIDex(Short.MAX_VALUE);
+                equip.setIInt(Short.MAX_VALUE);
+                equip.setILuk(Short.MAX_VALUE);
+                equip.setIMad(Short.MAX_VALUE);
+                equip.setIMDD(Short.MAX_VALUE);
+                equip.setIMaxHp(Short.MAX_VALUE);
+                equip.setIMaxMp(Short.MAX_VALUE);
+                equip.setIPad(Short.MAX_VALUE);
+                equip.setIPDD(Short.MAX_VALUE);
+                equip.setImdr(Short.MAX_VALUE);
+                chr.addEquip(equip);
+            }
+        }
+    }
+
 }
