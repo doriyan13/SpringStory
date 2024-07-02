@@ -971,10 +971,14 @@ public class MapleChar {
     }
 
     public void addEquip(Equip equip) {
-        // setEquip SN -
-        equip.setSerialNumber(MapleUtils.concat(getId(), System.currentTimeMillis()));
-        getEquipInventory().addItem(equip);
-        write(CWvsContext.inventoryOperation(true, Add, (short) equip.getBagIndex(), (short) -1, equip));
+        if (!getEquipInventory().isFull()) {
+            // setEquip SN -
+            equip.setSerialNumber(getItemSnCounter().getAndIncrement() | (((long) getId()) << 32));
+            getEquipInventory().addItem(equip);
+            write(CWvsContext.inventoryOperation(true, Add, (short) equip.getBagIndex(), (short) -1, equip));
+        } else {
+            message("Inventory is full! ", ChatType.SpeakerChannel);
+        }
     }
 
     public boolean addItem(Item item) {
