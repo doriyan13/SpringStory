@@ -128,7 +128,7 @@ public class QuestDataHandler {
 
     private static QuestItemAct loadQuestItemAct(int questId,
                                                  WzListProperty itemList) {
-        Set<QuestItemData> items = loadQuestItemsData(itemList, 1);
+        Set<QuestItemData> items = loadQuestItemsData(itemList, -1);
         List<QuestItemData> choices = loadChoiceItemsData(itemList);
         return new QuestItemAct(
                 questId,
