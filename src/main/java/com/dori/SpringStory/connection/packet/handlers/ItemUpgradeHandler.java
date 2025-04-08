@@ -13,6 +13,7 @@ import com.dori.SpringStory.inventory.Equip;
 import com.dori.SpringStory.inventory.Item;
 import com.dori.SpringStory.logger.Logger;
 import com.dori.SpringStory.utils.ItemUtils;
+import com.dori.SpringStory.utils.MapleUtils;
 
 import java.util.Map;
 
@@ -221,7 +222,25 @@ public class ItemUpgradeHandler {
                 // TODO: handle message box
             }
             case MONEY_POCKET -> {
-                //TODO: need to handle RandomMesoBagSucceeded
+                ItemData moneyPoData = ItemDataHandler.getItemDataByID(itemID);
+                int meso = moneyPoData.getMeso();
+                int mesoStDev = moneyPoData.getMesoStDev();
+                int result = 0;
+
+                if (mesoStDev < 0) {
+                    // Fixed meso bag
+                    result = meso;
+                } else {
+                    int mesoMin = moneyPoData.getMesoMin();
+                    int mesoMax = moneyPoData.getMesoMax();
+
+                    // poor man’s Gaussian
+                    int offset = (MapleUtils.getRandom(mesoMax - mesoMin) + MapleUtils.getRandom(mesoMax - mesoMin)) / 2;
+                    result = mesoMin + offset;
+                }
+
+                chr.consumeItem(itemID, 1);
+                chr.modifyMeso(result);
             }
             case JUKEBOX -> {
                 //TODO: handle - PlayJukeBox
