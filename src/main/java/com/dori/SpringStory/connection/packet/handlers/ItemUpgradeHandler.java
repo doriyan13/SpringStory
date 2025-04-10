@@ -246,7 +246,16 @@ public class ItemUpgradeHandler {
             }
             case NAMING -> {
                 short equipPos = inPacket.decodeShort();
-                //TODO: need to update the item Owner, to the char name
+                InventoryType invType = equipPos < 0 ? EQUIPPED : EQUIP;
+                Item equipItem = chr.getInventoryByType(invType).getItemByIndex(equipPos);
+                if (equipItem != null) {
+                    // Consume Item
+                    chr.consumeItem(itemID, 1);
+                    // Set equip Owner
+                    equipItem.setOwner(chr.getName());
+                    // Update the equip for the client -
+                    chr.write(CWvsContext.inventoryOperation(true, InventoryOperation.Add, (short) (equip.getInvType() == EQUIPPED ? -equip.getBagIndex() : equip.getBagIndex()), (short) 0, equip));
+                }
             }
             case PROTECTING, EXPIRED_PROTECTING -> {
                 InventoryType nTargetTI = InventoryType.getInventoryByVal(inPacket.decodeInt());
