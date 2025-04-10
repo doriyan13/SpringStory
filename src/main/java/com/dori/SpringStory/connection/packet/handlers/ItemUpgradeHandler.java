@@ -231,12 +231,10 @@ public class ItemUpgradeHandler {
                     // Fixed meso bag
                     result = meso;
                 } else {
-                    int mesoMin = moneyPoData.getMesoMin();
-                    int mesoMax = moneyPoData.getMesoMax();
-
                     // poor man’s Gaussian
-                    int offset = (MapleUtils.getRandom(mesoMax - mesoMin) + MapleUtils.getRandom(mesoMax - mesoMin)) / 2;
-                    result = mesoMin + offset;
+                    int diff = moneyPoData.getMesoMax() - moneyPoData.getMesoMin();
+                    int offset = (MapleUtils.getRandom(diff) + MapleUtils.getRandom(diff)) / 2;
+                    result = moneyPoData.getMesoMin() + offset;
                 }
 
                 chr.consumeItem(itemID, 1);
