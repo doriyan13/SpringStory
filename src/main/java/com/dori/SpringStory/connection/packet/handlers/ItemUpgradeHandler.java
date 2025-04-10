@@ -247,12 +247,12 @@ public class ItemUpgradeHandler {
             case NAMING -> {
                 short equipPos = inPacket.decodeShort();
                 InventoryType invType = equipPos < 0 ? EQUIPPED : EQUIP;
-                Equip equip = (Equip) chr.getInventoryByType(invType).getItemByIndex(equipPos);
-                if (equip != null) {
+                Item equipItem = chr.getInventoryByType(invType).getItemByIndex(equipPos);
+                if (equipItem != null) {
                     // Consume Item
                     chr.consumeItem(itemID, 1);
                     // Set equip Owner
-                    equip.setOwner(chr.getName());
+                    equipItem.setOwner(chr.getName());
                     // Update the equip for the client -
                     chr.write(CWvsContext.inventoryOperation(true, InventoryOperation.Add, (short) (equip.getInvType() == EQUIPPED ? -equip.getBagIndex() : equip.getBagIndex()), (short) 0, equip));
                 }
