@@ -136,6 +136,10 @@ public class ItemDataHandler {
                     case "only" -> item.setOnly(Integer.parseInt(value) != 0); //TODO: need to test with ID - 3994126
                     case "recoveryHP" -> item.setRecoveryHP(intValue);
                     case "recoveryMP" -> item.setRecoveryMP(intValue);
+                    case "meso" -> item.setMeso(intValue);
+                    case "mesostdev" -> item.setMesoStDev(intValue);
+                    case "mesomin" -> item.setMesoMin(intValue);
+                    case "mesomax" -> item.setMesoMax(intValue);
                     // info not currently interesting. May be interested in the future.
                     /*case "icon", "iconRaw", "iconD", "iconReward", "iconShop", "recoveryHP", "recoveryMP", "sitAction",
                             "bodyRelMove", "only", "noDrop", "timeLimited", "accountSharable", "nickTag", "nickSkill", "endLotteryDate", "noFlip",
@@ -149,7 +153,7 @@ public class ItemDataHandler {
                             "bridleMsgType", "left", "right", "top", "bottom", "useDelay", "name", "uiData", "UI", "recoveryRate", "itemMsg",
                             "noRotateIcon", "endUseDate", "noSound", "slotMat", "isBgmOrEffect", "bgmPath", "repeat", "NoCancel", "rotateSpeed",
                             "gender", "life", "pickupItem", "add", "consumeHP", "longRange", "dropSweep", "pickupAll", "ignorePickup", "consumeMP",
-                            "autoBuff", "smartPet", "giantPet", "shop", "recall", "autoSpeaking", "consumeCure", "meso", "maplepoint", "rate",
+                            "autoBuff", "smartPet", "giantPet", "shop", "recall", "autoSpeaking", "consumeCure", "maplepoint", "rate",
                             "overlap", "lt", "rb", "path4Top", "jumplevel", "slotIndex", "addDay", "incLEV", "cashTradeBlock", "dressUpgrade",
                             "skillEffectID", "emotion", "tradBlock", "tragetBlock", "scanTradeBlock", "mobPotion", "ignoreTendencyStatLimit",
                             "effectByItemID", "pachinko", "iconEnter", "iconLeave", "noMoveIcon", "noShadow", "preventslip", "warmsupport",
@@ -160,8 +164,7 @@ public class ItemDataHandler {
                             "cursor", "karma", "pointCost", "itemPoint", "sharedStatCostGrade", "levelVariation", "accountShareable", "extendLimit", "showMessage", "mcType",
                             "consumeItem", "hybrid", "mobId", "lvMin", "lvMax", "picture", "ratef", "time", "reqGuildLevel", "guild", "randEffect",
                             "accountShareTag", "removeEffect", "forcingItem", "fixFrameIdx", "buffItemID", "removeCharacterInfo", "nameInfo", "bgmInfo", "flip", "pos", "randomChair",
-                            "maxLength", "continuity", "specificDX", "groupTWInfo", "face", "removeBody", "mesoChair", "towerBottom", "towerTop", "topOffset", "craftEXP", "willEXP",
-                            "spec", "0", "mesomin", "mesomax", "mesostdev" -> {}*/
+                            "maxLength", "continuity", "specificDX", "groupTWInfo", "face", "removeBody", "mesoChair", "towerBottom", "towerTop", "topOffset", "craftEXP", "willEXP", "spec", "0" -> {}*/
                 }
             }
         }

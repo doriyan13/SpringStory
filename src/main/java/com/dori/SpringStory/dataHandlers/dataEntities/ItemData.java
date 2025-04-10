@@ -60,6 +60,10 @@ public class ItemData {
     private boolean only;
     private int recoveryHP;
     private int recoveryMP;
+    private int meso;
+    private int mesoStDev;
+    private int mesoMin;
+    private int mesoMax;
 
     public void addSkill(int skill) {
         skills.add(skill);
