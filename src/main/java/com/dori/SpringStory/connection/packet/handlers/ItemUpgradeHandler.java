@@ -271,7 +271,7 @@ public class ItemUpgradeHandler {
                     // Set equip Owner
                     equipItem.setOwner(chr.getName());
                     // Update the equip for the client -
-                    chr.write(CWvsContext.inventoryOperation(true, InventoryOperation.Add, (short) (equip.getInvType() == EQUIPPED ? -equip.getBagIndex() : equip.getBagIndex()), (short) 0, equip));
+                    chr.write(CWvsContext.inventoryOperation(true, InventoryOperation.Add, (short) (equipItem.getInvType() == EQUIPPED ? -equipItem.getBagIndex() : equipItem.getBagIndex()), (short) 0, equipItem));
                 }
             }
             case PROTECTING, EXPIRED_PROTECTING -> {
